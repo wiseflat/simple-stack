@@ -1,0 +1,4 @@
+{
+    "metrics-addr" : "{{ docker_metrics_addr }}",
+    "dns": [{% for item in docker_dns_servers %}"{{ item }}"{% if not loop.last %},{% endif %}{% endfor %}]
+}

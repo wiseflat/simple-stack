@@ -1,0 +1,12 @@
+---
+- name: Configure the platform
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  vars:
+    ansible_pull_url: https://github.com/wiseflat/simple-stack.git
+  roles:
+    # - ansible-ufw
+    - ansible-docker
+    - ansible-pull

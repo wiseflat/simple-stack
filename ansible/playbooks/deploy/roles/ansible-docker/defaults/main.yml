@@ -1,0 +1,69 @@
+---
+docker_user: root
+firewall: true
+docker_conf_dir: "/etc/docker"
+
+docker_gateway_ip: 172.17.0.1
+
+docker_tls_configuration: false
+docker_tcp_listen_address: "127.0.0.1"
+docker_tcp_listen_port: 2376
+
+docker_private_registry_state: false
+docker_private_registry_url: ""
+docker_private_registry_username: ""
+docker_private_registry_password: ""
+docker_private_registry_config: /etc/docker/config.json
+
+# DNS
+docker_dns_configuration: true
+docker_dns_servers:
+#  - "{{ docker_gateway_ip }}"
+  - 8.8.8.8
+
+docker_metrics_addr: "{{ docker_tcp_listen_address }}:9323"
+
+# TLS
+# CA
+docker_ca_install_tls_ca_host: localhost
+docker_ca_install_tls_ca_host_dir: "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls"
+docker_ca_install_tls_ca_pubkey: "docker-ca.pem"
+docker_ca_install_tls_ca_privatekey: "docker-ca-key.pem"
+docker_ca_install_tls_host_certificate_dir: "/etc/ssl/docker"
+docker_ca_install_tls_common_name: "docker"
+
+# Server
+docker_server_dc_name: "dc1"
+docker_server_tls_ca_host: localhost
+docker_server_tls_ca_host_dir: "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls"
+docker_server_tls_ca_pubkey: "docker-ca.pem"
+docker_server_tls_ca_privatekey: "docker-ca-key.pem"
+docker_server_tls_ca_provider: "ownca"
+
+docker_server_tls_check_delay: "+2w"
+
+docker_server_tls_host_certificate_dir: "/etc/ssl/docker"
+
+docker_server_tls_cert: "{{ docker_server_dc_name }}-server-docker.pem"
+docker_server_tls_privatekey: "{{ docker_server_dc_name }}-server-docker.key"
+
+docker_server_tls_common_name: "*.{{ docker_server_dc_name }}.docker"
+docker_server_tls_subject_alt_name: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,IP:{{ ansible_default_ipv4.address }},DNS:server.dc1.docker"
+
+# Client
+docker_client_dc_name: "dc1"
+docker_client_tls_ca_host: localhost
+docker_client_tls_ca_host_dir: "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls"
+docker_client_tls_ca_pubkey: "docker-ca.pem"
+docker_client_tls_ca_privatekey: "docker-ca-key.pem"
+docker_client_tls_ca_provider: "ownca"
+
+docker_client_tls_check_delay: "+2w"
+
+docker_client_tls_host_certificate_dir: "/etc/ssl/docker"
+
+docker_client_tls_cert: "{{ docker_client_dc_name }}-client-docker.pem"
+docker_client_tls_privatekey: "{{ docker_client_dc_name }}-client-docker.key"
+
+docker_client_tls_common_name: "*.{{ docker_client_dc_name }}.docker"
+docker_client_tls_subject_alt_name: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,IP:{{ ansible_default_ipv4.address }},DNS:client.dc1.docker"

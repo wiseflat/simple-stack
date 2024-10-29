@@ -1,0 +1,3 @@
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -D --tlsverify --tlscacert={{ docker_server_tls_host_certificate_dir }}/{{ docker_server_tls_ca_pubkey }} --tlscert={{ docker_server_tls_host_certificate_dir }}/{{ docker_server_tls_cert }} --tlskey={{ docker_server_tls_host_certificate_dir }}/{{ docker_server_tls_privatekey }} -H tcp://{{ docker_tcp_listen_address }}:{{ docker_tcp_listen_port }}

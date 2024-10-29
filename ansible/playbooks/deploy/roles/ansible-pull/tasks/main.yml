@@ -1,0 +1,29 @@
+---
+- name: Install packages
+  ansible.builtin.package:
+    pkg:
+      - ansible
+    state: present
+    install_recommends: false
+    update_cache: true
+    cache_valid_time: 86400
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+
+- name: Install units for ansible-pull
+  ansible.builtin.template:
+    dest: /etc/systemd/system
+    src: "{{ item }}"
+    mode: '0644'
+  loop:
+    - ansible-pull.service
+    - ansible-pull.timer
+  notify: Daemon reload
+
+- name: Enable ansible-pull timer
+  ansible.builtin.service:
+    name: ansible-pull.timer
+    state: started
+    enabled: true
