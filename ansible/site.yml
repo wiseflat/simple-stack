@@ -1,0 +1,12 @@
+---
+- name: Add host dynamically
+  hosts: localhost
+  tasks:
+    - name: Add hosts to inventory groups
+      ansible.builtin.add_host:
+        name: "{{ inventory_hostname }}"
+        groups: infrastructure
+      changed_when: false
+
+- name: Include paas
+  ansible.builtin.import_playbook: playbooks/deploy/paas.yml

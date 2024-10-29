@@ -1,0 +1,7 @@
+---
+- name: Install docker
+  ansible.builtin.include_tasks: install.yml
+
+- name: Configure firewall
+  ansible.builtin.include_tasks: firewall.yml
+  when: firewall

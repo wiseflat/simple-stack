@@ -1,0 +1,7 @@
+{
+    "auths": {
+        "{{ docker_private_registry_url }}": {
+            "auth": "{{ (docker_private_registry_username + ':' + docker_private_registry_password) | b64encode }}"
+        }
+    }
+}

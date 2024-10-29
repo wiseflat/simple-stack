@@ -1,0 +1,6 @@
+---
+ansible_pull_url: https://github.com/wiseflat/simple-stack.git
+ansible_pull_timer: |
+  OnBootSec=5m
+  OnCalendar=daily
+  RandomizedDelaySec=30m

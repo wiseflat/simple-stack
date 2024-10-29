@@ -1,0 +1,9 @@
+---
+- name: Allow in and out on interface docker0
+  community.general.ufw:
+    rule: allow
+    interface: docker0
+    direction: "{{ item }}"
+  loop:
+    - in
+    - out
