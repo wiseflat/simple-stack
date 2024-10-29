@@ -1,0 +1,8 @@
+instances = {
+    "instance1.region1.provider1" = {
+        region = "REGION1"
+        public_key = "~/simple-stack/ansible/ssh/key.pub"
+        private_key = "~/simple-stack/ansible/ssh/key"
+        flavor_name = "d2-2"
+    }
+}
