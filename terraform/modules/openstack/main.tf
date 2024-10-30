@@ -6,7 +6,7 @@ data "openstack_images_image_v2" "default" {
 }
 
 resource "openstack_compute_keypair_v2" "default" {
-  name = replace(var.hostname, ".", "-")
+  name       = replace(var.hostname, ".", "-")
   public_key = var.public_key
 
   region = var.region
@@ -20,7 +20,7 @@ data "openstack_networking_network_v2" "default" {
 
 resource "openstack_networking_port_v2" "default" {
   name               = var.hostname
-  network_id         =  data.openstack_networking_network_v2.default.id
+  network_id         = data.openstack_networking_network_v2.default.id
   admin_state_up     = "true"
   security_group_ids = []
 
@@ -73,10 +73,10 @@ resource "ansible_host" "instance" {
   groups = ["ovhcloud"]
 
   variables = {
-    ansible_user = var.user_name
-    ansible_host = openstack_compute_instance_v2.instance.network[0].fixed_ip_v4
-    hostname = var.hostname
-    fqdn     = var.hostname
+    ansible_user                 = var.user_name
+    ansible_host                 = openstack_compute_instance_v2.instance.network[0].fixed_ip_v4
+    hostname                     = var.hostname
+    fqdn                         = var.hostname
     ansible_ssh_private_key_file = var.private_key
   }
 }

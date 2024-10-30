@@ -5,7 +5,7 @@ variable "hostname" {
 
 variable "network_name" {
   description = "Network Name"
-  default = "Ext-Net"
+  default     = "Ext-Net"
 }
 
 variable "flavor_name" {
@@ -15,7 +15,7 @@ variable "flavor_name" {
 
 variable "image" {
   description = "Openstack image description"
-  default = "Ubuntu 24.04"
+  default     = "Ubuntu 24.04"
 }
 
 variable "public_key" {

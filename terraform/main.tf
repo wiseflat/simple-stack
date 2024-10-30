@@ -2,7 +2,7 @@ module "instance" {
   source = "./modules/openstack"
 
   for_each = var.instances
-  
+
   hostname    = each.key
   region      = each.value.region
   flavor_name = each.value.flavor_name
