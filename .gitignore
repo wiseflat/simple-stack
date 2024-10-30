@@ -1,0 +1,7 @@
+# ---> divers
+tmp/
+venv/
+
+# ansible
+ansible/collections
+ansible/ssh
