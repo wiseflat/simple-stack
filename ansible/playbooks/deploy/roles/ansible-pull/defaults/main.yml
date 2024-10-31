@@ -2,5 +2,5 @@
 ansible_pull_url: https://github.com/wiseflat/simple-stack.git
 ansible_pull_timer: |
   OnBootSec=5m
-  OnCalendar=*-*-* *:*/10:00
+  OnCalendar=*:0/10
   RandomizedDelaySec=30m

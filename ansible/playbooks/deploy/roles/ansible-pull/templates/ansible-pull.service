@@ -5,6 +5,6 @@ Description=system configuration upgrade
 After=network-online.target
 
 [Service]
-Environment="ANSIBLE_LOG_PATH=~/ansible.log"
+Environment="ANSIBLE_LOG_PATH=/var/log/ansible.log"
 ExecStart=/bin/sh -c 'ansible-pull -U "{{ ansible_pull_url }}" -i "$(hostname --short)," -e working_dir=ansible ansible/site.yml'
 TimeoutStopSec=600
