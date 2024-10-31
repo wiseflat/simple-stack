@@ -7,6 +7,6 @@
   vars:
     ansible_pull_url: https://github.com/wiseflat/simple-stack.git
   roles:
-    # - ansible-ufw
+    - ansible-ufw
     - ansible-docker
     - ansible-pull

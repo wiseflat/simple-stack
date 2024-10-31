@@ -1,0 +1,26 @@
+---
+- name: Install packages
+  ansible.builtin.package:
+    pkg: "{{ ufw_packages }}"
+    state: present
+    install_recommends: false
+    update_cache: true
+    cache_valid_time: 86400
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+
+- name: reset firewall
+  ufw:
+    state: reset
+  when: ufw_reset
+
+- name: Configure ufw
+  ansible.builtin.include_tasks: config.yml
+  tags: ufw_config
+
+- name: Start firewall
+  community.general.ufw:
+    state: "{{ ufw_state }}"
+    logging: "{{ ufw_logging }}"

@@ -1,0 +1,36 @@
+---
+ufw_packages:
+  - ufw
+
+ufw_ipv6: "yes"
+ufw_default_input_policy: DROP
+ufw_default_output_policy: ACCEPT
+ufw_default_forward_policy: DROP
+ufw_default_application_policy: SKIP
+ufw_logging: "off"
+
+ufw_state: enabled
+ufw_reset: false
+
+ufw_rules:
+  - port: 22
+    proto: tcp
+    rule: allow
+  - port: 80
+    proto: tcp
+    rule: allow
+    direction: in
+  - port: 80
+    proto: tcp
+    rule: allow
+    direction: out
+  - port: 443
+    proto: tcp
+    rule: allow
+    direction: in
+  - port: 443
+    proto: tcp
+    rule: allow
+    direction: out
+
+ufw_applications: []
