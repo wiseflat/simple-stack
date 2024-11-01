@@ -9,4 +9,4 @@
       changed_when: false
 
 - name: Include paas
-  ansible.builtin.import_playbook: playbooks/deploy/paas.yml
+  ansible.builtin.import_playbook: playbooks/paas/main.yml
