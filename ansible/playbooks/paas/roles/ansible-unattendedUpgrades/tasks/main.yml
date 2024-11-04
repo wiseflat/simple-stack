@@ -1,0 +1,33 @@
+---
+- name: Install required packages for autoupdate
+  ansible.builtin.apt:
+    name:
+      - unattended-upgrades
+    cache_valid_time: 86400
+
+- name: Enable automatic update / upgrade
+  ansible.builtin.copy:
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    mode: '0644'
+
+- name: Configure unattended upgrades
+  ansible.builtin.template:
+    src: templates/50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    mode: '0644'
+
+- name: Create override directory for apt-daily-upgrade.timer
+  ansible.builtin.file:
+    path: /etc/systemd/system/apt-daily-upgrade.timer.d
+    state: directory
+    mode: '0755'
+
+- name: Copy apt-daily-upgrade.timer override
+  ansible.builtin.template:
+    src: override.conf
+    dest: /etc/systemd/system/apt-daily-upgrade.timer.d/override.conf
+    mode: '0644'
+  notify: Daemon_reload

@@ -9,4 +9,5 @@
   roles:
     - ansible-ufw
     - ansible-docker
+    - ansible-unattendedUpgrades
     - ansible-pull
