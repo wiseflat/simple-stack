@@ -17,6 +17,8 @@ terraform-init: check-ssh check-vars
 	cd $(TERRAFORM_DIR) && terraform apply --var-file=$(TF_VARS_FILE)
 
 ansible-init:
+	@echo "Installing Ansible collections..."
+	cd $(ANSIBLE_DIR) && ansible-galaxy collection install -r requirements.yml -p ./collections
 	@echo "Running Ansible playbook..."
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_PAAS)
 
