@@ -55,13 +55,39 @@ Currently, this code is compatible with **OVHcloud** and **Infomaniak** cloud pr
 
 ## Getting Started
 
-Initialize the project by running:
+To initialize the project, run:
 
 ```bash
 make init
 ```
 
 This command will initialize both Terraform and Ansible to prepare your instance and deploy your containers.
+
+## Build (or download) a docker image
+
+Several Ansible roles are available in this repository (Traefik, nginx, php-fpm, WordPress, MariaDB). Some of these roles use the latest version from Docker Hub, while others need to be built directly on the server.
+
+```bash
+make image
+```
+
+## Deploy a software
+
+Once you have built your custom images, you can deploy one of them!
+
+```bash
+make deploy
+```
+
+Note: Ensure that an A record DNS entry points to your server. This step is not yet automated.
+
+## Operate on a software
+
+Some applications may require maintenance tasks (such as backup, restoration, or restart), or may even need to be removed. This option covers those actions.
+
+```bash
+make operate
+```
 
 ---
 

@@ -4,6 +4,9 @@ ANSIBLE_DIR := $(PWD)/ansible
 SSH_KEY := $(ANSIBLE_DIR)/ssh/key
 TF_VARS_FILE := $(TERRAFORM_DIR)/variables.tfvars
 PLAYBOOK_PAAS := $(ANSIBLE_DIR)/playbooks/paas/main.yml
+PLAYBOOK_IMAGE := $(ANSIBLE_DIR)/playbooks/saas/image.yml
+PLAYBOOK_DEPLOY := $(ANSIBLE_DIR)/playbooks/saas/main.yml
+PLAYBOOK_OPERATE := $(ANSIBLE_DIR)/playbooks/saas/operate.yml
 
 .PHONY: all init terraform-init ansible-init check-vars check-ssh
 
@@ -21,6 +24,18 @@ ansible-init:
 	cd $(ANSIBLE_DIR) && ansible-galaxy collection install -r requirements.yml -p ./collections
 	@echo "Running Ansible playbook..."
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_PAAS)
+
+image:
+	@echo "Build a new docker image"
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_IMAGE)
+
+deploy:
+	@echo "Deploy (or redeploy) a software"
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_DEPLOY)
+
+operate:
+	@echo "Operate on a software"
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE)
 
 check-ssh:
 	@echo "Checking SSH key..."
