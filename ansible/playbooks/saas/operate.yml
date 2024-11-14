@@ -1,0 +1,21 @@
+---
+- name: Operate on an application
+  hosts: infrastructure
+  become: true
+  gather_facts: false
+  vars_prompt:
+    - name: software
+      prompt: Software name
+      private: false
+    - name: domain
+      prompt: Domain name
+      private: false
+    - name: task
+      prompt: Task
+      private: false
+  vars:
+    software_path: "/data/{{ domain }}"
+    service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
+  tasks:
+    - name: Execute operation
+      ansible.builtin.include_tasks: "tasks/{{ task }}.yml"

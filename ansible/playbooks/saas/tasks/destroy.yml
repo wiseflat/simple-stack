@@ -1,0 +1,11 @@
+---
+- name: Destroy
+  block:
+    - name: Destroy data
+      ansible.builtin.include_role:
+        name: "{{ software }}"
+        tasks_from: destroy
+  rescue:
+    - name: Rescue
+      ansible.builtin.debug:
+        msg: "No destroy task for this role"
