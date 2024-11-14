@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+RUN adduser -H -S -u 82 -D -G www-data www-data
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+RUN rm -rf /etc/nginx
+
+COPY ./nginx /etc/nginx
+
+COPY ./index.html /var/www/index.html
+
+CMD ["nginx", "-g", "daemon off;"]

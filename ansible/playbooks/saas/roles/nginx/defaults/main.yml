@@ -1,0 +1,25 @@
+---
+nginx_version: 1.26.2
+nginx_traefik_labels: |
+  {{
+    {
+      "traefik.enable": "true",
+      "traefik.http.routers.{}.tls".format(service_name): "true",
+      "traefik.http.routers.{}.tls.certresolver".format(service_name): "myresolver",
+      "traefik.http.routers.{}.tls.options".format(service_name): "mintls12@file",
+      "traefik.http.routers.{}.entrypoints".format(service_name): "https",
+      "traefik.http.routers.{}.rule".format(service_name): "Host(`{}`)".format(domain),
+      "traefik.http.middlewares.{}.redirectscheme.scheme".format(service_name): "https",
+      "traefik.http.middlewares.{}.redirectscheme.permanent".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.customResponseHeaders.Strict-Transport-Security".format(service_name): "max-age=63072000",
+      "traefik.http.middlewares.{}-headers.headers.frameDeny".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.browserXssFilter".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.contentTypeNosniff".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.stsIncludeSubdomains".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.stsPreload".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.stsSeconds".format(service_name): "31536000",
+      "traefik.http.middlewares.{}-headers.headers.forceSTSHeader".format(service_name): "true",
+      "traefik.http.middlewares.{}-headers.headers.accessControlMaxAge".format(service_name): "15552000",
+      "traefik.http.middlewares.{}-headers.headers.customFrameOptionsValue".format(service_name): "SAMEORIGIN"
+    }
+  }}

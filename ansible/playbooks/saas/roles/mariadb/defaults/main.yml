@@ -1,0 +1,4 @@
+---
+mariadb_port: 3306
+mariadb_user: root
+mariadb_password: "{{ secret.password | default(lookup('password', '/tmp/mariadb chars=ascii_letters,digits,hexdigits length=15')) }}"

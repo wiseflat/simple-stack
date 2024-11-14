@@ -1,0 +1,22 @@
+---
+- name: Set custom architecture facts
+  ansible.builtin.set_fact:
+    apk_architecture_map:
+      amd64: x86_64
+      x86_64: x86_64
+      aarch64: aarch64
+      arm64: aarch64
+
+- name: Fetch
+  ansible.builtin.uri:
+    url: "https://pkgs.alpinelinux.org/package/edge/{{ image.upstream.repository }}/{{ apk_architecture_map[upstream_default_arch] }}/{{ image.upstream.package }}"
+    return_content: true
+  register: register_latest_version
+
+- name: Extract the version of nginx
+  ansible.builtin.set_fact:
+    tmp_latest_version: "{{ register_latest_version.content | regex_search('Version</th>\\s*<td>\\s*<strong>(.*?)</strong>', '\\1') }}"
+
+- name: Set upstream version
+  ansible.builtin.set_fact:
+    latest_version: "{{ tmp_latest_version[0] }}"

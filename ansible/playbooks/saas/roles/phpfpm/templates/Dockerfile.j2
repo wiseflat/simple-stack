@@ -1,0 +1,9 @@
+# syntax=docker/dockerfile:1.4
+
+FROM alpine:latest
+
+RUN adduser -H -S -u 33 -D -G www-data www-data
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+CMD ["php-fpm{{ image.labels.version }}", "-F", "-y", "/etc/php{{ image.labels.version }}/php-fpm.conf"]

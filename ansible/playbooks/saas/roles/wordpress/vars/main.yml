@@ -1,0 +1,41 @@
+---
+image:
+  upstream:
+    source: apk
+    repository: community
+    package: php83-fpm
+  labels:
+    version: 83
+    conf: /etc/php83
+  name: phpfpm-wordpress
+  origin: alpine:latest
+  dependances:
+    - sudo
+    - php-cli
+    - php-common
+    - php-gd
+    - php-mysqli
+    - php-opcache
+    - php-fpm
+    - php-mbstring
+    - php-xml
+    - php-zip
+    - php-curl
+    - php-intl
+    - php-soap
+    - php-pgsql
+    - php-tokenizer
+    - php-simplexml
+    - php-session
+    - php-calendar
+    - php-imap
+    - php-iconv
+    - php-simplexml
+    - php-dom
+    - php-bcmath
+    - php-gmp
+    - php-fileinfo
+    - php-pdo
+    - php-pdo_mysql
+    - php-phar
+    - mariadb-client

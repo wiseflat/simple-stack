@@ -1,0 +1,57 @@
+---
+- name: Install wordpress
+  community.docker.docker_container:
+    name: "{{ domain }}-install"
+    image: "{{ wordpress_phpfpm_image }}"
+    detach: false
+    cleanup: true
+    command: "{{ item }}"
+    env:
+      HTTP_HOST: "{{ wordpress_site.url }}"
+    memory: 256M
+    pull: never
+    volumes:
+      - "/data/{{ domain }}/var/www/html:/var/www/html"
+    mounts:
+      - type: bind
+        target: /run/mysqld
+        source: "/data/mariadb/run/mysqld"
+        read_only: false
+    working_dir: /var/www/html
+  loop:
+    - >
+      wp-cli core download
+      --allow-root --no-color --path='{{ wordpress_site.path }}'
+      --locale='{{ wordpress_site.locale | default('en_US') }}'
+    - >
+      wp-cli core config
+      --allow-root --no-color --path='{{ wordpress_site.path }}'
+      --dbname='{{ wordpress_site.dbname }}'
+      --dbuser='{{ wordpress_site.dbuser }}'
+      --dbpass='{{ wordpress_site.dbpass }}'
+      --dbhost='localhost:/run/mysqld/mysqld.sock'
+      --dbprefix='{{ wordpress_site.dbprefix | default('wp_') }}'
+    - >
+      wp-cli core install
+      --allow-root --no-color --path='{{ wordpress_site.path }}'
+      --url='{{ wordpress_site.url }}' --title='{{ wordpress_site.title }}'
+      --admin_name='{{ wordpress_site.admin_name | default('admin') }}'
+      --admin_email='{{ wordpress_site.admin_email }}'
+      --admin_password='{{ wordpress_site.admin_password }}'
+
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: /data/{{ domain }}/var/www/html
+    state: directory
+    recurse: true
+    owner: www-data
+    group: www-data
+
+- name: Remove sensible files
+  ansible.builtin.file:
+    path: "/data/{{ domain }}/var/www/html/{{ item }}"
+    state: absent
+  loop:
+    - license.txt
+    - readme.html
+    - wp-config-sample.php

@@ -1,0 +1,18 @@
+---
+- name: Inspect container
+  docker_container_info:
+    name: "{{ domain }}"
+  register: docker_inspect
+
+- name: Dump mysql database
+  community.mysql.mysql_db:
+    state: dump
+    name: all
+    target: "/data/{{ domain }}/var/backup/dump.sql"
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+  vars:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"

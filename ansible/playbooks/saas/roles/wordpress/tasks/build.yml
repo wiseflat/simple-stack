@@ -1,0 +1,30 @@
+---
+- name: Install dependencies
+  ansible.builtin.include_role:
+    name: upstream
+    tasks_from: "{{ image.upstream.source }}"
+
+- name: Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ (latest_version | split('-'))[0] }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+
+- name: Download wp-cli
+  become: true
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: "{{ path }}/wp-cli"
+    mode: '0755'
+
+- name: Copy dockerfile
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ path }}/Dockerfile"
+    mode: '0644'
+
+- name: Copy php.ini
+  ansible.builtin.template:
+    src: php.ini
+    dest: "{{ path }}/php.ini"
+    mode: '0644'

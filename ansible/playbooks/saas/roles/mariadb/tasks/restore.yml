@@ -1,0 +1,30 @@
+---
+- name: Inspect container
+  docker_container_info:
+    name: "{{ domain }}"
+  register: docker_inspect
+
+- name: Import all databases
+  community.mysql.mysql_db:
+    state: import
+    name: all
+    encoding: utf8
+    target: "/data/{{ domain }}/var/backup/dump.sql"
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+  vars:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+
+- name: Flush privileges
+  community.mysql.mysql_query:
+    query: flush privileges
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+  vars:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"

@@ -1,0 +1,59 @@
+---
+- name: Remove phpfpm containers
+  community.docker.docker_container:
+    name: "{{ domain }}-phpfpm-{{ item.id }}"
+    state: absent
+  loop: "{{ wordpress_scale.phpfpm }}"
+
+- name: Remove nginx containers
+  community.docker.docker_container:
+    name: "{{ domain }}-nginx-{{ item.id }}"
+    image: "{{ wordpress_nginx_image }}"
+    state: absent
+  loop: "{{ wordpress_scale.nginx }}"
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "/data/{{ domain }}"
+    state: absent
+
+- name: Inpect container
+  docker_container_info:
+    name: mariadb
+  register: docker_inspect
+
+- name: Set fact
+  ansible.builtin.set_fact:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+
+- name: Mysql delete database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ wordpress_db_name }}"
+    state: absent
+
+- name: Mysql delete user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ wordpress_db_user }}"
+    host: '%'
+    priv: "{{ wordpress_db_name }}.*:ALL"
+    state: absent
+
+- name: Mysql delete user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ wordpress_db_user }}"
+    host: 'localhost'
+    priv: "{{ wordpress_db_name }}.*:ALL"
+    state: absent

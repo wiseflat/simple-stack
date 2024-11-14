@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+RUN adduser -H -S -u 33 -D -G www-data www-data
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+RUN mkdir -p /var/www/.wp-cli && chown www-data:www-data /var/www/.wp-cli
+
+COPY ./wp-cli /usr/bin/wp-cli
+
+COPY ./php.ini /etc/php{{ image.labels.version }}/php.ini
+
+CMD ["php-fpm{{ image.labels.version }}", "-F", "-y", "/etc/php{{ image.labels.version }}/php-fpm.conf"]

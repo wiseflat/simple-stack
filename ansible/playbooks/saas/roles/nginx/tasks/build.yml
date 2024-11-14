@@ -1,0 +1,33 @@
+---
+- name: Get upstream version
+  ansible.builtin.include_role:
+    name: upstream
+    tasks_from: "{{ image.upstream.source }}"
+
+- name: Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ (latest_version | split('-'))[0] }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+
+- name: Copy boilerplate configuration snippets files
+  ansible.builtin.copy:
+    src: nginx
+    dest: "{{ path }}/"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+
+- name: Copy default index file
+  ansible.builtin.copy:
+    src: index.html
+    dest: "{{ path }}/index.html"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+
+- name: Copy dockerfile
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ path }}/Dockerfile"
+    mode: '0644'

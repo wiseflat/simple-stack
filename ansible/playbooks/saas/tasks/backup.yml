@@ -1,0 +1,17 @@
+---
+- name: Create backup directory
+  ansible.builtin.file:
+    path: /data/{{ domain }}/var/backup
+    state: directory
+    mode: '0755'
+
+- name: Backup
+  block:
+    - name: Backup data
+      ansible.builtin.include_role:
+        name: "{{ software }}"
+        tasks_from: backup
+  rescue:
+    - name: Rescue
+      ansible.builtin.debug:
+        msg: "No backup task for this role"

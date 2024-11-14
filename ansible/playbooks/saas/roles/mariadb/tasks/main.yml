@@ -1,0 +1,66 @@
+---
+- name: Install dependencies
+  ansible.builtin.include_tasks: dependencies.yml
+
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: '0755'
+  loop:
+    - path: "/data/{{ domain }}"
+    - path: "/data/{{ domain }}/root"
+    - path: "/data/{{ domain }}/var/lib"
+    - path: "/data/{{ domain }}/run"
+    - path: "/data/{{ domain }}/var/lib/mysql"
+      owner: 999
+      group: 999
+    - path: "/data/{{ domain }}/run/mysqld"
+      owner: 999
+      group: 999
+
+- name: Copy config files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ software_path }}/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode | default('0600') }}"
+  loop:
+    - src: my.cnf
+      dest: root/.my.cnf
+
+- name: Create container
+  community.docker.docker_container:
+    name: mariadb
+    image: "mariadb:{{ mariadb_version }}"
+    state: started
+    recreate: false
+    restart_policy: always
+    published_ports:
+      - "172.17.0.1:0:3306"
+    env:
+      MARIADB_ROOT_PASSWORD: "{{ mariadb_password }}"
+    labels:
+      traefik.enable: "false"
+    mounts:
+      - type: bind
+        target: /run/mysqld
+        source: "/data/{{ domain }}/run/mysqld"
+        read_only: false
+      - type: bind
+        target: /root/.my.cnf
+        source: "/data/{{ domain }}/root/.my.cnf"
+        read_only: true
+    volumes:
+      - "/data/{{ domain }}/var/lib/mysql:/var/lib/mysql:Z"
+
+- name: Set secret variable
+  set_fact:
+    secret:
+      name: "{{ domain }}"
+      username: "{{ mariadb_user }}"
+      pass: "{{ mariadb_password }}"
+      group: "demo/{{ software }}"
