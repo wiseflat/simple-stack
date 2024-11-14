@@ -64,7 +64,9 @@ EOF
 
   tags = []
 
-  lifecycle {}
+  lifecycle {
+    ignore_changes = [image_id]
+  }
 }
 
 resource "ansible_host" "instance" {
