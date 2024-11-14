@@ -1,0 +1,12 @@
+---
+image:
+  upstream:
+    source: apk
+    repository: main
+    package: nginx
+  labels:
+    conf: /etc/nginx/sites-enabled
+  name: nginx
+  origin: alpine:latest
+  dependances:
+    - nginx

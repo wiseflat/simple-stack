@@ -1,0 +1,70 @@
+---
+- name: Build a docker image
+  hosts: infrastructure
+  become: true
+  gather_facts: true
+  vars_prompt:
+    - name: software
+      prompt: software name
+      private: false
+  vars:
+    build_work_dir: /tmp/{{ software }}
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+    path: "/tmp/{{ software }}"
+
+  pre_tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        pkg:
+          - libxml2-utils
+        state: present
+        install_recommends: false
+      retries: 10
+      delay: 3
+
+    - name: Remove previous build directory
+      ansible.builtin.file:
+        path: "{{ build_work_dir }}"
+        state: absent
+
+    - name: Create temporary build directory
+      ansible.builtin.file:
+        path: "{{ build_work_dir }}"
+        recurse: true
+        state: directory
+        mode: '0755'
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.include_role:
+        name: "{{ software }}"
+        tasks_from: build
+
+    - name: Debug latest version
+      ansible.builtin.debug:
+        msg: "{{ image_version }}"
+        verbosity: 1
+
+    - name: Build image
+      community.docker.docker_image_build:
+        name: "{{ image_name }}:{{ image_version }}"
+        tag: latest
+        path: "/tmp/{{ software }}"
+        dockerfile: Dockerfile
+        labels: "{{ image_labels }}"
+        rebuild: always
+        outputs:
+          - type: docker
+            # push: false
+      register: docker_image_build
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ docker_image_build }}"
+        verbosity: 1
