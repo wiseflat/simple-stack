@@ -42,7 +42,7 @@
     login_host: "{{ service.HostIp }}"
     login_port: "{{ service.HostPort }}"
     name: "{{ wordpress_db_user }}"
-    host: '%'
+    host: 'localhost'
     column_case_sensitive: false
     password: "{{ wordpress_db_password }}"
     priv: "{{ wordpress_db_name }}.*:ALL"
