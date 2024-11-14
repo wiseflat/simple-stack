@@ -1,0 +1,17 @@
+---
+- name: Backup wordpress
+  community.docker.docker_container:
+    name: "{{ domain }}-backup"
+    image: "{{ wordpress_phpfpm_image }}"
+    detach: false
+    cleanup: true
+    command: wp-cli db export --allow-root --path=/var/www/html /var/backup/dump.sql
+    env:
+      HTTP_HOST: "{{ wordpress_site.url }}"
+    memory: 256M
+    pull: never
+    volumes:
+      - "/data/{{ domain }}/var/www/html:/var/www/html:ro"
+      - "/data/{{ domain }}/var/backup:/var/backup:rw"
+      - "/data/mariadb/run/mysqld:/run/mysqld:ro"
+    working_dir: /var/www/html
