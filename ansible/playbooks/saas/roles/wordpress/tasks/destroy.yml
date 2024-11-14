@@ -43,17 +43,6 @@
     login_host: "{{ service.HostIp }}"
     login_port: "{{ service.HostPort }}"
     name: "{{ wordpress_db_user }}"
-    host: '%'
-    priv: "{{ wordpress_db_name }}.*:ALL"
-    state: absent
-
-- name: Mysql delete user
-  community.mysql.mysql_user:
-    login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ wordpress_db_user }}"
     host: 'localhost'
     priv: "{{ wordpress_db_name }}.*:ALL"
     state: absent
