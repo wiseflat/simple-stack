@@ -132,7 +132,6 @@
         read_only: true
     pull: never
     volumes:
-      - "/data/nginx/etc/nginx:/etc/nginx"
       - "/data/{{ domain }}/etc/nginx/sites-enabled:/etc/nginx/sites-enabled:ro"
   loop: "{{ wordpress_scale.nginx }}"
 
