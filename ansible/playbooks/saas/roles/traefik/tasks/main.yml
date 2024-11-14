@@ -1,0 +1,54 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ software_path }}"
+    - /data/letsencrypt
+    - /var/log/traefik
+
+- name: Copy config files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ software_path }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+  loop:
+    - traefik.toml
+    - traefik_tls.toml
+
+- name: Create container
+  community.docker.docker_container:
+    name: traefik
+    image: "traefik:{{ traefik_version }}"
+    state: started
+    restart_policy: always
+    recreate: false
+    network_mode: host
+    exposed_ports:
+      - 80
+      - 443
+    labels:
+      traefik.enable: "false"
+    mounts:
+      - type: bind
+        target: /etc/traefik
+        source: /data/traefik
+        read_only: true
+      - type: bind
+        target: /var/log/traefik
+        source: /var/log/traefik
+        read_only: false
+      - type: bind
+        target: /etc/letsencrypt
+        source: /data/letsencrypt
+        read_only: false
+      - type: bind
+        target: /var/run/docker.sock
+        source: /var/run/docker.sock
+        read_only: true

@@ -1,0 +1,44 @@
+[global]
+  checkNewVersion = false
+  sendAnonymousUsage = false
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+    [entryPoints.http.http]
+      [entryPoints.http.http.redirections]
+        [entryPoints.http.http.redirections.entrypoint]
+          to = "https"
+          scheme = "https"
+  [entryPoints.https]
+    address = ":443"
+
+[serversTransport]
+  insecureSkipVerify = true
+
+[metrics]
+  [metrics.prometheus]
+    buckets = [0.1,0.3,1.2,5.0]
+    addEntryPointsLabels = true
+    addServicesLabels = true
+    entryPoint = "https"
+
+[log]
+  level = "WARN"
+  filePath = "/var/log/traefik/traefik.log"
+
+[accessLog]
+  filePath = "/var/log/traefik/traefik-access.log"
+
+[certificatesResolvers.myresolver.acme]
+  email = "{{ traefik_email }}"
+  storage = "/etc/letsencrypt/acme.json"
+  [certificatesResolvers.myresolver.acme.httpChallenge]
+    entryPoint = "http"
+
+[providers]
+  [providers.docker]
+    endpoint = "unix:///var/run/docker.sock"
+
+  [providers.file]
+    filename = "/etc/traefik/traefik_tls.toml"
