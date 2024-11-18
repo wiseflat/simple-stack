@@ -11,3 +11,15 @@
     - ansible-docker
     - ansible-unattendedUpgrades
     - ansible-pull
+  tasks:
+    - name: Install mandatories packages
+      ansible.builtin.package:
+        pkg:
+          - python3-passlib
+        state: present
+        install_recommends: false
+        lock_timeout: 120
+      register: apt_status
+      until: apt_status is success
+      delay: 6
+      retries: 10
