@@ -26,10 +26,14 @@
 
     - name: Create temporary build directory
       ansible.builtin.file:
-        path: "{{ build_work_dir }}"
+        path: "{{ item }}"
         recurse: true
         state: directory
         mode: '0755'
+      loop:
+        - "{{ build_work_dir }}"
+        - "{{ build_work_dir }}/download"
+        - "{{ build_work_dir }}/{{ upstream_default_arch }}"
 
   tasks:
     - name: Install dependencies
