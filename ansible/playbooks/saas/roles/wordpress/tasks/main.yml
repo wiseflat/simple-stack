@@ -116,11 +116,11 @@
     name: "{{ domain }}-nginx-{{ item.id }}"
     image: "{{ wordpress_nginx_image }}"
     state: "{{ item.state }}"
-    recreate: false
+    recreate: true
     restart_policy: always
     published_ports:
       - 172.17.0.1:0:80
-    labels: "{{ wordpress_traefik_labels }}"
+    labels: "{{ traefik_labels_result.labels }}"
     mounts:
       - type: bind
         target: /run/php-fpm

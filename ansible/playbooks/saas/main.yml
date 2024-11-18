@@ -17,7 +17,15 @@
     keepass_db_path: "{{ lookup('ansible.builtin.env', 'KEEPASS_PATH') }}"
     keepass_db_password: "{{ lookup('ansible.builtin.env', 'KEEPASS_PASSWORD') }}"
     keepass_db_keyfile: "{{ lookup('ansible.builtin.env', 'KEEPASS_KEYFILE') }}"
+    domain_vars: "{{ hostvars[inventory_hostname][domain] }}"
   pre_tasks:
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+        state: directory
+      become: false
+      delegate_to: localhost
+
     - name: Create keyfile
       keepass_create_keyfile:
         path: "{{ keepass_db_keyfile }}"
@@ -55,6 +63,14 @@
               name: "{{ domain }}"
               group: "{{ software }}"
 
+    - name: Generate Traefik labels
+      traefik_labels:
+        proto: http
+        domain: "{{ domain }}"
+        domain_alias: "{{ domain_vars.domain_alias | default(None) }}"
+        basic_auth: "{{ domain_vars.basic_auth | default(false) }}"
+        ipfilter: "{{ domain_vars.ipfilter | default([]) }}"
+      register: traefik_labels_result
   tasks:
     - name: Deploy service
       ansible.builtin.include_role:
@@ -81,5 +97,32 @@
           username: "{{ secret.username | default(None) }}"
           password: "{{ secret.pass | default(None) }}"
           url: "{{ secret.url | default(None) }}"
+      become: false
+      delegate_to: localhost
+
+    - name: Update secret to keepass
+      keepass_create_entry:
+        database: "{{ keepass_db_path }}"
+        password: "{{ keepass_db_password }}"
+        keyfile: "{{ keepass_db_keyfile }}"
+        entry:
+          title: "{{ domain }}"
+          group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
+          username: "{{ secret.username | default(None) }}"
+          password: "{{ secret.pass | default(None) }}"
+          url: "{{ secret.url | default(None) }}"
+      become: false
+      delegate_to: localhost
+
+    - name: Create local file
+      ansible.builtin.copy:
+        content: |
+          ---
+          {{ domain }}:
+            software: {{ software }}
+            domain_alias: {{ domain_vars.domain_alias | default('') }}
+            ipfilter: {{ domain_vars.ipfilter | default([]) }}
+            basic_auth: {{ domain_vars.basic_auth | default(false) }}
+        dest: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/{{ domain }}.yml"
       become: false
       delegate_to: localhost

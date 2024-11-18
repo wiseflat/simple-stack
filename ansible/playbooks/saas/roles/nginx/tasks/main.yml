@@ -26,7 +26,7 @@
     restart_policy: always
     published_ports:
       - 172.17.0.1:0:80
-    labels: "{{ nginx_traefik_labels }}"
+    labels: "{{ traefik_labels_result.labels }}"
     mounts:
       - type: bind
         target: /var/www/html

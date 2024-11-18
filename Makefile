@@ -24,6 +24,7 @@ ansible-init:
 	cd $(ANSIBLE_DIR) && ansible-galaxy collection install -r requirements.yml -p ./collections
 	@echo "Running Ansible playbook..."
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_PAAS)
+	cd $(ANSIBLE_DIR) && mkdir group_vars host_vars
 
 image:
 	@echo "Build a new docker image"
