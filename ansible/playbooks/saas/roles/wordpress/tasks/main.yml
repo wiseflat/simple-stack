@@ -136,7 +136,7 @@
   loop: "{{ wordpress_scale.nginx }}"
 
 - name: Set secret variable
-  set_fact:
+  ansible.builtin.set_fact:
     secret:
       name: "{{ domain }}"
       username: "{{ wordpress_site.admin_name }}"
