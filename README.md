@@ -81,6 +81,13 @@ make deploy
 
 Note: Ensure that an A record DNS entry points to your server. This step is not yet automated.
 
+Once your domain will be deployed, a static yaml configuration file will be added on `host_vars/<instance_name>/<domain>.yml`. You can adapt it to add :
+
+- a domain alias
+- a restricted list of IP address to whitelist
+- a HTTP basic authentication
+
+
 ## Operate on a software
 
 Some applications may require maintenance tasks (such as backup, restoration, or restart), or may even need to be removed. This option covers those actions.
