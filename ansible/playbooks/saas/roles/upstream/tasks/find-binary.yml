@@ -1,0 +1,23 @@
+---
+- name: Find binary in directory
+  ansible.builtin.find:
+    paths: "{{ build_work_dir }}/download/"
+    patterns: "{{ item }}"
+    recurse: true
+  register: register_find
+
+- name: Ensure a binary file was found
+  ansible.builtin.fail:
+    msg: "No binary files matching {{ item }} were found in {{ build_work_dir }}/download/"
+  when: register_find.matched == 0
+
+- name: Set temp path
+  ansible.builtin.set_fact:
+    binary_path: "{{ register_find.files[0].path }}"
+
+- name: Copy binary in build directory
+  ansible.builtin.copy:
+    src: "{{ binary_path }}"
+    dest: "{{ build_work_dir }}/{{ upstream_default_arch }}/{{ item }}"
+    mode: '0755'
+    remote_src: true
