@@ -16,6 +16,7 @@
       ansible.builtin.package:
         pkg:
           - python3-passlib
+          - libxml2-utils
         state: present
         install_recommends: false
         lock_timeout: 120
