@@ -19,11 +19,6 @@
     path: "/tmp/{{ software }}"
 
   pre_tasks:
-    - name: Remove previous build directory
-      ansible.builtin.file:
-        path: "{{ build_work_dir }}"
-        state: absent
-
     - name: Create temporary build directory
       ansible.builtin.file:
         path: "{{ item }}"
@@ -31,7 +26,6 @@
         state: directory
         mode: '0755'
       loop:
-        - "{{ build_work_dir }}"
         - "{{ build_work_dir }}/download"
         - "{{ build_work_dir }}/{{ upstream_default_arch }}"
 
