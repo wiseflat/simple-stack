@@ -10,6 +10,13 @@
     image_name: "{{ image.name }}"
     image_labels: "{{ image.labels }}"
 
+- name: End playbook if no new version
+  ansible.builtin.meta: end_host
+  when: >
+    ansible_local.software_version is defined and
+    software in ansible_local.software_version and
+    ansible_local.software_version[software] == image_version
+
 - name: Copy boilerplate configuration snippets files
   ansible.builtin.copy:
     src: nginx
