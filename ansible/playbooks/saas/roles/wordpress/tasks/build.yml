@@ -9,6 +9,7 @@
     image_version: "{{ (latest_version | split('-'))[0] }}"
     image_name: "{{ image.name }}"
     image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
 
 - name: End playbook if no new version
   ansible.builtin.meta: end_host

@@ -1,5 +1,6 @@
 ---
 image:
+  build: true
   upstream:
     source: apk
     repository: community

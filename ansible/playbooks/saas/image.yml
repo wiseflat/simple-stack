@@ -46,20 +46,23 @@
         version: "{{ image_version }}"
         file_path: /etc/ansible/facts.d/software_version.fact
 
-    - name: Build image
-      community.docker.docker_image_build:
-        name: "{{ image_name }}:{{ image_version }}"
-        tag: latest
-        path: "/tmp/{{ software }}"
-        dockerfile: Dockerfile
-        labels: "{{ image_labels }}"
-        rebuild: always
-        outputs:
-          - type: docker
-            # push: false
-      register: docker_image_build
+    - name: Build
+      when: image_build
+      block:
+        - name: Build image
+          community.docker.docker_image_build:
+            name: "{{ image_name }}:{{ image_version }}"
+            tag: latest
+            path: "/tmp/{{ software }}"
+            dockerfile: Dockerfile
+            labels: "{{ image_labels }}"
+            rebuild: always
+            outputs:
+              - type: docker
+                # push: false
+          register: docker_image_build
 
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ docker_image_build }}"
-        verbosity: 1
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ docker_image_build }}"
+            verbosity: 1
