@@ -1,0 +1,11 @@
+---
+caddy_config: |
+  :8080
+  respond "Hello world"
+
+caddy_scale:
+  caddy:
+    - id: 1
+      state: started
+    - id: 2
+      state: started

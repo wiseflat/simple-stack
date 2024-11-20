@@ -123,6 +123,8 @@
             domain_alias: {{ domain_vars.domain_alias | default('') }}
             ipfilter: {{ domain_vars.ipfilter | default([]) }}
             basic_auth: {{ domain_vars.basic_auth | default(false) }}
+            config: |
+              {{ domain_vars.config | default('') | indent( width=4)}}
         dest: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/{{ domain }}.yml"
       become: false
       delegate_to: localhost

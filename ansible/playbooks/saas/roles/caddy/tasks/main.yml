@@ -1,0 +1,36 @@
+---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "/data/{{ domain }}/etc/caddy"
+
+- name: Copy default config file
+  ansible.builtin.template:
+    src: Caddyfile
+    dest: "/data/{{ domain }}/etc/caddy/Caddyfile"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-{{ item.id }}"
+    image: "caddy:2.8.4"
+    state: "{{ item.state }}"
+    recreate: true
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:8080
+    labels: "{{ traefik_labels_result.labels }}"
+    mounts:
+      - type: bind
+        target: /etc/caddy
+        source: "/data/{{ domain }}/etc/caddy"
+        read_only: true
+    pull: never
+  loop: "{{ caddy_scale.caddy }}"

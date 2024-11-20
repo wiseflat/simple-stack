@@ -1,0 +1,14 @@
+---
+image:
+  upstream:
+    source: github
+    user: caddyserver
+    repo: caddy
+    type: release
+    format: tar.gz
+    file: caddy_VERSION_OS_ARCH.FORMAT
+    os: linux
+    binary: caddy
+  labels: {}
+  name: caddy
+  origin: alpine:latest

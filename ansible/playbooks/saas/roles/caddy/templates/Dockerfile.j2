@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+ARG TARGETARCH
+
+COPY ./${TARGETARCH}/caddy /usr/local/bin/caddy
+
+RUN addgroup caddy \
+    && adduser --system --home /var/lib/caddy --ingroup "caddy" --disabled-password --shell /usr/sbin/nologin caddy
+
+RUN mkdir -p /var/log/caddy /var/lib/caddy /etc/caddy \
+    && chown -R caddy:caddy /var/log/caddy /var/lib/caddy /etc/caddy \
+    && chmod 755 /var/log/caddy /var/lib/caddy /etc/caddy
+
+USER caddy
+
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
