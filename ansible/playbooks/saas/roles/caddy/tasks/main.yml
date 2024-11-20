@@ -20,7 +20,7 @@
 - name: Create container
   community.docker.docker_container:
     name: "{{ domain }}-{{ item.id }}"
-    image: "caddy:2.8.4"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
     state: "{{ item.state }}"
     recreate: true
     restart_policy: always

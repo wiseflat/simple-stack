@@ -76,7 +76,7 @@
 - name: Create phpfpm container
   community.docker.docker_container:
     name: "{{ domain }}-phpfpm-{{ item.id }}"
-    image: "{{ wordpress_phpfpm_image }}"
+    image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
     state: "{{ item.state }}"
     recreate: false
     restart_policy: always
@@ -114,7 +114,7 @@
 - name: Create nginx container
   community.docker.docker_container:
     name: "{{ domain }}-nginx-{{ item.id }}"
-    image: "{{ wordpress_nginx_image }}"
+    image: "nginx:{{ ansible_local.software_version['nginx'] }}"
     state: "{{ item.state }}"
     recreate: true
     restart_policy: always

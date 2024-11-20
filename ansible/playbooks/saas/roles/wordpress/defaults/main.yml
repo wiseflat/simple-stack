@@ -7,9 +7,6 @@ wordpress_admin_login: admin
 wordpress_admin_password: "{{ software_secrets.admin_password | default(lookup('password', '/tmp/wordpress_admin_password chars=ascii_letters,digits,hexdigits length=8')) }}"
 wordpress_admin_email: "{{ software_secrets.admin_login | default('admin@test.com') }}"
 
-wordpress_nginx_image: nginx:1.26.2
-wordpress_phpfpm_image: phpfpm-wordpress:8.3.13
-
 wordpress_site:
   name: wordpress
   dbname: "{{ wordpress_db_name }}"

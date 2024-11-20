@@ -20,7 +20,7 @@
 - name: Create container
   community.docker.docker_container:
     name: "{{ domain }}-1"
-    image: "nginx:{{ nginx_version }}"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
     state: started
     recreate: false
     restart_policy: always

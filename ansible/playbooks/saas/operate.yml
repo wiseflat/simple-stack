@@ -2,7 +2,7 @@
 - name: Operate on an application
   hosts: infrastructure
   become: true
-  gather_facts: false
+  gather_facts: true
   vars_prompt:
     - name: software
       prompt: Software name

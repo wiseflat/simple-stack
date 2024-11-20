@@ -2,7 +2,7 @@
 - name: Backup wordpress
   community.docker.docker_container:
     name: "{{ domain }}-backup"
-    image: "{{ wordpress_phpfpm_image }}"
+    image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
     detach: false
     cleanup: true
     command: wp-cli db export --allow-root --path=/var/www/html /var/backup/dump.sql
