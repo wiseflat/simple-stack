@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Copyright: (c) 2024, Mathieu Garcia
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from ansible.module_utils.basic import AnsibleModule
 import json
@@ -16,7 +18,7 @@ def software_version(software, version, file_path):
             try:
                 data = json.load(f)
             except json.JSONDecodeError:
-                return {"failed": True, "msg": "Le fichier JSON est corrompu."}
+                return {"failed": True, "msg": "Corrupted JSON file"}
     else:
         data = {}
 
