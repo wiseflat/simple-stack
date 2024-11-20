@@ -25,7 +25,7 @@
 - name: Create container
   community.docker.docker_container:
     name: traefik
-    image: "traefik:{{ traefik_version }}"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
     state: started
     restart_policy: always
     recreate: false

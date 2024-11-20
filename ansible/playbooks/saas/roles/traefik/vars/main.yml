@@ -1,2 +1,15 @@
 ---
-traefik_version: 3.2.0
+image:
+  build: false
+  upstream:
+    source: github
+    user: traefik
+    repo: traefik
+    type: release
+    format: tar.gz
+    file: traefik_vVERSION_OS_ARCH.FORMAT
+    os: linux
+    binary: traefik
+  labels: {}
+  name: traefik
+  origin: alpine:latest
