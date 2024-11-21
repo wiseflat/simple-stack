@@ -1,0 +1,14 @@
+---
+- name: Create first user
+  community.docker.docker_container:
+    name: "{{ domain }}-user"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
+    detach: false
+    cleanup: true
+    command: forgejo admin user create --config /data/conf/app.ini --username {{ forgejo_admin_login }} --password {{ forgejo_admin_password }} --email {{ forgejo_admin_email }}
+    pull: never
+    volumes:
+      - "/data/{{ domain }}/data:/data:rw"
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /data/mariadb/run/mysqld:/run/mysqld:rw
