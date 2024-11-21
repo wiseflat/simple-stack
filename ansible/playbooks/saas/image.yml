@@ -40,12 +40,6 @@
         msg: "{{ image_version }}"
         verbosity: 1
 
-    - name: Update software version
-      software_version:
-        software: "{{ image_name }}"
-        version: "{{ image_version }}"
-        file_path: /etc/ansible/facts.d/software_version.fact
-
     - name: Build
       when: image_build
       block:
@@ -66,3 +60,9 @@
           ansible.builtin.debug:
             msg: "{{ docker_image_build }}"
             verbosity: 1
+
+    - name: Update software version
+      software_version:
+        software: "{{ image_name }}"
+        version: "{{ image_version }}"
+        file_path: /etc/ansible/facts.d/software_version.fact
