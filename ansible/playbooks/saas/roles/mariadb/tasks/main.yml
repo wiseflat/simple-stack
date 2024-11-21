@@ -20,6 +20,7 @@
     - path: "/data/{{ domain }}/run/mysqld"
       owner: 999
       group: 999
+    - path: /data/{{ domain }}/var/backup
 
 - name: Copy config files
   ansible.builtin.template:

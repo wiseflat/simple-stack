@@ -13,6 +13,7 @@
     - "/data/{{ domain }}/etc/nginx/sites-enabled"
     - "/data/{{ domain }}/etc/php-fpm.d"
     - "/data/{{ domain }}/run/php-fpm"
+    - "/data/{{ domain }}/var/backup"
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:

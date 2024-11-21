@@ -9,6 +9,7 @@
   loop:
     - "/data/{{ domain }}/data"
     - "/data/{{ domain }}/data/conf"
+    - "/data/{{ domain }}/var/backup"
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:
