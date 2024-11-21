@@ -4,13 +4,14 @@
     name: "{{ domain }}-phpfpm-{{ item.id }}"
     state: absent
   loop: "{{ wordpress_scale.phpfpm }}"
+  ignore_errors: true
 
 - name: Remove nginx containers
   community.docker.docker_container:
     name: "{{ domain }}-nginx-{{ item.id }}"
-    image: "{{ wordpress_nginx_image }}"
     state: absent
   loop: "{{ wordpress_scale.nginx }}"
+  ignore_errors: true
 
 - name: Remove software directory
   ansible.builtin.file:

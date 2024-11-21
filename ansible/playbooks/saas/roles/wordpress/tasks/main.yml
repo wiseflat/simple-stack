@@ -139,8 +139,8 @@
 - name: Set secret variable
   ansible.builtin.set_fact:
     secret:
-      name: "{{ domain }}"
-      username: "{{ wordpress_site.admin_name }}"
-      pass: "{{ wordpress_site.admin_password }}"
-      group: "demo/{{ software }}"
+      name: "{{ wordpress_db_name }}"
+      username: "{{ wordpress_db_user }}"
+      pass: "{{ wordpress_db_password }}"
+      group: "demo/mariadb"
       url: "https://{{ domain }}"

@@ -1,11 +1,7 @@
 ---
-wordpress_db_name: "{{ (domain | replace('-', '') | replace('.', ''))[:32] }}"
-wordpress_db_password: "{{ ansible_local[service_name].wordpress_db_password | default(lookup('password', '/tmp/wordpress_db_password chars=ascii_letters,digits,hexdigits length=15')) }}"
-wordpress_db_user: "{{ ansible_local[service_name].wordpress_db_user | default((domain | replace('-', '') | replace('.', ''))[:32]) }}"
-
-wordpress_admin_login: admin
-wordpress_admin_password: "{{ software_secrets.admin_password | default(lookup('password', '/tmp/wordpress_admin_password chars=ascii_letters,digits,hexdigits length=8')) }}"
-wordpress_admin_email: "{{ software_secrets.admin_login | default('admin@test.com') }}"
+wordpress_db_name: "{{ service_name[:32] }}"
+wordpress_db_password: "{{ secret.password | default(lookup('password', '/tmp/wordpress_db_password chars=ascii_letters,digits,hexdigits length=15')) }}"
+wordpress_db_user: "{{ service_name[:32] }}"
 
 wordpress_site:
   name: wordpress
@@ -16,9 +12,9 @@ wordpress_site:
   url: "{{ domain }}"
   title: wordpress
   locale: fr_FR
-  admin_name: "{{ wordpress_admin_login }}"
-  admin_email: "{{ wordpress_admin_email }}"
-  admin_password: "{{ wordpress_admin_password }}"
+  admin_name: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_LOGIN') }}"
+  admin_email: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
+  admin_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
 
 wordpress_scale:
   nginx:
