@@ -76,7 +76,7 @@
 - name: Set secret variable
   ansible.builtin.set_fact:
     secret:
-      name: "{{ domain }}"
+      name: "{{ forgejo_db_name }}"
       username: "{{ forgejo_db_user }}"
       pass: "{{ forgejo_db_password }}"
       group: "demo/mariadb"
