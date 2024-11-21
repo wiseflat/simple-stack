@@ -1,0 +1,82 @@
+---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: "0755"
+  loop:
+    - "/data/{{ domain }}/data"
+    - "/data/{{ domain }}/data/conf"
+
+- name: Inspect mariadb container
+  community.docker.docker_container_info:
+    name: mariadb
+  register: docker_inspect
+
+- name: Set fact
+  ansible.builtin.set_fact:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+
+- name: Create mysql database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ forgejo_db_name }}"
+    encoding: utf8
+    collation: utf8_general_ci
+    state: present
+
+- name: Create mysql user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ forgejo_db_user }}"
+    host: 'localhost'
+    column_case_sensitive: false
+    password: "{{ forgejo_db_password }}"
+    priv: "{{ forgejo_db_name }}.*:ALL"
+    state: present
+
+- name: Copy default config file
+  ansible.builtin.template:
+    src: app.ini
+    dest: "/data/{{ domain }}/data/conf/app.ini"
+    owner: ubuntu
+    group: ubuntu
+    mode: "0644"
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
+    state: started
+    recreate: true
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:3000
+    labels: "{{ traefik_labels_result.labels }}"
+    env:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      APP_DATA_PATH: "/data"
+    volumes:
+      - "/data/{{ domain }}/data:/data:rw"
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /data/mariadb/run/mysqld:/run/mysqld:rw
+
+- name: Set secret variable
+  ansible.builtin.set_fact:
+    secret:
+      name: "{{ domain }}"
+      username: "{{ forgejo_db_user }}"
+      pass: "{{ forgejo_db_password }}"
+      group: "demo/mariadb"
+      url: "https://{{ domain }}"

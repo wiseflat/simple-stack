@@ -1,0 +1,18 @@
+---
+image:
+  build: true
+  upstream:
+    source: codeberg
+    user: forgejo
+    repo: forgejo
+    type: release
+    format: ""
+    file: forgejo-VERSION-OS-ARCH
+    os: linux
+    binary: forgejo
+  labels: {}
+  name: forgejo
+  origin: alpine:latest
+  dependances:
+    - git
+    - bash

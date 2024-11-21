@@ -1,0 +1,41 @@
+---
+- name: Remove containers
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    state: absent
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "/data/{{ domain }}"
+    state: absent
+
+- name: Inpect container
+  docker_container_info:
+    name: mariadb
+  register: docker_inspect
+
+- name: Set fact
+  ansible.builtin.set_fact:
+    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
+    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+
+- name: Mysql delete database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ forgejo_db_name }}"
+    state: absent
+
+- name: Mysql delete user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
+    login_host: "{{ service.HostIp }}"
+    login_port: "{{ service.HostPort }}"
+    name: "{{ forgejo_db_user }}"
+    host: 'localhost'
+    priv: "{{ forgejo_db_name }}.*:ALL"
+    column_case_sensitive: false
+    state: absent

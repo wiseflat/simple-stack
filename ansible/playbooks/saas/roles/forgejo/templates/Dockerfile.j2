@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+ARG TARGETARCH
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+COPY ./${TARGETARCH}/{{ upstream_file_name }} /usr/local/bin/forgejo
+
+RUN addgroup --gid 1000 forgejo \
+    && adduser --uid 1000 --system --home /var/lib/forgejo --ingroup "forgejo" --disabled-password --shell /usr/sbin/nologin forgejo
+
+RUN mkdir -p /var/log/forgejo /data \
+    && chown -R forgejo:forgejo /var/log/forgejo /data \
+    && chmod 755 /var/log/forgejo /data
+
+USER forgejo
+
+CMD ["/usr/local/bin/forgejo", "web", "--config",  "/data/conf/app.ini", "--work-path", "/data"]
