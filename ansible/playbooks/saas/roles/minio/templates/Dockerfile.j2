@@ -1,0 +1,9 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+ARG TARGETARCH
+
+COPY ./${TARGETARCH}/minio /usr/local/bin/minio
+
+CMD ["/usr/local/bin/minio", "server", "/data", "--console-address", ":9001"]

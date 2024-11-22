@@ -1,0 +1,38 @@
+---
+- name: Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
+
+- name: Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
+
+- name: End playbook if no new version
+  ansible.builtin.meta: end_host
+  when: >
+    ansible_local.software_version is defined and
+    software in ansible_local.software_version and
+    ansible_local.software_version[software] == image_version
+
+- name: Download latest release
+  ansible.builtin.get_url:
+    url: "{{ upstream_file_url }}"
+    dest: "{{ build_work_dir }}/download/"
+    mode: '0644'
+    force: no
+  register: download_result
+
+- name: Find binary
+  ansible.builtin.include_role:
+    name: upstream
+    tasks_from: find-binary
+  loop:
+    - "{{ image.upstream.binary }}"
+
+- name: Copy dockerfile
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ path }}/Dockerfile"
+    mode: '0644'

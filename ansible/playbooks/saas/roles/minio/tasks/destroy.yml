@@ -1,0 +1,11 @@
+---
+- name: Remove containers
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    state: absent
+  ignore_errors: true
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "/data/{{ domain }}"
+    state: absent

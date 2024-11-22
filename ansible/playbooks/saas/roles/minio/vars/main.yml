@@ -1,0 +1,15 @@
+---
+image:
+  build: true
+  upstream:
+    source: github
+    user: minio
+    repo: minio
+    type: release
+    format: tar.gz
+    file: linux-ARCH/minio
+    os: linux
+    binary: minio
+  labels: {}
+  name: minio
+  origin: alpine:latest
