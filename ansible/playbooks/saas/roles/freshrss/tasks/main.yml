@@ -1,0 +1,28 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "/data/{{ domain }}/data"
+    - "/data/{{ domain }}/extensions"
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "freshrss/freshrss:{{ ansible_local.software_version[software] }}"
+    state: started
+    recreate: true
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:80
+    labels: "{{ traefik_labels_result.labels }}"
+    env:
+      CRON_MIN: "*/15"
+      TZ: "Europe/Paris"
+    volumes:
+      - "/data/{{ domain }}/data:/var/www/FreshRSS/data:rw"
+      - "/data/{{ domain }}/extensions:/var/www/FreshRSS/extensions:rw"

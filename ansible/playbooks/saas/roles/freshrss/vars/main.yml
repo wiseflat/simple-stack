@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: freshrss
+    repo: freshrss
+    type: archive
+    format: tar.gz
+    file: VERSION.FORMAT
+    os: linux
+  labels: {}
+  name: freshrss
