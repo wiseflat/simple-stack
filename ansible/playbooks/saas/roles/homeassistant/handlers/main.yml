@@ -1,0 +1,6 @@
+- name: Restart container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "homeassistant/home-assistant:{{ ansible_local.software_version[software] }}"
+    state: started
+    restart: true

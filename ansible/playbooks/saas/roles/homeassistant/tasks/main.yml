@@ -1,0 +1,33 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "/data/{{ domain }}/config"
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "homeassistant/home-assistant:{{ ansible_local.software_version[software] }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:8123
+    labels: "{{ traefik_labels_result.labels }}"
+    env:
+      TZ: "Europe/Paris"
+    devices: "{{ homeassistant_devices  }}"
+    volumes:
+      - "/data/{{ domain }}/config:/config:rw"
+
+- name: Insert default configuration
+  ansible.builtin.blockinfile:
+    path: /data/{{ domain }}/config//configuration.yaml
+    marker: "#<!-- {mark} http configuration -->"
+    block: |
+      {{ homeassistant_configuration | to_nice_yaml }}
+  notify: Restart container

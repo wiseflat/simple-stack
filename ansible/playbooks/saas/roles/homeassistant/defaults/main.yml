@@ -1,0 +1,9 @@
+---
+homeassistant_devices: []
+  # "/dev/ttyACM0:/dev/ttyACM0"
+
+homeassistant_configuration:
+  http:
+    use_x_forwarded_for: true
+    trusted_proxies:
+      - 172.17.0.0/24
