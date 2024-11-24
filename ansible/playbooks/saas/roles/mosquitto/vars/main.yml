@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: eclipse
+    repo: mosquitto
+    type: archive
+    format: tar.gz
+    file: vVERSION.FORMAT
+    os: linux
+  labels: {}
+  name: mosquitto

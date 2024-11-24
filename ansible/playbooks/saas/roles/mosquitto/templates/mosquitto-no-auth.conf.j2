@@ -1,0 +1,9 @@
+# This is a Mosquitto configuration file that creates a listener on port 1883
+# that allows unauthenticated access.
+
+listener 1883
+persistence true
+persistence_location /mosquitto/data/
+log_type all
+log_dest file /mosquitto/log/mosquitto.log
+allow_anonymous true

@@ -1,0 +1,41 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: '0755'
+  loop:
+    - path: "/data/{{ domain }}"
+    - path: "/data/{{ domain }}/mosquitto/config"
+      owner: 1883
+      group: 1883
+    - path: "/data/{{ domain }}/mosquitto/log"
+      owner: 1883
+      group: 1883
+
+- name: Copy configuration file
+  ansible.builtin.template:
+    src: mosquitto-no-auth.conf.j2
+    dest: /data/{{ domain }}/mosquitto/config/mosquitto.conf
+    owner: 1883
+    group: 1883
+    mode: '0644'
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "eclipse-mosquitto:{{ ansible_local.software_version[software] }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:1883
+    labels: "{{ traefik_labels_result.labels }}"
+    env:
+      CRON_MIN: "*/15"
+      TZ: "Europe/Paris"
+    volumes:
+      - "/data/{{ domain }}/mosquitto/config:/mosquitto/config:rw"
+      - "/data/{{ domain }}/mosquitto/data:/mosquitto/data:rw"
+      - "/data/{{ domain }}/mosquitto/log:/mosquitto/log:rw"
