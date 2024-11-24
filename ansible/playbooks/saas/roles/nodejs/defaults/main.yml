@@ -1,0 +1,5 @@
+---
+nodejs_config:
+  initialize: "{{ domain_vars.config.initialize | default(false) }}"
+  repo: "{{ domain_vars.config.repo | default('https://github.com/wiseflat/nodejs-helloworld.git') }}"
+  version: "{{ domain_vars.config.repo | default('main') }}"

@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1.4
+
+FROM alpine:latest
+
+ARG TARGETARCH
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+RUN addgroup --gid 1000 nodejs \
+    && adduser --uid 1000 --system --home /var/lib/nodejs --ingroup "nodejs" --disabled-password --shell /usr/sbin/nologin nodejs
+
+RUN mkdir -p /var/lib/app \
+    && chown -R nodejs:nodejs /var/lib/app \
+    && chmod 755 /var/lib/app
+
+USER nodejs
