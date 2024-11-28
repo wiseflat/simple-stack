@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: grafana
+    repo: grafana
+    type: archive
+    format: tar.gz
+    file: vVERSION.FORMAT
+    os: linux
+  labels: {}
+  name: grafana
