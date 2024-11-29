@@ -1,0 +1,22 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "/data/{{ domain }}/var/www/html"
+
+- name: Create container
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    image: "nextcloud:{{ ansible_local.software_version[software] }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:80
+    labels: "{{ traefik_labels_result.labels }}"
+    volumes:
+      - "/data/{{ domain }}/var/www/html:/var/www/html:rw"
