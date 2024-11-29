@@ -1,0 +1,6 @@
+---
+- name: Restore data
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-mongodb-1"
+    command: mongorestore /var/backup
+    user: mongod

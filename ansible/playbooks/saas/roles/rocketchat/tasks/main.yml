@@ -1,0 +1,74 @@
+---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: '0755'
+  loop:
+    - path: "/data/{{ domain }}/opt"
+    - path: "/data/{{ domain }}/opt/rocketchat-stockage"
+      owner: 65533
+      group: 65533
+    - path: "/data/{{ domain }}/etc/mongodb"
+    - path: "/data/{{ domain }}/var/lib/mongodb"
+      owner: 998
+      group: 996
+    - path: "/data/{{ domain }}/var/run/mongod"
+      owner: 998
+      group: 996
+    - path: "/data/{{ domain }}/usr/local/bin"
+    - path: "/data/{{ domain }}/var/backup"
+      owner: 998
+      group: 996
+
+- name: Copy config files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode | default('0644') }}"
+  loop:
+    - src: mongod.conf
+      dest: "/data/{{ domain }}/etc/mongodb/mongod.conf"
+    - src: entrypoint.mongodb.sh
+      dest: "/data/{{ domain }}/usr/local/bin/entrypoint.mongodb.sh"
+      mode: '0755'
+
+- name: Create mongodb container
+  community.docker.docker_container:
+    name: "{{ domain }}-mongodb-1"
+    image: "mongodb/mongodb-community-server:5.0.28-ubi8"
+    state: started
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:27017
+    labels:
+      traefik.enable: "false"
+    user: mongod
+    entrypoint: /usr/local/bin/entrypoint.mongodb.sh
+    volumes:
+      - "/data/{{ domain }}/etc/mongodb:/etc/mongodb:ro"
+      - "/data/{{ domain }}/var/lib/mongodb:/var/lib/mongodb:rw"
+      - "/data/{{ domain }}/var/run/mongod:/var/run/mongod:rw"
+      - "/data/{{ domain }}/usr/local/bin:/usr/local/bin:rw"
+      - "/data/{{ domain }}/var/backup:/var/backup:rw"
+
+- name: Create rocketchat container
+  community.docker.docker_container:
+    name: "{{ domain }}-rocketchat-1"
+    image: "rocketchat/rocket.chat:{{ ansible_local.software_version[software] }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - 172.17.0.1:0:3000
+    labels: "{{ traefik_labels_result.labels }}"
+    env:
+      ROOT_URL: "https://{{ domain }}"
+      MONGO_URL: "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true"
+      MONGO_OPLOG_URL: "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/local?directConnection=true"
+    volumes:
+      - "/data/{{ domain }}/opt/rocketchat-stockage:/opt/rocketchat-stockage:rw"
+      - "/data/{{ domain }}/var/run/mongod:/var/run/mongod:rw"

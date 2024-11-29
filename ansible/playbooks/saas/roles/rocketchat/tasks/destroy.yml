@@ -1,0 +1,13 @@
+---
+- name: Remove containers
+  community.docker.docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ domain }}-rocketchat-1"
+    - "{{ domain }}-mongodb-1"
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "/data/{{ domain }}"
+    state: absent

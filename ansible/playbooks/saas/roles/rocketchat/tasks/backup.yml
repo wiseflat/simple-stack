@@ -1,0 +1,6 @@
+---
+- name: Backup data
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-mongodb-1"
+    command: mongodump --out /var/backup
+    user: mongod
