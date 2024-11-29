@@ -1,0 +1,4 @@
+---
+zigbee2mqtt_device: "/dev/ttyACM0"
+zigbee2mqtt_devices:
+  "{{ zigbee2mqtt_device }}:{{ zigbee2mqtt_device }}"

@@ -1,0 +1,31 @@
+# Home Assistant integration (MQTT discovery)
+homeassistant: false
+
+# Enable the frontend, runs on port 8080 by default
+frontend: true
+
+data_path: /app/data
+
+# MQTT settings
+mqtt:
+  # MQTT base topic for zigbee2mqtt MQTT messages
+  base_topic: zigbee2mqtt
+  # MQTT server URL
+  server: 'mqtt://172.17.0.1:1883'
+  # MQTT server authentication, uncomment if required:
+  # user: my_user
+  # password: my_password
+
+# Serial settings
+serial:
+  port: {{ zigbee2mqtt_device }}
+  adapter: deconz
+
+# Advanced settings
+advanced:
+  # Let Zigbee2MQTT generate a network key on first start
+  network_key: GENERATE
+  # Let Zigbee2MQTT generate a pan_id on first start
+  pan_id: GENERATE
+  # Let Zigbee2MQTT generate a ext_pan_id on first start
+  ext_pan_id: GENERATE
