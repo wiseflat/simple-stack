@@ -72,3 +72,8 @@
     volumes:
       - "{{ software_path }}/opt/rocketchat-stockage:/opt/rocketchat-stockage:rw"
       - "{{ software_path }}/var/run/mongod:/var/run/mongod:rw"
+
+- name: Add systemd timer to backup software
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: create

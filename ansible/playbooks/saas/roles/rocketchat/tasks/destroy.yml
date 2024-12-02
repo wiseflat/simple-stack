@@ -1,4 +1,9 @@
 ---
+- name: Remove systemd timer
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: remove
+
 - name: Remove containers
   community.docker.docker_container:
     name: "{{ item }}"
