@@ -1,0 +1,19 @@
+---
+timer_name: "{{ domain }}"
+# timer_frequency: test
+
+# timer_OnActiveSec:
+timer_OnBootSec: 5m
+# timer_OnStartupSec:
+# timer_OnUnitActiveSec:
+# timer_OnUnitInactiveSec:
+timer_OnCalendar: daily
+timer_RandomizedDelaySec: 86400
+timer_persistent: true
+# timer_AccuracySec:
+
+# timer_envfile:
+# timer_precommand:
+timer_command: ansible-playbook playbooks/saas/operate.yml -i inventory.ini -e software={{ software }} -e domain={{ domain }} -e task={{ timer_task | default('backup' )}}
+# timer_user: root
+timer_workingdir: "/root/.ansible/pull/{{ inventory_hostname }}/ansible"

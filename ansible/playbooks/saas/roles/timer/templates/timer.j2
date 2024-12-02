@@ -1,0 +1,29 @@
+# Managed by ansible
+[Unit]
+Description={{ timer_name }} Timer
+
+[Timer]
+{% if timer_OnActiveSec is defined %}
+OnActiveSec={{ timer_OnActiveSec }}
+{% endif %}
+{% if timer_OnBootSec is defined %}
+OnBootSec={{ timer_OnBootSec }}
+{% endif %}
+{% if timer_OnStartupSec is defined %}
+OnStartupSec={{ timer_OnStartupSec }}
+{% endif %}
+{% if timer_OnUnitActiveSec is defined %}
+OnUnitActiveSec={{ timer_OnUnitActiveSec }}
+{% endif %}
+{% if timer_OnUnitInactiveSec is defined %}
+OnUnitInactiveSec={{ timer_OnUnitInactiveSec }}
+{% endif %}
+{% if timer_OnCalendar is defined %}
+OnCalendar={{ timer_OnCalendar }}
+RandomizedDelaySec={{ timer_RandomizedDelaySec }}
+Persistent={{ timer_persistent | default('false') }}
+{% endif %}
+AccuracySec={{ timer_AccuracySec | default('15s') }}
+
+[Install]
+WantedBy=timers.target

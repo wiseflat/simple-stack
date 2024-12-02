@@ -1,0 +1,19 @@
+# Managed by ansible
+[Unit]
+Description={{timer_name }} Service
+
+[Service]
+Type=oneshot
+{% if timer_envfile is defined %}
+EnvironmentFile={{ timer_envfile }}
+{% endif %}
+{% if timer_precommand is defined %}
+ExecStartPre={{ timer_precommand }}
+{% endif %}
+ExecStart={{ timer_command }}
+{% if timer_user is defined and (systemd_scope is not defined or systemd_scope != 'user') %}
+User={{ timer_user }}
+{% endif %}
+{% if timer_workingdir is defined %}
+WorkingDirectory={{ timer_workingdir }}
+{% endif %}
