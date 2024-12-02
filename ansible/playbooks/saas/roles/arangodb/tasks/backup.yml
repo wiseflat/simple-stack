@@ -1,0 +1,16 @@
+---
+- name: Inspect container
+  docker_container_info:
+    name: "{{ domain }}-1"
+  register: docker_inspect
+
+- name: Backup data
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-1"
+    argv:
+      - /bin/sh
+      - "-c"
+      - "/usr/bin/arangodump --output-directory ./ --server.username root --server.password {{ arangodb_password_from_env }} --server.authentication true --server.endpoint tcp://127.0.0.1:8529 --overwrite true --all-databases true"
+    chdir: "/var/backup"
+  vars:
+    arangodb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^ARANGO_ROOT_PASSWORD=') | first | default('') }}"

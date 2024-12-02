@@ -9,6 +9,7 @@
   loop:
     - "{{ software_path }}/var/lib/arangodb3"
     - "{{ software_path }}/var/lib/arangodb3-apps"
+    - "{{ software_path }}/var/backup"
 
 - name: Create container
   community.docker.docker_container:
@@ -24,3 +25,9 @@
     volumes:
       - "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
       - "{{ software_path }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"
+      - "{{ software_path }}/var/backup:/var/backup:rw"
+
+- name: Add systemd timer to backup software
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: create
