@@ -7,12 +7,12 @@
     group: root
     mode: "0755"
   loop:
-    - "/data/{{ domain }}/etc/caddy"
+    - "{{ software_path }}/etc/caddy"
 
 - name: Copy default config file
   ansible.builtin.template:
     src: Caddyfile
-    dest: "/data/{{ domain }}/etc/caddy/Caddyfile"
+    dest: "{{ software_path }}/etc/caddy/Caddyfile"
     owner: root
     group: root
     mode: "0644"
@@ -30,7 +30,7 @@
     mounts:
       - type: bind
         target: /etc/caddy
-        source: "/data/{{ domain }}/etc/caddy"
+        source: "{{ software_path }}/etc/caddy"
         read_only: true
     pull: never
   loop: "{{ caddy_scale.caddy }}"

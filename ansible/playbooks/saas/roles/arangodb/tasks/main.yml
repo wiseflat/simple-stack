@@ -22,5 +22,5 @@
     env:
       ARANGO_ROOT_PASSWORD: "{{ arangodb_root_password }}"
     volumes:
-      - "/data/{{ domain }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
-      - "/data/{{ domain }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"
+      - "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
+      - "{{ software_path }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"

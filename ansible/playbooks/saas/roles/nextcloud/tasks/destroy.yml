@@ -6,5 +6,5 @@
 
 - name: Remove software directory
   ansible.builtin.file:
-    path: "/data/{{ domain }}"
+    path: "{{ software_path }}"
     state: absent

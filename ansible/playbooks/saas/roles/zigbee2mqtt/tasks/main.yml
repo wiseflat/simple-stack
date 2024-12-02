@@ -7,18 +7,18 @@
     group: "{{ item.group | default('root') }}"
     mode: '0755'
   loop:
-    - path: "/data/{{ domain }}/app"
-    - path: "/data/{{ domain }}/app/data"
+    - path: "{{ software_path }}/app"
+    - path: "{{ software_path }}/app/data"
       owner: 1001
       group: 1001
-    - path: "/data/{{ domain }}/app/data/log"
+    - path: "{{ software_path }}/app/data/log"
       owner: 1001
       group: 1001
 
 - name: Copy default config file
   ansible.builtin.template:
     src: configuration.yaml.j2
-    dest: "/data/{{ domain }}/app/data/configuration.yaml"
+    dest: "{{ software_path }}/app/data/configuration.yaml"
     owner: 1001
     group: 1001
     mode: "0644"
@@ -37,5 +37,5 @@
       - dialout
     devices: "{{ zigbee2mqtt_devices }}"
     volumes:
-      - "/data/{{ domain }}/app/data:/app/data:rw"
+      - "{{ software_path }}/app/data:/app/data:rw"
       - "/run/udev:/run/udev:ro"

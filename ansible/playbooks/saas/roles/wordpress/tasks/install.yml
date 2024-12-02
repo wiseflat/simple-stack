@@ -11,7 +11,7 @@
     memory: 256M
     pull: never
     volumes:
-      - "/data/{{ domain }}/var/www/html:/var/www/html"
+      - "{{ software_path }}/var/www/html:/var/www/html"
     mounts:
       - type: bind
         target: /run/mysqld
@@ -41,7 +41,7 @@
 
 - name: Recursively change ownership of a directory
   ansible.builtin.file:
-    path: /data/{{ domain }}/var/www/html
+    path: "{{ software_path }}/var/www/html"
     state: directory
     recurse: true
     owner: www-data
@@ -49,7 +49,7 @@
 
 - name: Remove sensible files
   ansible.builtin.file:
-    path: "/data/{{ domain }}/var/www/html/{{ item }}"
+    path: "{{ software_path }}/var/www/html/{{ item }}"
     state: absent
   loop:
     - license.txt

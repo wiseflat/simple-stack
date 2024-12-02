@@ -7,7 +7,7 @@
     group: root
     mode: '0755'
   loop:
-    - "/data/{{ domain }}/config"
+    - "{{ software_path }}/config"
 
 - name: Create container
   community.docker.docker_container:
@@ -22,11 +22,11 @@
       TZ: "Europe/Paris"
     devices: "{{ homeassistant_devices  }}"
     volumes:
-      - "/data/{{ domain }}/config:/config:rw"
+      - "{{ software_path }}/config:/config:rw"
 
 - name: Insert default configuration
   ansible.builtin.blockinfile:
-    path: /data/{{ domain }}/config//configuration.yaml
+    path: "{{ software_path }}/config//configuration.yaml"
     marker: "#<!-- {mark} http configuration -->"
     block: |
       {{ homeassistant_configuration | to_nice_yaml }}

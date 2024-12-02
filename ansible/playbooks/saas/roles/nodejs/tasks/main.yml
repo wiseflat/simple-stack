@@ -1,13 +1,13 @@
 ---
 - name: Initialize default directory
   ansible.builtin.file:
-    path: "/data/{{ domain }}/repo"
+    path: "{{ software_path }}/repo"
     state: absent
   when: nodejs_config.initialize
 
 - name: Create default directory
   ansible.builtin.file:
-    path: "/data/{{ domain }}/repo"
+    path: "{{ software_path }}/repo"
     state: directory
     owner: ubuntu
     group: ubuntu
@@ -16,7 +16,7 @@
 - name: Git checkout
   ansible.builtin.git:
     repo: "{{ nodejs_config.repo }}"
-    dest: "/data/{{ domain }}/repo"
+    dest: "{{ software_path }}/repo"
     version: "{{ nodejs_config.version }}"
 
 - name: Install packages based on package.json
@@ -30,7 +30,7 @@
     pull: never
     user: nodejs
     volumes:
-      - "/data/{{ domain }}/repo:/var/lib/repo:rw"
+      - "{{ software_path }}/repo:/var/lib/repo:rw"
     working_dir: /var/lib/repo
 
 - name: Create container
@@ -44,6 +44,6 @@
       - 172.17.0.1:0:3000
     labels: "{{ traefik_labels_result.labels }}"
     volumes:
-      - "/data/{{ domain }}/repo:/var/lib/repo:rw"
+      - "{{ software_path }}/repo:/var/lib/repo:rw"
     working_dir: /var/lib/repo
     pull: never

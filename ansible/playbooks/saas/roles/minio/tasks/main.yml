@@ -1,7 +1,7 @@
 ---
 - name: Create default directory
   ansible.builtin.file:
-    path: "/data/{{ domain }}/data"
+    path: "{{ software_path }}/data"
     state: directory
     owner: root
     group: root
@@ -23,7 +23,7 @@
       MINIO_ROOT_USER: "{{ minio_root_user }}"
       MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
     volumes:
-      - "/data/{{ domain }}/data:/data:rw"
+      - "{{ software_path }}/data:/data:rw"
 
 - name: Set secret variable
   set_fact:

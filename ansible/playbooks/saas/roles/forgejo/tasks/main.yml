@@ -7,9 +7,9 @@
     group: ubuntu
     mode: "0755"
   loop:
-    - "/data/{{ domain }}/data"
-    - "/data/{{ domain }}/data/conf"
-    - "/data/{{ domain }}/var/backup"
+    - "{{ software_path }}/data"
+    - "{{ software_path }}/data/conf"
+    - "{{ software_path }}/var/backup"
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:
@@ -48,7 +48,7 @@
 - name: Copy default config file
   ansible.builtin.template:
     src: app.ini
-    dest: "/data/{{ domain }}/data/conf/app.ini"
+    dest: "{{ software_path }}/data/conf/app.ini"
     owner: ubuntu
     group: ubuntu
     mode: "0644"
@@ -68,7 +68,7 @@
       USER_GID: "1000"
       APP_DATA_PATH: "/data"
     volumes:
-      - "/data/{{ domain }}/data:/data:rw"
+      - "{{ software_path }}/data:/data:rw"
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /data/mariadb/run/mysqld:/run/mysqld:rw

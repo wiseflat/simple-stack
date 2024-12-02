@@ -7,13 +7,13 @@
     group: root
     mode: '0755'
   loop:
-    - "/data/{{ domain }}/var/www/html"
-    - "/data/{{ domain }}/var/log/nginx"
-    - "/data/{{ domain }}/var/log/php-fpm"
-    - "/data/{{ domain }}/etc/nginx/sites-enabled"
-    - "/data/{{ domain }}/etc/php-fpm.d"
-    - "/data/{{ domain }}/run/php-fpm"
-    - "/data/{{ domain }}/var/backup"
+    - "{{ software_path }}/var/www/html"
+    - "{{ software_path }}/var/log/nginx"
+    - "{{ software_path }}/var/log/php-fpm"
+    - "{{ software_path }}/etc/nginx/sites-enabled"
+    - "{{ software_path }}/etc/php-fpm.d"
+    - "{{ software_path }}/run/php-fpm"
+    - "{{ software_path }}/var/backup"
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:
@@ -51,7 +51,7 @@
 
 - name: Test if config file exists
   ansible.builtin.stat:
-    path: "/data/{{ domain }}/var/www/html/wp-config.php"
+    path: "{{ software_path }}/var/www/html/wp-config.php"
   register: stat_result
 
 - name: Install wordpress
@@ -60,7 +60,7 @@
 
 - name: Create default directory
   ansible.builtin.file:
-    path: "/data/{{ domain }}/etc/php-fpm.d/{{ item.id }}"
+    path: "{{ software_path }}/etc/php-fpm.d/{{ item.id }}"
     state: directory
     owner: root
     group: root
@@ -70,7 +70,7 @@
 - name: Copy phpfpm config file
   ansible.builtin.template:
     src: phpfpm.conf
-    dest: "/data/{{ domain }}/etc/php-fpm.d/{{ item.id }}/www.conf"
+    dest: "{{ software_path }}/etc/php-fpm.d/{{ item.id }}/www.conf"
     mode: '0644'
   loop: "{{ wordpress_scale.phpfpm }}"
 
@@ -89,11 +89,11 @@
     mounts:
       - type: bind
         target: /run/php-fpm
-        source: "/data/{{ domain }}/run/php-fpm"
+        source: "{{ software_path }}/run/php-fpm"
         read_only: false
       - type: bind
         target: /var/log/php-fpm
-        source: "/data/{{ domain }}/var/log/php-fpm"
+        source: "{{ software_path }}/var/log/php-fpm"
         read_only: false
       - type: bind
         target: /run/mysqld
@@ -101,14 +101,14 @@
         read_only: false
     pull: never
     volumes:
-      - "/data/{{ domain }}/etc/php-fpm.d/{{ item.id }}:/etc/php83/php-fpm.d:ro"
-      - "/data/{{ domain }}/var/www/html:/var/www/html"
+      - "{{ software_path }}/etc/php-fpm.d/{{ item.id }}:/etc/php83/php-fpm.d:ro"
+      - "{{ software_path }}/var/www/html:/var/www/html"
   loop: "{{ wordpress_scale.phpfpm }}"
 
 - name: Copy nginx config file
   ansible.builtin.template:
     src: nginx.conf
-    dest: "/data/{{ domain }}/etc/nginx/sites-enabled/default.conf"
+    dest: "{{ software_path }}/etc/nginx/sites-enabled/default.conf"
     mode: '0644'
   loop: "{{ wordpress_scale.nginx }}"
 
@@ -125,15 +125,15 @@
     mounts:
       - type: bind
         target: /run/php-fpm
-        source: "/data/{{ domain }}/run/php-fpm"
+        source: "{{ software_path }}/run/php-fpm"
         read_only: false
       - type: bind
         target: /var/www/html
-        source: "/data/{{ domain }}/var/www/html"
+        source: "{{ software_path }}/var/www/html"
         read_only: true
     pull: never
     volumes:
-      - "/data/{{ domain }}/etc/nginx/sites-enabled:/etc/nginx/sites-enabled:ro"
+      - "{{ software_path }}/etc/nginx/sites-enabled:/etc/nginx/sites-enabled:ro"
   loop: "{{ wordpress_scale.nginx }}"
 
 - name: Set secret variable

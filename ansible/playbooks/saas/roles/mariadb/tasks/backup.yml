@@ -8,7 +8,7 @@
   community.mysql.mysql_db:
     state: dump
     name: all
-    target: "/data/{{ domain }}/var/backup/dump.sql"
+    target: "{{ software_path }}/var/backup/dump.sql"
     login_user: root
     login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
     login_host: "{{ service.HostIp }}"

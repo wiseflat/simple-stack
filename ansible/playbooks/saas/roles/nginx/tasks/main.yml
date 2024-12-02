@@ -7,12 +7,12 @@
     group: root
     mode: "0755"
   loop:
-    - "/data/{{ domain }}/var/www/html"
+    - "{{ software_path }}/var/www/html"
 
 - name: Copy default index file
   ansible.builtin.copy:
     src: index.html
-    dest: "/data/{{ domain }}/var/www/html/index.html"
+    dest: "{{ software_path }}/var/www/html/index.html"
     owner: root
     group: root
     mode: "0644"
@@ -30,6 +30,6 @@
     mounts:
       - type: bind
         target: /var/www/html
-        source: "/data/{{ domain }}/var/www/html"
+        source: "{{ software_path }}/var/www/html"
         read_only: true
     pull: never
