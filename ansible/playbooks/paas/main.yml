@@ -6,6 +6,18 @@
   become: true
   vars:
     ansible_pull_url: https://github.com/wiseflat/simple-stack.git
+  vars_prompt:
+    - name: confirmation
+      prompt: You are going to configure {{ play_hosts | length }} servers.
+              Answer "yes" to confirm, something else to abort.
+      private: false
+      default: "yes"
+
+  pre_tasks:
+    - name: Fail if you didn't confirm
+      ansible.builtin.fail:
+        msg: You didn't answered "yes". Aborting.
+      when: confirmation != "yes"
   roles:
     - ansible-ufw
     - ansible-docker
