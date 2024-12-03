@@ -65,3 +65,8 @@
       username: "{{ mariadb_user }}"
       pass: "{{ mariadb_password }}"
       group: "demo/{{ software }}"
+
+- name: Add systemd timer to backup software
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: create
