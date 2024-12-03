@@ -11,6 +11,11 @@
     - name: domain
       prompt: Domain name
       private: false
+    - name: confirmation
+      prompt: You are going to configure a software on {{ play_hosts | length }} servers.
+              Answer "yes" to confirm, something else to abort.
+      private: false
+      default: "yes"
   vars:
     software_path: "/data/{{ domain }}"
     service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
@@ -19,6 +24,11 @@
     keepass_db_keyfile: "{{ lookup('ansible.builtin.env', 'KEEPASS_KEYFILE') }}"
     domain_vars: "{{ hostvars[inventory_hostname][domain] }}"
   pre_tasks:
+    - name: Fail if you didn't confirm
+      ansible.builtin.fail:
+        msg: You didn't answered "yes". Aborting.
+      when: confirmation != "yes"
+
     - name: Change file ownership, group and permissions
       ansible.builtin.file:
         path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
