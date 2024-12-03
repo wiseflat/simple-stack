@@ -86,3 +86,8 @@
       pass: "{{ forgejo_db_password }}"
       group: "demo/mariadb"
       url: "https://{{ domain }}"
+
+- name: Add systemd timer to backup software
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: create
