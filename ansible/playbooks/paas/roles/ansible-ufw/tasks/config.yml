@@ -17,7 +17,7 @@
     state: "{{ item.state | default(omit) }}"
     to_ip: "{{ item.to_ip | default(omit) }}"
     to_port: "{{ item.to_port | default(omit) }}"
-  with_items: "{{ ansible_local.ufw_rules | default(ufw_rules) }}"
+  with_items: "{{ ansible_local.ufw_custom_rules | default(ufw_rules) }}"
 
 - name: Config application rules
   community.general.ufw:
@@ -33,7 +33,3 @@
     group: root
     mode: '0644'
   notify: Reload ufw
-
-# - name: Reload ufw
-#   community.general.ufw:
-#     state: reloaded
