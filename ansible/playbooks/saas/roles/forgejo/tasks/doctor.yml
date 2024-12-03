@@ -1,0 +1,5 @@
+---
+- name: doctor check configuration
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-1"
+    command: forgejo doctor check --config /data/conf/app.ini --all --log-file /var/log/doctor.log

@@ -1,0 +1,6 @@
+---
+- name: Backup data
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-1"
+    command: forgejo dump --config /data/conf/app.ini
+    chdir: "/var/backup"

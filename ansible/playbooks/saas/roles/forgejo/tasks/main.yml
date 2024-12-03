@@ -8,8 +8,11 @@
     mode: "0755"
   loop:
     - "{{ software_path }}/data"
+    - "{{ software_path }}/data/log"
+    - "{{ software_path }}/data/custom"
     - "{{ software_path }}/data/conf"
     - "{{ software_path }}/var/backup"
+    - "{{ software_path }}/var/log"
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:
@@ -69,6 +72,8 @@
       APP_DATA_PATH: "/data"
     volumes:
       - "{{ software_path }}/data:/data:rw"
+      - "{{ software_path }}/var/backup:/var/backup:rw"
+      - "{{ software_path }}/var/log:/var/log:rw"
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /data/mariadb/run/mysqld:/run/mysqld:rw
