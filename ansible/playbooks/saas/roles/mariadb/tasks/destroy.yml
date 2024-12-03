@@ -1,0 +1,15 @@
+---
+- name: Remove systemd timer
+  ansible.builtin.include_role:
+    name: timer
+    tasks_from: remove
+
+- name: Remove containers
+  community.docker.docker_container:
+    name: "{{ domain }}-1"
+    state: absent
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent
