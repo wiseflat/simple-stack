@@ -1,0 +1,7 @@
+---
+- name: Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ mariadb_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
