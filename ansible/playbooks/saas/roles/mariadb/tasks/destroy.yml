@@ -6,7 +6,7 @@
 
 - name: Remove containers
   community.docker.docker_container:
-    name: "{{ domain }}-1"
+    name: "{{ domain }}"
     state: absent
 
 - name: Remove software directory
