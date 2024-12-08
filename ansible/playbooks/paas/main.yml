@@ -18,15 +18,11 @@
       ansible.builtin.fail:
         msg: You didn't answered "yes". Aborting.
       when: confirmation != "yes"
-  roles:
-    - ansible-ufw
-    - ansible-docker
-    - ansible-unattendedUpgrades
-    - ansible-pull
-  tasks:
+
     - name: Install mandatories packages
       ansible.builtin.package:
         pkg:
+          - python3-debian
           - python3-passlib
           - libxml2-utils
         state: present
@@ -36,3 +32,8 @@
       until: apt_status is success
       delay: 6
       retries: 10
+  roles:
+    - ansible-ufw
+    - ansible-docker
+    - ansible-unattendedUpgrades
+    - ansible-pull
