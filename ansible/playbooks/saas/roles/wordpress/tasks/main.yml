@@ -17,7 +17,7 @@
 
 - name: Inspect mariadb container
   community.docker.docker_container_info:
-    name: mariadb
+    name: "{{ software_vars.dbhost }}"
   register: docker_inspect
 
 - name: Set fact
@@ -97,12 +97,13 @@
         read_only: false
       - type: bind
         target: /run/mysqld
-        source: "/data/mariadb/run/mysqld"
+        source: "/data/{{ software_vars.dbhost }}/run/mysqld"
         read_only: false
     pull: never
     volumes:
       - "{{ software_path }}/etc/php-fpm.d/{{ item.id }}:/etc/php83/php-fpm.d:ro"
       - "{{ software_path }}/var/www/html:/var/www/html"
+      - "{{ software_path }}/var/backup:/var/backup:rw"
   loop: "{{ wordpress_scale.phpfpm }}"
 
 - name: Copy nginx config file
@@ -142,5 +143,5 @@
       name: "{{ wordpress_db_name }}"
       username: "{{ wordpress_db_user }}"
       pass: "{{ wordpress_db_password }}"
-      group: "demo/mariadb"
+      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/mariadb"
       url: "https://{{ domain }}"

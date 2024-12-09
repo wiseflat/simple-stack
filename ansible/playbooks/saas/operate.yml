@@ -16,6 +16,7 @@
   vars:
     software_path: "/data/{{ domain }}"
     service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
+    software_vars: "{{ hostvars[inventory_hostname][domain] }}"
   tasks:
     - name: Execute operation
       block:

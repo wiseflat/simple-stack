@@ -24,7 +24,7 @@
 
 - name: Create container
   community.docker.docker_container:
-    name: traefik
+    name: "{{ domain }}"
     image: "{{ software }}:{{ ansible_local.software_version[software] }}"
     state: started
     restart_policy: always
@@ -38,7 +38,7 @@
     mounts:
       - type: bind
         target: /etc/traefik
-        source: /data/traefik
+        source: "{{ software_path }}"
         read_only: true
       - type: bind
         target: /var/log/traefik

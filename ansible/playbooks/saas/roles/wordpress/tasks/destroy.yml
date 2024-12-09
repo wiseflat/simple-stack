@@ -20,7 +20,7 @@
 
 - name: Inpect container
   docker_container_info:
-    name: mariadb
+    name: "{{ software_vars.dbhost }}"
   register: docker_inspect
 
 - name: Set fact
