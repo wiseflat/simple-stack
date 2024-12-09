@@ -1,18 +1,6 @@
 ---
-- name: Restore wordpress
-  community.docker.docker_container:
-    name: "{{ domain }}-backup"
-    image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
-    auto_remove: true
-    detach: false
+- name: Restore data
+  community.docker.docker_container_exec:
+    container: "{{ domain }}-phpfpm-1"
     command: wp-cli db import --path=/var/www/html /var/backup/dump.sql
-    env:
-      HTTP_HOST: "{{ wordpress_site.url }}"
-    memory: 256M
-    pull: never
-    user: www-data
-    volumes:
-      - "{{ software_path }}/var/www/html:/var/www/html:ro"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
-      - "/data/mariadb/run/mysqld:/run/mysqld:ro"
-    working_dir: /var/www/html
+    chdir: /var/www/html
