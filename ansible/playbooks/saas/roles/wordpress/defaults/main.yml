@@ -1,21 +1,4 @@
 ---
-wordpress_db_name: "{{ service_name[:32] }}"
-wordpress_db_password: "{{ secret.password | default(lookup('password', '/tmp/wordpress_db_password chars=ascii_letters,digits,hexdigits length=15')) }}"
-wordpress_db_user: "{{ service_name[:32] }}"
-
-wordpress_site:
-  name: wordpress
-  dbname: "{{ wordpress_db_name }}"
-  dbuser: "{{ wordpress_db_user }}"
-  dbpass: "{{ wordpress_db_password }}"
-  path: "/var/www/html"
-  url: "{{ domain }}"
-  title: wordpress
-  locale: fr_FR
-  admin_name: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_LOGIN') }}"
-  admin_email: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
-  admin_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
-
 wordpress_scale:
   nginx:
     - id: 1

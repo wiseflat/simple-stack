@@ -40,3 +40,20 @@ image:
     - php-pdo_mysql
     - php-phar
     - mariadb-client
+
+wordpress_db_name: "{{ service_name[:32] }}"
+wordpress_db_password: "{{ secret.password | default(lookup('password', '/dev/null', chars=['ascii_letters', 'digits', 'hexdigits'], length=15, seed=inventory_hostname)) }}"
+wordpress_db_user: "{{ service_name[:32] }}"
+
+wordpress_site:
+  name: wordpress
+  dbname: "{{ wordpress_db_name }}"
+  dbuser: "{{ wordpress_db_user }}"
+  dbpass: "{{ wordpress_db_password }}"
+  path: "/var/www/html"
+  url: "{{ domain }}"
+  title: wordpress
+  locale: fr_FR
+  admin_name: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_LOGIN') }}"
+  admin_email: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
+  admin_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
