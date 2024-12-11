@@ -19,12 +19,6 @@
     software_vars: "{{ hostvars[inventory_hostname][domain] }}"
   tasks:
     - name: Execute operation
-      block:
-        - name: Execute operation
-          ansible.builtin.include_role:
-            name: "{{ software }}"
-            tasks_from: "{{ task }}"
-      rescue:
-        - name: Rescue
-          ansible.builtin.debug:
-            msg: "This task {{ task }} has a problem or does not exist in this role"
+      ansible.builtin.include_role:
+        name: "{{ software }}"
+        tasks_from: "{{ task }}"
