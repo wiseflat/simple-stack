@@ -13,3 +13,14 @@ image:
   labels: {}
   name: caddy
   origin: alpine:latest
+
+caddy_config_default: |
+  :8080
+  respond "Hello world"
+
+caddy_scale_default:
+  caddy:
+    - id: 1
+      state: started
+    - id: 2
+      state: started

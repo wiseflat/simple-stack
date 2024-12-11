@@ -1,11 +1,3 @@
 ---
-caddy_config: |
-  :8080
-  respond "Hello world"
-
-caddy_scale:
-  caddy:
-    - id: 1
-      state: started
-    - id: 2
-      state: started
+caddy_config: "{{ software_vars.config | default(caddy_config_default) }}"
+caddy_scale: "{{ software_vars.scale | default(caddy_scale_default) }}"

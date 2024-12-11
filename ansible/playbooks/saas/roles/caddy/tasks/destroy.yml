@@ -1,0 +1,11 @@
+---
+- name: Remove containers
+  community.docker.docker_container:
+    name: "{{ domain }}-{{ item.id }}"
+    state: absent
+  loop: "{{ caddy_scale.caddy }}"
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent
