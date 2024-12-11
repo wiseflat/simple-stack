@@ -1,2 +1,2 @@
 ---
-traefik_email: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL', default='demo@domain.com') }}"
+traefik_email: "{{ software_vars.email | default(traefik_email_default) }}"

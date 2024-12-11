@@ -13,3 +13,5 @@ image:
   labels: {}
   name: traefik
   origin: alpine:latest
+
+traefik_email_default: demo@domain.com
