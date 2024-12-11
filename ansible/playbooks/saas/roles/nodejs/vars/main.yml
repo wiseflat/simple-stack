@@ -11,3 +11,8 @@ image:
   dependances:
     - nodejs
     - npm
+
+nodejs_config_default:
+  initialize: false
+  repo: https://github.com/wiseflat/nodejs-helloworld.git
+  version: main
