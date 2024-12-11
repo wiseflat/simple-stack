@@ -10,7 +10,7 @@
     argv:
       - /bin/sh
       - "-c"
-      - "/usr/bin/arangodump --output-directory ./ --server.username root --server.password {{ arangodb_password_from_env }} --server.authentication true --server.endpoint tcp://127.0.0.1:8529 --overwrite true --all-databases true"
+      - "/usr/bin/arangodump --output-directory ./ --server.username root --server.password '{{ arangodb_password_from_env.split('=')[1] }}' --server.authentication true --server.endpoint tcp://127.0.0.1:8529 --overwrite true --all-databases true"
     chdir: "/var/backup"
   vars:
     arangodb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^ARANGO_ROOT_PASSWORD=') | first | default('') }}"

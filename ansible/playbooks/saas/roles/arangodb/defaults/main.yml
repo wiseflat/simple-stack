@@ -1,2 +1,1 @@
 ---
-arangodb_root_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"

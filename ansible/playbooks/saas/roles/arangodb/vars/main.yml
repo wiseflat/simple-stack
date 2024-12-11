@@ -11,3 +11,5 @@ image:
     os: linux
   labels: {}
   name: arangodb
+
+arangodb_root_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') | default('Oops!') }}"
