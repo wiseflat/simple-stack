@@ -26,7 +26,7 @@
 
 - name: Insert default configuration
   ansible.builtin.blockinfile:
-    path: "{{ software_path }}/config//configuration.yaml"
+    path: "{{ software_path }}/config/configuration.yaml"
     marker: "#<!-- {mark} http configuration -->"
     block: |
       {{ homeassistant_configuration | to_nice_yaml }}

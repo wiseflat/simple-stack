@@ -1,9 +1,3 @@
 ---
-homeassistant_devices: []
-  # "/dev/ttyACM0:/dev/ttyACM0"
-
-homeassistant_configuration:
-  http:
-    use_x_forwarded_for: true
-    trusted_proxies:
-      - 172.17.0.0/24
+homeassistant_devices: "{{ software_vars.devices | default(homeassistant_devices_default) }}"
+homeassistant_configuration: "{{ software_vars.configuration | default(homeassistant_configuration_default) }}"
