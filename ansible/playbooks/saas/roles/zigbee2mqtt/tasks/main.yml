@@ -35,7 +35,8 @@
     user: "1001:1001"
     groups:
       - dialout
-    devices: "{{ zigbee2mqtt_devices }}"
+    devices:
+      - "{{ zigbee2mqtt_config.device }}:{{ zigbee2mqtt_config.device }}"
     volumes:
       - "{{ software_path }}/app/data:/app/data:rw"
       - "/run/udev:/run/udev:ro"

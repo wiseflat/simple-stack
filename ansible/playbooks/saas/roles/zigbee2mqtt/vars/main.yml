@@ -11,3 +11,6 @@ image:
     os: linux
   labels: {}
   name: zigbee2mqtt
+
+zigbee2mqtt_config_default:
+  device: "/dev/ttyACM0"
