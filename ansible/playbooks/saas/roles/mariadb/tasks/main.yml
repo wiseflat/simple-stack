@@ -1,7 +1,4 @@
 ---
-- name: Install dependencies
-  ansible.builtin.include_tasks: dependencies.yml
-
 - name: Create default directory
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -57,6 +54,7 @@
         read_only: true
     volumes:
       - "{{ software_path }}/var/lib/mysql:/var/lib/mysql:Z"
+      - "{{ software_path }}/var/backup:/var/backup:rw"
 
 - name: Set secret variable
   set_fact:
@@ -64,7 +62,7 @@
       name: "{{ domain }}"
       username: "{{ mariadb_user }}"
       pass: "{{ mariadb_password }}"
-      group: "demo/{{ software }}"
+      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
 
 - name: Add systemd timer to backup software
   ansible.builtin.include_role:
