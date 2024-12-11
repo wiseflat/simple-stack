@@ -1,11 +1,2 @@
 ---
-wordpress_scale:
-  nginx:
-    - id: 1
-      state: started
-      php_socket: 2
-  phpfpm:
-    - id: 1
-      state: started
-    - id: 2
-      state: started
+wordpress_scale: "{{ software_vars.scale | default(wordpress_scale_default) }}"

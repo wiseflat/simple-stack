@@ -57,3 +57,14 @@ wordpress_site:
   admin_name: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_LOGIN') }}"
   admin_email: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
   admin_password: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
+
+wordpress_scale:
+  nginx:
+    - id: 1
+      state: started
+      php_socket: 2
+  phpfpm:
+    - id: 1
+      state: started
+    - id: 2
+      state: started
