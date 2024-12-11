@@ -84,7 +84,7 @@
       name: "{{ forgejo_db_name }}"
       username: "{{ forgejo_db_user }}"
       pass: "{{ forgejo_db_password }}"
-      group: "demo/mariadb"
+      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/forgejo"
       url: "https://{{ domain }}"
 
 - name: Add systemd timer to backup software
