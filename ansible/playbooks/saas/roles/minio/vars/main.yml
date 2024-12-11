@@ -13,3 +13,6 @@ image:
   labels: {}
   name: minio
   origin: alpine:latest
+
+minio_root_user: admin
+minio_root_password: "{{ secret.password | default(lookup('password', '/dev/null', chars=['ascii_letters', 'digits', 'hexdigits'], length=15, seed=inventory_hostname)) }}"

@@ -7,12 +7,22 @@
     group: root
     mode: '0755'
 
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: '0755'
+  loop:
+    - path: "{{ software_path }}/data"
+    - path: "{{ software_path }}/var/backup"
+
 - name: Create container
   community.docker.docker_container:
     name: "{{ domain }}-1"
     image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    state: "{{ item.state }}"
-    recreate: true
+    state: started
     restart_policy: always
     command: minio server /data --console-address ":9001"
     published_ports:
@@ -24,6 +34,7 @@
       MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
     volumes:
       - "{{ software_path }}/data:/data:rw"
+      - "{{ software_path }}/var/backup:/var/backup:rw"
 
 - name: Set secret variable
   set_fact:
@@ -31,4 +42,4 @@
       name: "{{ domain }}"
       username: "{{ minio_root_user }}"
       pass: "{{ minio_root_password }}"
-      group: "demo/{{ software }}"
+      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
