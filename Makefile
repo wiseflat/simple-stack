@@ -28,15 +28,40 @@ ansible-init:
 
 image:
 	@echo "Build a new docker image"
-	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_IMAGE)
+	@echo "Instance name: $(instance)"
+	@if [ -z "$(instance)" ]; then \
+		echo "Error: You must specify an instance name using 'make image instance=<name>'"; \
+		exit 1; \
+	fi
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_IMAGE) -l ${instance}
 
 deploy:
 	@echo "Deploy (or redeploy) a software"
-	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_DEPLOY)
+	@echo "Instance name: $(instance)"
+	@if [ -z "$(instance)" ]; then \
+		echo "Error: You must specify an instance name using 'make deploy instance=<name>'"; \
+		exit 1; \
+	fi
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_DEPLOY) -l ${instance}
 
 operate:
 	@echo "Operate on a software"
-	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE)
+	@echo "Domain name: $(domain)"
+	@if [ -z "$(domain)" ]; then \
+		echo "Error: You must specify a domain name using 'make operate domain=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Software name: $(software)"
+	@if [ -z "$(software)" ]; then \
+		echo "Error: You must specify a software name using 'make operate software=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Instance name: $(instance)"
+	@if [ -z "$(instance)" ]; then \
+		echo "Error: You must specify an instance name using 'make operate instance=<name>'"; \
+		exit 1; \
+	fi
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -l ${instance}
 
 check-ssh:
 	@echo "Checking SSH key..."
@@ -53,3 +78,25 @@ check-vars:
 		echo "Error: Terraform variable file '$(TF_VARS_FILE)' not found!"; \
 		exit 1; \
 	fi
+
+ansible-test:
+	@echo "Testing a software lifecycle with Ansible"
+	@echo "Domain name: $(domain)"
+	@if [ -z "$(domain)" ]; then \
+		echo "Error: You must specify a domain name using 'make ansible-test domain=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Software name: $(software)"
+	@if [ -z "$(software)" ]; then \
+		echo "Error: You must specify a software name using 'make ansible-test software=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Instance name: $(instance)"
+	@if [ -z "$(instance)" ]; then \
+		echo "Error: You must specify an instance name using 'make ansible-test instance=<name>'"; \
+		exit 1; \
+	fi
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_DEPLOY) -e "domain=$(domain)" -e "software=$(software)" -e "confirmation=yes" -l ${instance}
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=backup" -l ${instance}
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=restore" -l ${instance}
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=destroy" -l ${instance}
