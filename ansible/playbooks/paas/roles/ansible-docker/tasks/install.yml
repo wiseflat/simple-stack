@@ -1,6 +1,6 @@
 ---
 - name: Install mandatories packages
-  ansible.builtin.package:
+  ansible.builtin.apt:
     pkg:
       - apt-transport-https
       - ca-certificates
@@ -11,31 +11,24 @@
       - lsb-release
     state: present
     install_recommends: false
-    lock_timeout: 120
   register: apt_status
   until: apt_status is success
   delay: 6
   retries: 10
 
-- name: Add docker repository
-  ansible.builtin.deb822_repository:
-    name: docker
-    types: [deb]
-    uris: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
-    signed_by: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-    suites: ["{{ ansible_distribution_release | lower }}"]
-    components: [stable]
+- name: Get docker gpg signed key
+  ansible.builtin.get_url:
+    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    dest: /etc/apt/keyrings/docker.asc
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ upstream_default_arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
     state: present
-    enabled: true
-  register: docker_add_repo
+    filename: docker
 
-- name: Apt Update
+- name: Install Docker
   ansible.builtin.apt:
-    update_cache: true
-  when: docker_add_repo.changed
-
-- name: Install Docker packages from official repository
-  ansible.builtin.package:
     pkg:
       - docker-ce
       - docker-ce-cli

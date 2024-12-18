@@ -6,6 +6,13 @@
   become: true
   vars:
     ansible_pull_url: https://github.com/wiseflat/simple-stack.git
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
   vars_prompt:
     - name: confirmation
       prompt: You are going to configure {{ play_hosts | length }} servers.
