@@ -27,7 +27,6 @@
           - libxml2-utils
         state: present
         install_recommends: false
-        lock_timeout: 120
       register: apt_status
       until: apt_status is success
       delay: 6
