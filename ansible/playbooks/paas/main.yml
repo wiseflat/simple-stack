@@ -20,7 +20,7 @@
       when: confirmation != "yes"
 
     - name: Install mandatories packages
-      ansible.builtin.package:
+      ansible.builtin.apt:
         pkg:
           - python3-debian
           - python3-passlib
