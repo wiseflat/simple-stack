@@ -1,0 +1,29 @@
+name = "demo"
+
+region = "BHS5"
+
+public_key = "~/simple-stack/ansible/ssh/key.pub"
+private_key = "~/simple-stack/ansible/ssh/key"
+
+bastion = {
+    name = "bastion01"
+    groups = ["bastion"]
+    region = "BHS5"
+    flavor_name = "d2-2"
+    restricted_ips = [
+        "0.0.0.0/0"
+    ]
+}
+
+instances = {
+    "web01" = {
+        region = "BHS5"
+        flavor_name = "d2-2"
+        groups = ["infrastructure", "web"]
+    }
+    "web02" = {
+        region = "BHS5"
+        flavor_name = "d2-2"
+        groups = ["infrastructure", "web"]
+    }
+}
