@@ -2,7 +2,7 @@ terraform {
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
-      version = "1.52.1"
+      version = "3.0.0"
     }
     ansible = {
       source  = "ansible/ansible"

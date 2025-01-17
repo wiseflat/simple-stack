@@ -1,0 +1,7 @@
+---
+plugin: cloud.terraform.terraform_provider
+project_path:
+  - ../terraform/demo-openstack-instances
+  - ../terraform/demo-openstack-loadbalancer
+  - ../terraform/demo-openstack-instances
+binary_path: terraform

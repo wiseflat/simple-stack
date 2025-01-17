@@ -1,0 +1,20 @@
+name = "quanta"
+
+region = "BHS5"
+
+public_key = "~/simple-stack/ansible/ssh/key.pub"
+private_key = "~/simple-stack/ansible/ssh/key"
+
+secgroup_rules = {
+  "ssh" = { port = 22, cidr = "0.0.0.0/0" },
+  "http" = { port = 80, cidr = "0.0.0.0/0" },
+  "https" = { port = 443, cidr = "0.0.0.0/0" }
+}
+
+instances = {
+  "instance01.frontends.bhs5.ovhcloud.demo" = {
+    region      = "BHS5"
+    flavor_name = "d2-2"
+    groups      = ["infrastructure", "frontends"]
+  }
+}
