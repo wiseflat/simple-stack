@@ -13,13 +13,20 @@ variable "flavor_name" {
   default     = "d2-2"
 }
 
-variable "image" {
+variable "image_id" {
   description = "Openstack image description"
-  default     = "Ubuntu 24.04"
 }
 
-variable "public_key" {
-  description = "Default public key"
+variable "key_pair_id" {
+  description = "Default key_pair id"
+}
+
+variable "network_id" {
+  description = "Default network id"
+}
+
+variable "access_network" {
+  description = "Default access_network"
 }
 
 variable "private_key" {
@@ -33,4 +40,9 @@ variable "region" {
 variable "user_name" {
   description = "Linux user name"
   default     = "ubuntu"
+}
+
+variable "groups" {
+  description = "Ansible groups"
+  default     = ["ovhcloud"]
 }

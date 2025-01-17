@@ -1,26 +1,8 @@
-data "openstack_images_image_v2" "default" {
-  name        = var.image
-  most_recent = true
 
-  region = var.region
-}
-
-resource "openstack_compute_keypair_v2" "default" {
-  name       = replace(var.hostname, ".", "-")
-  public_key = var.public_key
-
-  region = var.region
-}
-
-data "openstack_networking_network_v2" "default" {
-  name = var.network_name
-
-  region = var.region
-}
 
 resource "openstack_networking_port_v2" "default" {
   name               = var.hostname
-  network_id         = data.openstack_networking_network_v2.default.id
+  network_id         = var.network_id
   admin_state_up     = "true"
   security_group_ids = []
 
@@ -35,14 +17,14 @@ resource "openstack_networking_port_v2" "default" {
 
 resource "openstack_compute_instance_v2" "instance" {
   name        = var.hostname
-  image_id    = data.openstack_images_image_v2.default.id
+  image_id    = var.image_id
   flavor_name = var.flavor_name
-  key_pair    = openstack_compute_keypair_v2.default.id
+  key_pair    = var.key_pair_id
 
   region = var.region
 
   network {
-    access_network = true
+    access_network = var.access_network
     port           = openstack_networking_port_v2.default.id
   }
 
@@ -57,8 +39,6 @@ bootcmd:
  - systemctl stop snapd.service snapd.socket fwupd.service
  - systemctl disable snapd.service snapd.socket fwupd.service
 package_upgrade: true
-ssh_authorized_keys:
-  ${openstack_compute_keypair_v2.default.public_key}
 final_message: "The system is finally up, after $UPTIME seconds"
 EOF
 
@@ -69,10 +49,10 @@ EOF
   }
 }
 
-resource "ansible_host" "instance" {
+resource "ansible_host" "host" {
 
   name   = var.hostname
-  groups = ["ovhcloud"]
+  groups = var.groups
 
   variables = {
     ansible_user                 = var.user_name
@@ -83,26 +63,12 @@ resource "ansible_host" "instance" {
   }
 }
 
-resource "ansible_group" "infrastructure" {
-  name     = "infrastructure"
-  children = ["ovhcloud"]
+# resource "ansible_group" "groups" {
 
-  variables = {
-  }
-}
+#   for_each = var.groups
 
-resource "ansible_group" "firewall" {
-  name     = "firewall"
-  children = ["ovhcloud"]
+#   name     = each.value.name
+#   children = [each.value.children]
 
-  variables = {
-  }
-}
-
-resource "ansible_group" "docker" {
-  name     = "docker"
-  children = ["ovhcloud"]
-
-  variables = {
-  }
-}
+#   variables = each.value.variables
+# }
