@@ -1,0 +1,31 @@
+plugin "docker" {
+    config {
+    	endpoint = "unix:///var/run/docker.sock"
+
+{% if nomad_docker_private_registry_state %}
+        auth {
+            config = {{ nomad_docker_private_registry_config }}
+        }
+{% endif %}
+
+        allow_privileged = {{ nomad_docker_allow_privileged }}
+
+        volumes {
+            enabled = {{ nomad_docker_volume_enable }}
+        }
+        allow_caps = [{% for item in nomad_docker_client_allow_caps %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+
+        gc {
+        image       = {{ nomad_docker_gc_image }}
+        image_delay = "{{ nomad_docker_gc_image_delay }}"
+        container   = {{ nomad_docker_gc_container }}
+
+        dangling_containers {
+            enabled        = {{ nomad_docker_gc_dangling_containers_enabled }}
+            dry_run        = {{ nomad_docker_gc_dangling_containers_dry_run }}
+            period         = "{{ nomad_docker_gc_dangling_containers_period }}"
+            creation_grace = "{{ nomad_docker_gc_dangling_containers_creation_grace }}"
+            }
+        }
+    }
+}

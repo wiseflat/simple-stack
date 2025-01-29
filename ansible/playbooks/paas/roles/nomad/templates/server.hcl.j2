@@ -1,0 +1,31 @@
+server {
+    enabled = {{ nomad_server_enabled }}
+
+    bootstrap_expect = {{ nomad_server_bootstrap_expect }}
+
+
+
+    data_dir = "{{ nomad_data_dir_server }}"
+
+    rejoin_after_leave = {{ nomad_server_rejoin_after_leave }}
+
+    # enabled_schedulers = [{% for item in nomad_server_enabled_schedulers %}"{{ item }}"{% if not loop.last %},{% endif %}{% endfor %}]
+
+    # num_schedulers = {{ nomad_server_num_schedulers }}
+
+    heartbeat_grace = "{{ nomad_server_heartbeat_grace }}"
+    min_heartbeat_ttl = "{{ nomad_server_min_heartbeat_ttl }}"
+    failover_heartbeat_ttl = "{{ nomad_server_failover_heartbeat_ttl }}"
+    max_heartbeats_per_second = {{ nomad_server_max_heartbeats_per_second }}
+
+    event_buffer_size = {{ nomad_server_event_buffer_size }}
+    node_gc_threshold = "{{ nomad_server_node_gc_threshold }}"
+    eval_gc_threshold = "{{ nomad_server_eval_gc_threshold }}"
+    job_gc_threshold = "{{ nomad_server_job_gc_threshold }}"
+    deployment_gc_threshold = "{{ nomad_server_deployment_gc_threshold }}"
+
+    encrypt = "{{ nomad_encrypt_key | default(ansible_local.nomad_encrypt_key.nomad_encrypt_key) }}"
+
+    raft_protocol = {{ nomad_server_raft_protocol }}
+
+}

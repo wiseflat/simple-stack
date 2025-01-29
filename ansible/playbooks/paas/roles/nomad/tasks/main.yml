@@ -1,0 +1,21 @@
+---
+- name: Add Hashicorp Stable APT repository
+  ansible.builtin.deb822_repository:
+    name: hashicorp
+    types: [deb]
+    uris: "https://apt.releases.hashicorp.com"
+    signed_by: "https://apt.releases.hashicorp.com/gpg"
+    suites: ["{{ ansible_distribution_release|lower }}"]
+    components: [main]
+    state: present
+    enabled: true
+
+- name: Update APT Cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install nomad
+  ansible.builtin.include_tasks: install.yml
+
+- name: Configure nomad
+  ansible.builtin.include_tasks: configure.yml

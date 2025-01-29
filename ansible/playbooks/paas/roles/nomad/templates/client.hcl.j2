@@ -1,0 +1,62 @@
+client {
+    enabled = {{ nomad_client_enabled }}
+
+
+    state_dir = "{{ nomad_state_dir_client }}"
+
+    node_class = "{{ nomad_client_node_class }}"
+    node_pool = "{{ nomad_client_node_pool }}"
+
+    no_host_uuid = {{ nomad_client_no_host_uuid }}
+
+    {% if nomad_client_network_interface is defined -%}
+    network_interface = "{{ nomad_client_network_interface }}"
+    {% endif -%}
+{% for item in nomad_client_host_network_list %}
+    host_network "{{ item.name }}"  {
+{% if nomad_client_host_network_list is defined and item.interface is defined %}
+      interface = "{{ item.interface }}"
+{% endif %}
+{% if nomad_client_host_network_list is defined and item.cidr is defined %}
+      cidr = "{{ item.cidr }}"
+{% endif %}
+{% if nomad_client_host_network_list is defined and item.reserved_ports is defined %}
+      reserved_ports = "{{ item.reserved_ports }}"
+{% endif %}
+    }
+
+{% endfor %}
+{% if nomad_client_meta_list%}
+    meta = {
+    {% for key, value in nomad_client_meta_list.items() %}
+    "{{ key }}" = "{{ value }}"
+    {% endfor -%}
+    }
+{% endif %}
+
+{% if nomad_mode == 'cluster' %}
+    drain_on_shutdown {
+      deadline           = "{{ nomad_client_drain_on_shutdown_deadline }}"
+      force              = {{ nomad_client_drain_on_shutdown_force }}
+      ignore_system_jobs = {{ nomad_client_drain_on_shutdown_ignore_system_jobs }}
+    }
+{% endif %}
+
+    max_kill_timeout = "{{ nomad_client_max_kill_timeout }}"
+
+    cpu_total_compute = {{ nomad_client_cpu_total_compute }}
+    memory_total_mb = {{ nomad_client_memory_total_mb }}
+    disk_total_mb = {{ nomad_client_disk_total_mb }}
+    disk_free_mb = {{ nomad_client_disk_free_mb }}
+
+    gc_interval = "{{ nomad_client_gc_interval }}"
+    gc_disk_usage_threshold = {{ nomad_client_gc_disk_usage_threshold }}
+    gc_inode_usage_threshold = {{ nomad_client_gc_inode_usage_threshold }}
+    gc_parallel_destroys = {{ nomad_client_gc_parallel_destroys }}
+
+    reserved {
+        cpu = {{ nomad_client_reserved_cpu }}
+        memory = {{ nomad_client_reserved_memory }}
+        disk = {{ nomad_client_reserved_disk }}
+    }
+}
