@@ -1,0 +1,17 @@
+---
+image:
+  build: false
+  upstream:
+    description: "Like loki, but for logs"
+    source: github
+    user: grafana
+    repo: loki
+    type: release
+    format: zip
+    file: loki-OS-ARCH.FORMAT
+    os: linux
+    binary: loki
+  labels: {}
+  name: loki
+
+build_work_dir: /tmp/loki
