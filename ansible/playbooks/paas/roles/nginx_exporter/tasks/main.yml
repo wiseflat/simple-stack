@@ -1,0 +1,9 @@
+---
+- name: Build and install debian package
+  block:
+    - name: Build debian package
+      ansible.builtin.include_tasks: build.yml
+  rescue:
+    - name: Let's continue the playbook anyway
+      debug:
+        msg: Rescue debug task

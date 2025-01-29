@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: nginxinc
+    repo: nginx-prometheus-exporter
+    type: release
+    format: tar.gz
+    file: nginx-prometheus-exporter_VERSION_OS_ARCH.FORMAT
+    os: linux
+    binary: nginx-prometheus-exporter
+  labels: {}
+  name: nginx_exporter
+
+build_work_dir: /tmp/nginx_exporter
