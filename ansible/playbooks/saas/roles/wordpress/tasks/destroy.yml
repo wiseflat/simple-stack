@@ -1,49 +1,33 @@
 ---
-- name: Remove phpfpm containers
-  community.docker.docker_container:
-    name: "{{ domain }}-phpfpm-{{ item.id }}"
-    state: absent
-  loop: "{{ wordpress_scale.phpfpm }}"
-  ignore_errors: true
+- name: Stop nomad job
+  ansible.builtin.shell: "nomad job stop {{ domain }}"
 
-- name: Remove nginx containers
-  community.docker.docker_container:
-    name: "{{ domain }}-nginx-{{ item.id }}"
-    state: absent
-  loop: "{{ wordpress_scale.nginx }}"
-  ignore_errors: true
-
-- name: Remove software directory
-  ansible.builtin.file:
-    path: "{{ software_path }}"
-    state: absent
-
-- name: Inpect container
-  docker_container_info:
-    name: "{{ software_vars.dbhost }}"
-  register: docker_inspect
-
-- name: Set fact
-  ansible.builtin.set_fact:
-    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
-    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+- name: Query SRV records
+  dig:
+    service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  register: service
 
 - name: Mysql delete database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ wordpress_db_name }}"
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost + '/password') }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ service_name[:32] }}"
     state: absent
 
 - name: Mysql delete user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ wordpress_db_user }}"
-    host: 'localhost'
-    priv: "{{ wordpress_db_name }}.*:ALL"
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost + '/password') }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ lookup('community.general.passwordstore', 'wordpress/' + domain, subkey='dbuser') }}"
+    host: '%'
+    priv: "{{ service_name[:32] }}.*:ALL"
+    state: absent
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
     state: absent

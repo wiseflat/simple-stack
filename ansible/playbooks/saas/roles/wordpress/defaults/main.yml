@@ -1,2 +1,1 @@
 ---
-wordpress_scale: "{{ software_vars.scale | default(wordpress_scale_default) }}"

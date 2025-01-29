@@ -1,4 +1,49 @@
 ---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/var/www/html"
+    - "{{ software_path }}/var/log/nginx"
+    - "{{ software_path }}/var/log/php-fpm"
+    - "{{ software_path }}/etc/nginx/sites-enabled"
+    - "{{ software_path }}/etc/php-fpm.d"
+    - "{{ software_path }}/run/php-fpm"
+    - "{{ software_path }}/var/backup"
+
+- name: Query SRV records
+  dig:
+    service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  register: service
+
+- name: Create mysql database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost, subkey='password') }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ service_name[:32] }}"
+    encoding: utf8
+    collation: utf8_general_ci
+    state: present
+
+- name: Create mysql user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost, subkey='password') }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ lookup('community.general.passwordstore', 'wordpress/' + domain, missing='create', subkey='dbuser', nosymbols=true, length=8) }}"
+    host: '%'
+    column_case_sensitive: false
+    password: "{{ lookup('community.general.passwordstore', 'wordpress/' + domain, subkey='dbpassword', missing='create') }}"
+    priv: "{{ service_name[:32] }}.*:ALL"
+    state: present
+  
 - name: Install wordpress
   community.docker.docker_container:
     name: "{{ domain }}-install"
@@ -7,7 +52,7 @@
     cleanup: true
     command: "{{ item }}"
     env:
-      HTTP_HOST: "{{ wordpress_site.url }}"
+      HTTP_HOST: "{{ domain }}"
     memory: 256M
     pull: never
     volumes:
@@ -15,43 +60,26 @@
     mounts:
       - type: bind
         target: /run/mysqld
-        source: "/data/mariadb/run/mysqld"
+        source: "/data/{{ software_vars.dbhost }}/run/mysqld"
         read_only: false
     working_dir: /var/www/html
   loop:
     - >
       wp-cli core download
-      --allow-root --no-color --path='{{ wordpress_site.path }}'
-      --locale='{{ wordpress_site.locale | default('en_US') }}'
+      --allow-root --no-color --path='/var/www/html'
+      --locale='fr_FR'
     - >
       wp-cli core config
-      --allow-root --no-color --path='{{ wordpress_site.path }}'
-      --dbname='{{ wordpress_site.dbname }}'
-      --dbuser='{{ wordpress_site.dbuser }}'
-      --dbpass='{{ wordpress_site.dbpass }}'
+      --allow-root --no-color --path='/var/www/html'
+      --dbname='{{ service_name[:32] }}'
+      --dbuser="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, subkey='dbuser') }}"
+      --dbpass="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, subkey='dbpassword') }}"
       --dbhost='localhost:/run/mysqld/mysqld.sock'
-      --dbprefix='{{ wordpress_site.dbprefix | default('wp_') }}'
+      --dbprefix='wp_'
     - >
       wp-cli core install
-      --allow-root --no-color --path='{{ wordpress_site.path }}'
-      --url='{{ wordpress_site.url }}' --title='{{ wordpress_site.title }}'
-      --admin_name='{{ wordpress_site.admin_name | default('admin') }}'
-      --admin_email='{{ wordpress_site.admin_email }}'
-      --admin_password='{{ wordpress_site.admin_password }}'
-
-- name: Recursively change ownership of a directory
-  ansible.builtin.file:
-    path: "{{ software_path }}/var/www/html"
-    state: directory
-    recurse: true
-    owner: www-data
-    group: www-data
-
-- name: Remove sensible files
-  ansible.builtin.file:
-    path: "{{ software_path }}/var/www/html/{{ item }}"
-    state: absent
-  loop:
-    - license.txt
-    - readme.html
-    - wp-config-sample.php
+      --allow-root --no-color --path='/var/www/html'
+      --url='{{ domain }}' --title='Wordpress'
+      --admin_name="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, missing='create', subkey='admin', nosymbols=true, length=8) }}"
+      --admin_email="{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
+      --admin_password="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, missing='create', subkey='password', length=8) }}"

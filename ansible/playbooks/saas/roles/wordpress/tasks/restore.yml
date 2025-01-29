@@ -1,6 +1,22 @@
 ---
-- name: Restore data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-phpfpm-1"
-    command: wp-cli db import --path=/var/www/html /var/backup/dump.sql
+- name: Copy backup nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.restore.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  vars:
+    operation: restore
+    command: wp-cli
+    args:
+        - db 
+        - import 
+        - --allow-root 
+        - --path=/var/www/html 
+        - /var/backup/dump.sql
     chdir: /var/www/html
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.restore.nomad"

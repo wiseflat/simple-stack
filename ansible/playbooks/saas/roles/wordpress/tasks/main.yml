@@ -1,54 +1,4 @@
 ---
-- name: Create default directory
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  loop:
-    - "{{ software_path }}/var/www/html"
-    - "{{ software_path }}/var/log/nginx"
-    - "{{ software_path }}/var/log/php-fpm"
-    - "{{ software_path }}/etc/nginx/sites-enabled"
-    - "{{ software_path }}/etc/php-fpm.d"
-    - "{{ software_path }}/run/php-fpm"
-    - "{{ software_path }}/var/backup"
-
-- name: Inspect mariadb container
-  community.docker.docker_container_info:
-    name: "{{ software_vars.dbhost }}"
-  register: docker_inspect
-
-- name: Set fact
-  ansible.builtin.set_fact:
-    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
-    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
-
-- name: Create mysql database
-  community.mysql.mysql_db:
-    login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ wordpress_db_name }}"
-    encoding: utf8
-    collation: utf8_general_ci
-    state: present
-
-- name: Create mysql user
-  community.mysql.mysql_user:
-    login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ wordpress_db_user }}"
-    host: 'localhost'
-    column_case_sensitive: false
-    password: "{{ wordpress_db_password }}"
-    priv: "{{ wordpress_db_name }}.*:ALL"
-    state: present
-
 - name: Test if config file exists
   ansible.builtin.stat:
     path: "{{ software_path }}/var/www/html/wp-config.php"
@@ -58,90 +8,46 @@
   ansible.builtin.include_tasks: install.yml
   when: not stat_result.stat.exists
 
-- name: Create default directory
-  ansible.builtin.file:
-    path: "{{ software_path }}/etc/php-fpm.d/{{ item.id }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  loop: "{{ wordpress_scale.phpfpm }}"
-
-- name: Copy phpfpm config file
-  ansible.builtin.template:
-    src: phpfpm.conf
-    dest: "{{ software_path }}/etc/php-fpm.d/{{ item.id }}/www.conf"
-    mode: '0644'
-  loop: "{{ wordpress_scale.phpfpm }}"
-
-- name: Create phpfpm container
-  community.docker.docker_container:
-    name: "{{ domain }}-phpfpm-{{ item.id }}"
-    image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
-    state: "{{ item.state }}"
-    recreate: false
-    restart_policy: always
-    labels:
-      ansible_app_role: php-fpm
-      traefik.enable: "false"
-    env:
-      WORDPRESS_DB_PASSWORD: "{{ wordpress_db_password }}"
-    mounts:
-      - type: bind
-        target: /run/php-fpm
-        source: "{{ software_path }}/run/php-fpm"
-        read_only: false
-      - type: bind
-        target: /var/log/php-fpm
-        source: "{{ software_path }}/var/log/php-fpm"
-        read_only: false
-      - type: bind
-        target: /run/mysqld
-        source: "/data/{{ software_vars.dbhost }}/run/mysqld"
-        read_only: false
-    pull: never
-    volumes:
-      - "{{ software_path }}/etc/php-fpm.d/{{ item.id }}:/etc/php83/php-fpm.d:ro"
-      - "{{ software_path }}/var/www/html:/var/www/html"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
-  loop: "{{ wordpress_scale.phpfpm }}"
-
 - name: Copy nginx config file
   ansible.builtin.template:
     src: nginx.conf
     dest: "{{ software_path }}/etc/nginx/sites-enabled/default.conf"
     mode: '0644'
-  loop: "{{ wordpress_scale.nginx }}"
 
-- name: Create nginx container
-  community.docker.docker_container:
-    name: "{{ domain }}-nginx-{{ item.id }}"
-    image: "nginx:{{ ansible_local.software_version['nginx'] }}"
-    state: "{{ item.state }}"
-    recreate: true
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:80
-    labels: "{{ traefik_labels_result.labels }}"
-    mounts:
-      - type: bind
-        target: /run/php-fpm
-        source: "{{ software_path }}/run/php-fpm"
-        read_only: false
-      - type: bind
-        target: /var/www/html
-        source: "{{ software_path }}/var/www/html"
-        read_only: true
-    pull: never
-    volumes:
-      - "{{ software_path }}/etc/nginx/sites-enabled:/etc/nginx/sites-enabled:ro"
-  loop: "{{ wordpress_scale.nginx }}"
+- name: Copy phpfpm config file
+  ansible.builtin.template:
+    src: phpfpm.conf
+    dest: "{{ software_path }}/etc/php-fpm.d/www.conf"
+    mode: '0644'
+  
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: "{{ software_path }}/var/www/html"
+    state: directory
+    recurse: true
+    owner: www-data
+    group: www-data
 
-- name: Set secret variable
-  ansible.builtin.set_fact:
-    secret:
-      name: "{{ wordpress_db_name }}"
-      username: "{{ wordpress_db_user }}"
-      pass: "{{ wordpress_db_password }}"
-      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/mariadb"
-      url: "https://{{ domain }}"
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Copy periodic nomad job
+  ansible.builtin.template:
+    src: nomad.periodic.hcl
+    dest: "/var/tmp/{{ domain }}-periodic.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad jobs
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ item }}.nomad"
+  loop:
+    - "{{ domain }}"
+    - "{{ domain }}-periodic"
