@@ -6,13 +6,6 @@
   become: true
   vars:
     ansible_pull_url: https://github.com/wiseflat/simple-stack.git
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
   vars_prompt:
     - name: confirmation
       prompt: You are going to configure {{ play_hosts | length }} servers.
@@ -26,20 +19,117 @@
         msg: You didn't answered "yes". Aborting.
       when: confirmation != "yes"
 
+    - name: Create ansible facts.d directory
+      become: yes
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+
+    - name: Get ipinfo.io
+      ansible.builtin.uri:
+        url: https://ipinfo.io
+        http_agent: curl/7.81.0
+      register: register_uri
+      check_mode: false
+
+    - name: Set ipinfo local_fact
+      ansible.builtin.copy:
+        content: |
+          {{ register_uri.json | to_nice_json }}
+        dest: /etc/ansible/facts.d/ipinfo.fact
+        mode: '0644'
+
     - name: Install mandatories packages
       ansible.builtin.apt:
         pkg:
           - python3-debian
           - python3-passlib
           - libxml2-utils
+          - ruby-rubygems
+          - golang
+          - binutils
+          - unzip
+          - make
+          - python3-pymysql
+
         state: present
         install_recommends: false
       register: apt_status
       until: apt_status is success
       delay: 6
       retries: 10
+
+    - name: Install latest available version of fpm
+      shell: gem install fpm        
+
   roles:
-    - ansible-ufw
-    - ansible-docker
     - ansible-unattendedUpgrades
     - ansible-pull
+
+- name: Install metrology
+  any_errors_fatal: true
+  hosts: metrology
+  gather_facts: true
+  become: true
+  vars:
+    golang_version: '1.23.3'
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+  roles:
+    - prometheus
+    - phpfpm_exporter
+    - node_exporter
+    - mysqld_exporter
+    - systemd_exporter
+    - blackbox_exporter
+    - nginx_exporter
+    - loki
+    - coredns
+
+- name: Install ufw firewall
+  any_errors_fatal: true
+  hosts: firewall
+  gather_facts: true
+  become: true
+  roles:
+    - ansible-ufw
+
+- name: Install docker
+  any_errors_fatal: true
+  hosts: docker
+  gather_facts: true
+  become: true
+  vars:
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+  roles:
+    - ansible-docker
+
+- name: Install nomad
+  any_errors_fatal: true
+  hosts: nomad
+  gather_facts: true
+  become: true
+  vars:
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+  roles:
+    - nomad
