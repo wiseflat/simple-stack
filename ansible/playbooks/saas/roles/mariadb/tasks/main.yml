@@ -1,70 +1,27 @@
 ---
-- name: Create default directory
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: directory
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: '0755'
-  loop:
-    - path: "{{ software_path }}"
-    - path: "{{ software_path }}/root"
-    - path: "{{ software_path }}/var/lib"
-    - path: "{{ software_path }}/run"
-    - path: "{{ software_path }}/var/lib/mysql"
-      owner: 999
-      group: 999
-    - path: "{{ software_path }}/run/mysqld"
-      owner: 999
-      group: 999
-    - path: "{{ software_path }}/var/backup"
+- name: Install mariadb
+  ansible.builtin.include_tasks: install.yml
 
-- name: Copy config files
+- name: Copy nomad job
   ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ software_path }}/{{ item.dest }}"
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
     owner: root
     group: root
-    mode: "{{ item.mode | default('0600') }}"
-  loop:
-    - src: my.cnf
-      dest: root/.my.cnf
+    mode: '0600'
+  become: true
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}"
-    image: "mariadb:{{ mariadb_version }}"
-    state: started
-    recreate: false
-    restart_policy: always
-    published_ports:
-      - "172.17.0.1:0:3306"
-    env:
-      MARIADB_ROOT_PASSWORD: "{{ mariadb_password }}"
-    labels:
-      traefik.enable: "false"
-    mounts:
-      - type: bind
-        target: /run/mysqld
-        source: "{{ software_path }}/run/mysqld"
-        read_only: false
-      - type: bind
-        target: /root/.my.cnf
-        source: "{{ software_path }}/root/.my.cnf"
-        read_only: true
-    volumes:
-      - "{{ software_path }}/var/lib/mysql:/var/lib/mysql:Z"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"
 
-- name: Set secret variable
-  set_fact:
-    secret:
-      name: "{{ domain }}"
-      username: "{{ mariadb_user }}"
-      pass: "{{ mariadb_password }}"
-      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
+- name: Copy periodic nomad job
+  ansible.builtin.template:
+    src: nomad.periodic.hcl
+    dest: "/var/tmp/{{ domain }}.periodic.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
 
-- name: Add systemd timer to backup software
-  ansible.builtin.include_role:
-    name: timer
-    tasks_from: create
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.periodic.nomad"

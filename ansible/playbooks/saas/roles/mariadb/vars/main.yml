@@ -5,5 +5,3 @@ image:
   name: mariadb
 
 mariadb_version: 11.5.2
-mariadb_user: root
-mariadb_password: "{{ secret.password | default(lookup('password', '/dev/null', chars=['ascii_letters', 'digits', 'hexdigits'], length=15, seed=inventory_hostname)) }}"

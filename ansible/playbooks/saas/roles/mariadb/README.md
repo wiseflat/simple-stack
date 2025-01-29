@@ -11,3 +11,4 @@ www.domain.com:
   software: mariadb        # (string) Name of the role/software being deployed.
   domain_alias: domain.com # (string) Primary domain name for the application.
   ipfilter: []             # (list) List of allowed IPs for access control (empty for unrestricted access).
+  size: small              # (string) Container size (small, medium, large, xl, xxl)

@@ -1,9 +1,19 @@
 ---
-- name: Restore data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}"
-    argv:
-      - /bin/sh
-      - "-c"
-      - "mariadb < /var/backup/dump.sql"
+- name: Copy restore nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.restore.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  vars:
+    operation: restore
+    command: /usr/bin/mariadb
+    args:
+        - "<"
+        - "/var/backup/dump.sql"
     chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.restore.nomad"

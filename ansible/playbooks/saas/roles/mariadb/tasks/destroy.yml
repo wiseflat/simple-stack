@@ -1,13 +1,9 @@
 ---
-- name: Remove systemd timer
-  ansible.builtin.include_role:
-    name: timer
-    tasks_from: remove
-
-- name: Remove containers
-  community.docker.docker_container:
-    name: "{{ domain }}"
-    state: absent
+- name: Stop nomad jobs
+  ansible.builtin.shell: "nomad job stop {{ item }}"
+  loop:
+    - "{{ domain }}"
+    - "{{ domain }}-backup"
 
 - name: Remove software directory
   ansible.builtin.file:

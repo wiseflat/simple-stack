@@ -1,9 +1,20 @@
 ---
-- name: Backup data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}"
-    argv:
-      - /bin/sh
-      - "-c"
-      - "mariadb-dump --all-databases > /var/backup/dump.sql"
+- name: Copy backup nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.backup.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  vars:
+    operation: backup
+    command: /usr/bin/mariadb-dump
+    args:
+        - "--all-databases"
+        - ">"
+        - "/var/backup/dump.sql"
     chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.backup.nomad"
