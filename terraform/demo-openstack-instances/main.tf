@@ -60,4 +60,5 @@ module "instances" {
   network_id     = data.openstack_networking_network_v2.public.id
   access_network = true
   private_key    = var.private_key
+  security_group_ids = [openstack_networking_secgroup_v2.ingress.id]
 }

@@ -2,7 +2,7 @@ resource "openstack_networking_port_v2" "default" {
   name               = var.hostname
   network_id         = var.network_id
   admin_state_up     = "true"
-  security_group_ids = []
+  security_group_ids = var.security_group_ids
 
   region = var.region
 

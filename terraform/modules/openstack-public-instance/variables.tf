@@ -3,11 +3,6 @@ variable "hostname" {
   default     = "instance01"
 }
 
-# variable "network_name" {
-#   description = "Network Name"
-#   default     = "Ext-Net"
-# }
-
 variable "flavor_name" {
   description = "Openstack flavor name"
   default     = "d2-2"
@@ -46,4 +41,9 @@ variable "user_name" {
 variable "groups" {
   description = "Ansible groups"
   default     = ["ovhcloud"]
+}
+
+variable "security_group_ids" {
+  description = "List of security group ids"
+  default     = []
 }
