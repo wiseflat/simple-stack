@@ -1,0 +1,27 @@
+ARGS="--log.level=info \
+--web.listen-address=127.0.0.1:9100 \
+--web.telemetry-path=/metrics \
+--collector.diskstats.ignored-devices='^(ram|loop|fd|(h|s|v|xv)d[a-z]|nbd|nvme[0-9]+n[0-9]+p|md|dm-)[0-9]+$' \
+--collector.filesystem.mount-points-exclude='^/(dev(/shm)?|proc|run(/.+)?|sys|var/tmp|(var/lib|home)/(docker|kubelet)/.+)($|/)' \
+--collector.netdev.device-exclude='^(bond|dummy|erspan|gre|gretap|ifb|sit|teql|tunl|lo|docker|cali.+)[0-9]*$' \
+--collector.netstat.fields=Tcp_RetransSegs \
+--collector.vmstat.fields=oom_kill \
+--no-collector.cpu.guest \
+--web.disable-exporter-metrics \
+--collector.disable-defaults \
+--collector.arp \
+--collector.conntrack \
+--collector.cpu \
+--collector.diskstats \
+--collector.filefd \
+--collector.filesystem \
+--collector.hwmon \
+--collector.loadavg \
+--collector.mdadm \
+--collector.meminfo \
+--collector.netdev \
+--collector.netstat \
+--collector.stat \
+--collector.tcpstat \
+--collector.vmstat"
+#   --collector.textfile.directory /var/lib/node_exporter/textfile_collector

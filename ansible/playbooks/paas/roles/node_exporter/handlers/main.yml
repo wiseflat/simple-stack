@@ -1,0 +1,6 @@
+---
+- name: Restart node_exporter
+  ansible.builtin.systemd:
+    state: restarted
+    name: node_exporter
+    enabled: true

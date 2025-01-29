@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: prometheus
+    repo: node_exporter
+    type: release
+    format: tar.gz
+    file: REPO-VERSION.OS-ARCH.FORMAT
+    os: linux
+    binary: node_exporter
+  labels: {}
+  name: node_exporter
+
+build_work_dir: /tmp/node_exporter
