@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: prometheus
+    repo: prometheus
+    type: release
+    format: tar.gz
+    file: REPO-VERSION.OS-ARCH.FORMAT
+    os: linux
+    binary: prometheus
+  labels: {}
+  name: prometheus
+
+build_work_dir: /tmp/prometheus

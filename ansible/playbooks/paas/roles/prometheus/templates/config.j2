@@ -1,0 +1,259 @@
+---
+global:
+  scrape_interval: 60s
+  # evaluation_interval: 60s
+  # scrape_timeout is set to the global default (10s).
+  external_labels:
+    cluster: demo
+    namespace: demo
+
+rule_files:
+  # - rules.yml
+  - mimir.yml
+
+{% if prometheus_remote_write %}
+remote_write:
+  - url: {{ prometheus_remote_url }}/api/v1/push
+    headers:
+      X-Scope-OrgID: demo
+    send_exemplars: true
+    basic_auth:
+      username: "{{ prometheus_remote_login }}"
+      password: "{{ prometheus_remote_password }}"
+    queue_config:
+      capacity: 10000
+      #max_shards: 100
+      min_shards: 1
+      #max_samples_per_send: 3000
+      batch_send_deadline: 120s
+      min_backoff: 120ms
+      max_backoff: 60s
+{% endif %}
+
+scrape_configs:
+
+  - job_name: "node_exporter"
+    metric_relabel_configs:
+      - action: replace
+        regex: "^instance|node_(((arp|cpu|disk_io|disk_reads?|disk_writes?|memory|tcp|vmstat)_.*)|boot_time_seconds|load(1|5|15))$"
+        replacement: true
+        source_labels: [__name__]
+        target_label: __tmp_keep_me
+
+      - action: replace
+        regex: "^node_network_((receive_(bytes|packets)|transmit_(bytes|packets))_total);eth[01]$"
+        replacement: true
+        source_labels: [__name__, device]
+        target_label: __tmp_keep_me
+
+      - action: replace
+        regex: "^node_filesystem_((avail_bytes|device_error|files|files_free)|(size|free|avail)_bytes);ext4$"
+        replacement: true
+        source_labels: [__name__, fstype]
+        target_label: __tmp_keep_me
+
+      - action: keep
+        regex: true
+        source_labels: [__tmp_keep_me]
+
+      - action: labeldrop
+        regex: "^(__tmp_keep_me)$"
+
+    static_configs:
+      - targets: ['127.0.0.1:9100']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+
+  - job_name: "docker_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    static_configs:
+      - targets: ['127.0.0.1:9323']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+
+  - job_name: "systemd_exporter"
+    static_configs:
+      - targets: ['127.0.0.1:9558']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['127.0.0.1:3100']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      - source_labels: ['__meta_nomad_node']
+        replacement: '$1'
+        target_label: instance
+
+  - job_name: 'blackbox'
+    static_configs:
+      - targets: ['127.0.0.1:9115']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      - source_labels: ['__meta_nomad_node']
+        replacement: '$1'
+        target_label: instance
+
+  - job_name: 'caddy'
+    nomad_sd_configs:
+      - server: "http://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'caddy'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      # - source_labels: ['__meta_nomad_node']
+      #   replacement: '$1'
+      #   target_label: instance
+
+  - job_name: 'mysql'
+    nomad_sd_configs:
+      - server: "http://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'mysql'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      # - source_labels: ['__meta_nomad_node']
+      #   replacement: '$1'
+      #   target_label: instance
+
+  - job_name: 'nginx_exporter'
+    nomad_sd_configs:
+      - server: "http://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'nginx-exporter'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      # - source_labels: ['__meta_nomad_node']
+      #   replacement: '$1'
+      #   target_label: instance
+
+  - job_name: 'phpfpm_exporter'
+    nomad_sd_configs:
+      - server: "http://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+      - target_label: projectid
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'phpfpm-exporter'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      # - source_labels: ['__meta_nomad_node']
+      #   replacement: '$1'
+      #   target_label: instance
