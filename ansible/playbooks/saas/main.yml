@@ -19,9 +19,6 @@
   vars:
     software_path: "/data/{{ domain }}"
     service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
-    keepass_db_path: "{{ lookup('ansible.builtin.env', 'KEEPASS_PATH') }}"
-    keepass_db_password: "{{ lookup('ansible.builtin.env', 'KEEPASS_PASSWORD') }}"
-    keepass_db_keyfile: "{{ lookup('ansible.builtin.env', 'KEEPASS_KEYFILE') }}"
     software_vars: "{{ hostvars[inventory_hostname][domain] }}"
     host_software_vars: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/{{ domain }}.yml"
   pre_tasks:
@@ -48,77 +45,17 @@
       ansible.builtin.fail:
       when: not dir_stat.stat.exists
 
-    - name: Create keyfile
-      keepass_create_keyfile:
-        path: "{{ keepass_db_keyfile }}"
-      become: false
-      delegate_to: localhost
-
-    - name: Create KeePass database
-      keepass_create_db:
-        path: "{{ keepass_db_path }}"
-        password: "{{ keepass_db_password }}"
-        keyfile: "{{ keepass_db_keyfile }}"
-      become: false
-      delegate_to: localhost
-
-    - name: Initialize default secret structure if necessary
-      block:
-        - name: Get secret from keepass
-          keepass_get_entry:
-            database: "{{ keepass_db_path }}"
-            passwd: "{{ keepass_db_password }}"
-            keyfile: "{{ keepass_db_keyfile }}"
-            name: "{{ domain }}"
-          register: entries
-          become: false
-          delegate_to: localhost
-
-        - name: Set secret variable
-          set_fact:
-            secret: "{{ entries.entry }}"
-
-      rescue:
-        - name: Set secret variable
-          set_fact:
-            secret:
-              name: "{{ domain }}"
-              group: "{{ software }}"
-
     - name: Generate Traefik labels
       traefik_labels:
         proto: http
         domain: "{{ domain }}"
         domain_alias: "{{ software_vars.domain_alias | default(None) }}"
-        basic_auth: "{{ software_vars.basic_auth | default(false) }}"
+        basic_auth: "{{ software_vars.basic_auth | default(None) }}"
         ipfilter: "{{ software_vars.ipfilter | default([]) }}"
       register: traefik_labels_result
+
   tasks:
     - name: Deploy service
       ansible.builtin.include_role:
         name: "{{ software }}"
 
-  post_tasks:
-    - name: Create group to keepass
-      keepass_create_group:
-        database: "{{ keepass_db_path }}"
-        password: "{{ keepass_db_password }}"
-        keyfile: "{{ keepass_db_keyfile }}"
-        group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
-      become: false
-      delegate_to: localhost
-
-    - name: Update secret to keepass
-      keepass_create_entry:
-        database: "{{ keepass_db_path }}"
-        password: "{{ keepass_db_password }}"
-        keyfile: "{{ keepass_db_keyfile }}"
-        entry:
-          title: "{{ domain }}"
-          group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
-          username: "{{ secret.username | default(None) }}"
-          password: "{{ secret.pass | default(None) }}"
-          url: "{{ secret.url | default(None) }}"
-      become: false
-      delegate_to: localhost
-      when: secret is defined
