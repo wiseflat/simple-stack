@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: prometheus-community
+    repo: systemd_exporter
+    type: release
+    format: tar.gz
+    file: REPO-VERSION.OS-ARCH.FORMAT
+    os: linux
+    binary: systemd_exporter
+  labels: {}
+  name: systemd_exporter
+
+build_work_dir: /tmp/systemd_exporter
