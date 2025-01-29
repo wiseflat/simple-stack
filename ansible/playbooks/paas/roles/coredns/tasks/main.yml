@@ -1,0 +1,26 @@
+---
+- name: Build and install debian package
+  block:
+    - name: Build debian package
+      ansible.builtin.include_tasks: build.yml
+
+    - name: Install debian package
+      ansible.builtin.apt:
+        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
+      notify: Restart coredns
+  rescue:
+    - name: Let's continue the playbook anyway
+      debug:
+        msg: Rescue debug task
+
+- name: Override config files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+    owner: coredns
+    group: coredns
+  loop:
+    - src: Corefile.j2
+      dest: /etc/coredns/Corefile
+  notify: Restart coredns

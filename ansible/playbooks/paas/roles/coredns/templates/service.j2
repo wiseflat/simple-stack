@@ -1,0 +1,18 @@
+[Unit]
+Description=Coredns for nomad
+Documentation=https://github.com/ituoga/coredns-nomad
+
+[Service]
+Restart=always
+RestartSec=10
+User=coredns
+Group=coredns
+RuntimeDirectory=coredns
+ExecStart=/bin/sh -c "/usr/local/bin/coredns -conf /etc/coredns/Corefile"
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

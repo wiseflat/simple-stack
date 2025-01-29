@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: ituoga
+    repo: coredns-nomad
+    type: archive
+    format: tar.gz
+    file: VERSION.FORMAT
+    os: linux
+    binary: coredns
+  labels: {}
+  name: coredns
+
+build_work_dir: /tmp/coredns-nomad
