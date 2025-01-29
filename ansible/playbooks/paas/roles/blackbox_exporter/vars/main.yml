@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    repo: blackbox_exporter
+    user: prometheus
+    type: release
+    format: tar.gz
+    file: REPO-VERSION.OS-ARCH.FORMAT
+    os: linux
+    binary: blackbox_exporter
+  labels: {}
+  name: blackbox_exporter
+
+build_work_dir: /tmp/blackbox_exporter

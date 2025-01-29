@@ -1,0 +1,19 @@
+[Unit]
+Description=Monitoring system and time series database
+Documentation=https://prometheus.io/docs/introduction/overview/
+
+[Service]
+Restart=always
+RestartSec=10
+User=prometheus
+Group=prometheus
+RuntimeDirectory={{ image.name }}
+EnvironmentFile=/etc/default/{{ image.name }}
+ExecStart=/bin/sh -c "/usr/local/bin/{{ image.upstream.binary }} $ARGS"
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
