@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    repo: php-fpm_exporter
+    user: hipages
+    type: binary
+    format: ""
+    file: REPO_VERSION_OS_ARCH
+    os: linux
+    binary: php-fpm_exporter
+  labels: {}
+  name: phpfpm_exporter
+
+build_work_dir: /tmp/phpfpm_exporter
