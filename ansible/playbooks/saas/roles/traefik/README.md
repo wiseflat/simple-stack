@@ -1,4 +1,4 @@
-# Role: `rocketchat`
+# Role: `traefik`
 
 ## How to use this Ansible role?
 
@@ -8,5 +8,6 @@
 ```yaml
 ---
 www.domain.com:
-  software: rocketchat     # (string) Name of the role/software being deployed.
+  software: traefik        # (string) Name of the role/software being deployed.
   email: demo@domain.com   # (string) Admin email to validate letsencrypt certificate
+  size: small              # (string) Container size (small, medium, large, xl, xxl)

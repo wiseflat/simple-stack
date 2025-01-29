@@ -32,13 +32,18 @@
 
 [certificatesResolvers.myresolver.acme]
   email = "{{ traefik_email }}"
-  storage = "/etc/letsencrypt/acme.json"
+  storage = "/etc/traefik/letsencrypt/acme.json"
   [certificatesResolvers.myresolver.acme.httpChallenge]
     entryPoint = "http"
 
 [providers]
-  [providers.docker]
-    endpoint = "unix:///var/run/docker.sock"
+  [providers.nomad]
+    refreshInterval = "30s"
+    watch = true
+    prefix = "traefik"
+    exposedByDefault = false
+  [providers.nomad.endpoint]
+    address = "http://172.17.0.1:4646"
 
   [providers.file]
     filename = "/etc/traefik/traefik_tls.toml"
