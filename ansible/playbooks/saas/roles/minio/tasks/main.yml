@@ -1,14 +1,6 @@
 ---
 - name: Create default directory
   ansible.builtin.file:
-    path: "{{ software_path }}/data"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Create default directory
-  ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     owner: "{{ item.owner | default('root') }}"
@@ -18,28 +10,14 @@
     - path: "{{ software_path }}/data"
     - path: "{{ software_path }}/var/backup"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    command: minio server /data --console-address ":9001"
-    published_ports:
-      - 172.17.0.1:0:9000
-      # - 172.17.0.1:0:9001 # I don't need to expose the admin UI
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      MINIO_ROOT_USER: "{{ minio_root_user }}"
-      MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
-    volumes:
-      - "{{ software_path }}/data:/data:rw"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
 
-- name: Set secret variable
-  set_fact:
-    secret:
-      name: "{{ domain }}"
-      username: "{{ minio_root_user }}"
-      pass: "{{ minio_root_password }}"
-      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/{{ software }}"
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

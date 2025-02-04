@@ -15,7 +15,4 @@ www.domain.com:
   config: |                # (raw) Caddy configuration
     :8080
     respond "Hello world!"
-  scale:                   # (Object) Number of docker container to load balance http traffic
-    caddy:
-      - id: 1              # (int) Container suffix id
-        state: started     # (string) [absent|present|healthy|started|stopped] container status
+  scale: 1

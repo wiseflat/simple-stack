@@ -1,4 +1,0 @@
----
-forgejo_admin_login: "{{ software_vars.login | default(forgejo_admin_login_default) }}"
-forgejo_admin_password: "{{ software_vars.password | default(forgejo_admin_password_default) }}"
-forgejo_admin_email: "{{ software_vars.email | default(forgejo_admin_email_default) }}"

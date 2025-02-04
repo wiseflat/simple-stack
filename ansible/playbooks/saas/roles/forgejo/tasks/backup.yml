@@ -1,6 +1,19 @@
 ---
-- name: Backup data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-1"
-    command: forgejo dump --config /data/conf/app.ini
-    chdir: "/var/backup"
+- name: Copy backup nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.operation.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: backup
+    command: forgejo
+    args: 
+      - dump 
+      - --config 
+      - /data/conf/app.ini
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.operation.nomad"

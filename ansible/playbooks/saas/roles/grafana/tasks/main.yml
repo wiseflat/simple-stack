@@ -1,26 +1,19 @@
 ---
-- name: Git checkout
+- name: Download content to auto configure grafana
   ansible.builtin.git:
     repo: https://github.com/wiseflat/grafana-content.git
     dest: "{{ software_path }}/grafana-content"
-    version: main
+    version: prometheus-datasource
+    force: true
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "grafana/grafana:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:3000
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      GF_LOG_MODE: "console"
-      GF_SERVER_HTTP_PORT: "3000"
-      GF_INSTALL_PLUGINS: "grafana-piechart-panel"
-      GF_SECURITY_ADMIN_USER: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_LOGIN') }}"
-      GF_SECURITY_ADMIN_PASSWORD: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
-      DS_PROMETHEUS: "prometheus"
-    volumes:
-      - "{{ software_path }}/grafana-content/provisioning:/etc/grafana/provisioning:ro"
-      - "{{ software_path }}/grafana-content/dashboards:/local/dashboards:ro"
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad jobs
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

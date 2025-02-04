@@ -1,6 +1,10 @@
 ---
-- name: Stop nomad job
-  ansible.builtin.shell: "nomad job stop {{ domain }}"
+- name: Stop nomad jobs
+  ansible.builtin.shell: "nomad job stop {{ item }}"
+  loop:
+    - "{{ domain }}"
+    - "{{ domain }}-periodic"
+  # ignore_errors: true
 
 - name: Query SRV records
   dig:
@@ -10,7 +14,7 @@
 - name: Mysql delete database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost + '/password') }}"
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
     login_host: 172.17.0.1
     login_port: "{{ service.records[0].port }}"
     name: "{{ service_name[:32] }}"
@@ -19,13 +23,14 @@
 - name: Mysql delete user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost + '/password') }}"
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
     login_host: 172.17.0.1
     login_port: "{{ service.records[0].port }}"
-    name: "{{ lookup('community.general.passwordstore', 'wordpress/' + domain, subkey='dbuser') }}"
+    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='user') }}"
     host: '%'
     priv: "{{ service_name[:32] }}.*:ALL"
     state: absent
+    column_case_sensitive: false
 
 - name: Remove software directory
   ansible.builtin.file:

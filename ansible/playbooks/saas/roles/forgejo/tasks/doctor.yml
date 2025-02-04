@@ -1,5 +1,15 @@
----
-- name: doctor check configuration
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-1"
-    command: forgejo doctor check --config /data/conf/app.ini --all --log-file /var/log/doctor.log
+- name: Copy doctor nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.operation.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: doctor
+    command: forgejo
+    args: doctor check --config /data/conf/app.ini --all --log-file /var/log/doctor.log
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.operation.nomad"

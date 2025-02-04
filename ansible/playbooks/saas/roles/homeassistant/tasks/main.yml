@@ -9,25 +9,22 @@
   loop:
     - "{{ software_path }}/config"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "homeassistant/home-assistant:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:8123
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      TZ: "Europe/Paris"
-    devices: "{{ homeassistant_devices  }}"
-    volumes:
-      - "{{ software_path }}/config:/config:rw"
+- name: Copy configuration file
+  ansible.builtin.template:
+    src: configuration.yaml
+    dest: "{{ software_path }}/config/configuration.yaml"
+    owner: root
+    group: root
+    mode: '0600'
 
-- name: Insert default configuration
-  ansible.builtin.blockinfile:
-    path: "{{ software_path }}/config/configuration.yaml"
-    marker: "#<!-- {mark} http configuration -->"
-    block: |
-      {{ homeassistant_configuration | to_nice_yaml }}
-  notify: Restart container
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"
+

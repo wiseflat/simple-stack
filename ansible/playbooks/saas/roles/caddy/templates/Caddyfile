@@ -1,1 +1,1 @@
-{{ caddy_config | default(caddy_config_sample) }}
+{{ caddy_config | default(caddy_config_default) }}

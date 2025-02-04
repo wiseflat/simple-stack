@@ -34,7 +34,7 @@ echo "Start MongoDB"
 start_mongodb
 sleep 2
 
-if [ ! -f /etc/mongodb/.install.lock ];
+if [ ! -f /var/lib/mongo/.install.lock ];
 then
     echo "replicaSet initiate"
     # initiate mongo replica set
@@ -45,7 +45,7 @@ then
         sleep 5;
     done;
     mongo --eval "printjson(rs.status())"
-    touch /etc/mongodb/.install.lock
+    touch /var/lib/mongo/.install.lock
 fi
 stop_mongodb
 echo 'MongoDB init process done. Ready for start up.'

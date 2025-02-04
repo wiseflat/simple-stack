@@ -63,13 +63,10 @@ job "{{ domain }}" {
       config {
         image = "{{ software }}:{{ ansible_local.software_version[software] }}"
         network_mode = "host"
-
         volumes = [
           "/data/{{ domain }}:/etc/traefik",
           "/var/log/traefik:/var/log/traefik"
         ]
-
-        # dns_servers = ["172.17.0.1"]
         ports = ["traefik_ui", "traefik_ssl_ui"]
       }
 

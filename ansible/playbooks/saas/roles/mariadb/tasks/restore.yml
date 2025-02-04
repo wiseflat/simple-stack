@@ -6,13 +6,10 @@
     owner: root
     group: root
     mode: '0600'
-  become: true
   vars:
     operation: restore
     command: /usr/bin/mariadb
-    args:
-        - "<"
-        - "/var/backup/dump.sql"
+    args: < /var/backup/dump.sql
     chdir: /var/backup
 
 - name: Run nomad job

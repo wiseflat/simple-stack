@@ -1,0 +1,51 @@
+---
+target: all,alertmanager,overrides-exporter
+
+limits:
+  compactor_blocks_retention_period: 90d
+
+blocks_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    access_key_id: {{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='access_key_id', length=12) }}
+    secret_access_key: {{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='secret_access_key', length=12) }}
+    insecure: true
+    bucket_name: mimir-blocks
+
+memberlist:
+  join_members: [mimir-1, mimir-2, mimir-3]
+
+ruler:
+  alertmanager_url: http://127.0.0.1:8080/alertmanager
+  ring:
+    heartbeat_period: 2s
+    heartbeat_timeout: 10s
+
+ruler_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    access_key_id: {{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='access_key_id') }}
+    secret_access_key: {{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='secret_access_key') }}
+    insecure: true
+    bucket_name: ruler
+
+alertmanager_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    access_key_id: {{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='access_key_id') }}
+    secret_access_key: {{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='secret_access_key') }}
+    insecure: true
+    bucket_name: mimir
+
+alertmanager:
+  fallback_config_file: /etc/alertmanager-fallback-config.yaml
+  external_url: http://127.0.0.1:8080/alertmanager
+
+server:
+  log_level: info
+
+usage_stats:
+  enabled: false

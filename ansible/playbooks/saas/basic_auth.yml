@@ -1,0 +1,17 @@
+---
+- name: Clean up server
+  any_errors_fatal: true
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars_prompt:
+    - name: login
+      prompt: login
+      private: false
+    - name: password
+      prompt: password
+      private: true
+  tasks:
+    - name: Debug hash
+      debug:
+        msg: "{{ login }}:{{ password | password_hash('blowfish') }}"

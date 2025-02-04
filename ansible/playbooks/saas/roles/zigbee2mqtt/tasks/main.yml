@@ -23,20 +23,14 @@
     group: 1001
     mode: "0644"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "koenkk/zigbee2mqtt:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:8080
-    labels: "{{ traefik_labels_result.labels }}"
-    user: "1001:1001"
-    groups:
-      - dialout
-    devices:
-      - "{{ zigbee2mqtt_config.device }}:{{ zigbee2mqtt_config.device }}"
-    volumes:
-      - "{{ software_path }}/app/data:/app/data:rw"
-      - "/run/udev:/run/udev:ro"
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

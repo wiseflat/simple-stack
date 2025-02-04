@@ -34,6 +34,7 @@ def main():
 
     # Base labels
     labels = {
+        "fqdn": f"https://{domain}",
         "traefik.enable": "true",
         f"traefik.{proto}.routers.{service_name}.tls": "true",
         f"traefik.{proto}.routers.{service_name}.tls.certresolver": "myresolver",

@@ -1,18 +1,14 @@
 ---
 image:
-  build: true
+  build: false
   upstream:
-    source: apk
-    repository: main
-    package: nodejs
+    source: github
+    user: nodejs
+    repo: node
+    type: release
+    format: tar.gz
+    file: vVERSION.FORMAT
+    os: linux
+    binary: node
   labels: {}
   name: nodejs
-  origin: alpine:latest
-  dependances:
-    - nodejs
-    - npm
-
-nodejs_config_default:
-  initialize: false
-  repo: https://github.com/wiseflat/nodejs-helloworld.git
-  version: main

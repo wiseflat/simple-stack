@@ -14,5 +14,3 @@ www.domain.com:
   basic_auth: False        # (bool) Enable/disable HTTP Basic Authentication (True/False).
   config:
   device: "/dev/ttyACM0"
-  devices:
-    "/dev/ttyACM0:/dev/ttyACM0"

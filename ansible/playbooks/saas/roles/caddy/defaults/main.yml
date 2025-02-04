@@ -1,3 +1,2 @@
 ---
 caddy_config: "{{ software_vars.config | default(caddy_config_default) }}"
-caddy_scale: "{{ software_vars.scale | default(caddy_scale_default) }}"

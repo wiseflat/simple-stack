@@ -1,6 +1,16 @@
 ---
-- name: Backup data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-mongodb-1"
-    command: mongodump --out /var/backup
-    user: mongod
+- name: Copy backup nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.backup.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: backup
+    command: /usr/bin/mongodump
+    args: --uri=mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true --out /var/backup 
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.backup.nomad"

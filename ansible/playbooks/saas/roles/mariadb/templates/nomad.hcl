@@ -39,7 +39,7 @@ job "{{ domain }}" {
       provider = "nomad"
       tags = [
         "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "host:{{ inventory_hostname }}"
       ]
     }
 
@@ -50,7 +50,7 @@ job "{{ domain }}" {
       provider = "nomad"
       tags = [
         "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "host:{{ inventory_hostname }}"
       ]
       check {
         type     = "tcp"
@@ -106,7 +106,7 @@ job "{{ domain }}" {
 
       env {
         MARIADB_ROOT_HOST = "%"
-        MARIADB_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='password') }}"
+        MARIADB_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain) }}"
       }
 
       config {

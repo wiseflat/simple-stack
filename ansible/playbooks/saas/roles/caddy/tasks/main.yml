@@ -1,11 +1,11 @@
 ---
-- name: Wait first for DNS propagation
-  debug:
-    msg: waiting
-  until: lookup('community.general.dig', domain) == ansible_local.ipinfo.ip
-  retries: 30
-  delay: 10
-  when: software_vars.domain_type == "public"
+# - name: Wait first for DNS propagation
+#   debug:
+#     msg: waiting
+#   until: lookup('community.general.dig', domain) == ansible_local.ipinfo.ip
+#   retries: 30
+#   delay: 10
+#   when: software_vars.domain_type == "public"
 
 - name: Create default directory
   ansible.builtin.file:

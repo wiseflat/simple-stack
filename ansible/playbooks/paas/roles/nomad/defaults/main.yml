@@ -95,7 +95,7 @@ nomad_ui_label_text_color: "white"
 
 nomad_docker_private_registry_state: false
 nomad_docker_private_registry_config: /etc/docker/config.json
-nomad_docker_allow_privileged: "false"
+nomad_docker_allow_privileged: "true"
 nomad_docker_volume_enable: "true"
 nomad_docker_client_allow_caps:
 - audit_write

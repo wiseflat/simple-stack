@@ -1,14 +1,27 @@
 ---
-- name: Create first user
-  community.docker.docker_container:
-    name: "{{ domain }}-user"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    detach: false
-    cleanup: true
-    command: forgejo admin user create --config /data/conf/app.ini --username {{ forgejo_admin_login }} --password {{ forgejo_admin_password }} --email {{ forgejo_admin_email }}
-    pull: never
-    volumes:
-      - "{{ software_path }}/data:/data:rw"
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /data/mariadb/run/mysqld:/run/mysqld:rw
+- name: Copy backup nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.operation.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: firstuser
+    command: forgejo
+    args: 
+      - admin
+      - user
+      - create
+      - --config
+      - /data/conf/app.ini
+      - --username
+      - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }}"
+      - --password 
+      - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='passwd', nosymbols=true, length=12) }}"
+      - --email
+      - "{{ software_vars.email | default(lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL')) }}"
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.operation.nomad"

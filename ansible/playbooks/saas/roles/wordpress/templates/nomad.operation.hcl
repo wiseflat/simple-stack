@@ -13,7 +13,7 @@ job "{{ domain }}-{{ operation }}" {
     set_contains = "{{ inventory_hostname }}"
   }
 
-  task "{{ operation }}" {
+  task "{{ domain }}-{{ operation }}" {
 
     driver = "docker"
 
@@ -27,9 +27,8 @@ job "{{ domain }}-{{ operation }}" {
         "{{ software_path }}/var/backup:/var/backup:rw"
       ]
 
-      command = "wp-cli"
-      args = {{ args }}
-      # chdir = {{ chdir }}
+      command = "sh"
+      args    = ["-c", "{{ command }} {{ args }}"]
     }
   }
 }

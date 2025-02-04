@@ -12,7 +12,7 @@
       owner: 65533
       group: 65533
     - path: "{{ software_path }}/etc/mongodb"
-    - path: "{{ software_path }}/var/lib/mongodb"
+    - path: "{{ software_path }}/var/lib/mongo"
       owner: 998
       group: 996
     - path: "{{ software_path }}/var/run/mongod"
@@ -37,43 +37,29 @@
       dest: "{{ software_path }}/usr/local/bin/entrypoint.mongodb.sh"
       mode: '0755'
 
-- name: Create mongodb container
-  community.docker.docker_container:
-    name: "{{ domain }}-mongodb-1"
-    image: "mongodb/mongodb-community-server:5.0.28-ubi8"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:27017
-    labels:
-      traefik.enable: "false"
-    user: mongod
-    entrypoint: /usr/local/bin/entrypoint.mongodb.sh
-    volumes:
-      - "{{ software_path }}/etc/mongodb:/etc/mongodb:ro"
-      - "{{ software_path }}/var/lib/mongodb:/var/lib/mongodb:rw"
-      - "{{ software_path }}/var/run/mongod:/var/run/mongod:rw"
-      - "{{ software_path }}/usr/local/bin:/usr/local/bin:rw"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
 
-- name: Create rocketchat container
-  community.docker.docker_container:
-    name: "{{ domain }}-rocketchat-1"
-    image: "rocketchat/rocket.chat:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:3000
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      ROOT_URL: "https://{{ domain }}"
-      MONGO_URL: "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true"
-      MONGO_OPLOG_URL: "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/local?directConnection=true"
-    volumes:
-      - "{{ software_path }}/opt/rocketchat-stockage:/opt/rocketchat-stockage:rw"
-      - "{{ software_path }}/var/run/mongod:/var/run/mongod:rw"
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"
 
-- name: Add systemd timer to backup software
-  ansible.builtin.include_role:
-    name: timer
-    tasks_from: create
+- name: Copy periodic nomad job
+  ansible.builtin.template:
+    src: nomad.periodic.hcl
+    dest: "/var/tmp/{{ domain }}.periodic.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: backup
+    command: /usr/bin/mongodump
+    args: --out /var/backup
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.periodic.nomad"

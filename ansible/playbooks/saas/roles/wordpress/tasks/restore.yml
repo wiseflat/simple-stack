@@ -6,16 +6,10 @@
     owner: root
     group: root
     mode: '0600'
-  become: true
   vars:
     operation: restore
     command: wp-cli
-    args:
-        - db 
-        - import 
-        - --allow-root 
-        - --path=/var/www/html 
-        - /var/backup/dump.sql
+    args: db import --allow-root --path=/var/www/html /var/backup/dump.sql
     chdir: /var/www/html
 
 - name: Run nomad job

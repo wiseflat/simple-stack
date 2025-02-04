@@ -1,4 +1,4 @@
-job "{{ domain }}-backup" {
+job "{{ domain }}-periodic" {
   region = "{{ fact_instance.region }}"
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "batch"
@@ -14,7 +14,9 @@ job "{{ domain }}-backup" {
   }
 
   periodic {
-    cron = "{{ 60 | random }} {{ 24 | random }} * * * *"
+    crons = [
+      "{{ 60 | random(seed=domain) }} {{ 24 | random(seed=domain) }} * * * *"
+    ]
     prohibit_overlap = true
   }
 
@@ -32,14 +34,8 @@ job "{{ domain }}-backup" {
         "{{ software_path }}/var/backup:/var/backup:rw"
       ]
 
-      command = "wp-cli"
-      args = [
-        "db",
-        "export",
-        "--allow-root",
-        "--path=/var/www/html",
-        "/var/backup/dump.sql"
-      ]
+      command = "sh"
+      args    = ["-c", "{{ command }} {{ args }}"]
     }
 
     resources {

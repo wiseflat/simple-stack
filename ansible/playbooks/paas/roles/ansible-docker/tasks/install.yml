@@ -34,6 +34,7 @@
       - docker-ce-cli
       - containerd.io
       - docker-compose
+      - docker-compose-plugin
       - docker-buildx-plugin
     state: present
     install_recommends: false

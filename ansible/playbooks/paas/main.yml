@@ -89,6 +89,7 @@
     - node_exporter
     - mysqld_exporter
     - systemd_exporter
+    - mongodb_exporter
     - blackbox_exporter
     - nginx_exporter
     - loki

@@ -1,8 +1,34 @@
 ---
-- name: Remove containers
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
+- name: Stop nomad jobs
+  ansible.builtin.shell: "nomad job stop {{ item }}"
+  loop:
+    - "{{ domain }}"
+
+- name: Query SRV records
+  dig:
+    service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  register: service
+
+- name: Mysql delete database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ service_name[:32] }}"
     state: absent
+
+- name: Mysql delete user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='user') }}"
+    host: '%'
+    priv: "{{ service_name[:32] }}.*:ALL"
+    state: absent
+    column_case_sensitive: false
 
 - name: Remove software directory
   ansible.builtin.file:

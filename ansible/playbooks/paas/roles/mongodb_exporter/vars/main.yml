@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: percona
+    repo: mongodb_exporter
+    type: release
+    format: tar.gz
+    file: REPO-VERSION.OS-ARCH.FORMAT
+    os: linux
+    binary: mongodb_exporter
+  labels: {}
+  name: mongodb_exporter
+
+build_work_dir: /tmp/mysqld_exporter

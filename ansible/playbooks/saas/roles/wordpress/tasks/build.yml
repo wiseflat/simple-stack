@@ -19,7 +19,6 @@
     ansible_local.software_version[image_name] == image_version
 
 - name: Download wp-cli
-  become: true
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     dest: "{{ path }}/wp-cli"

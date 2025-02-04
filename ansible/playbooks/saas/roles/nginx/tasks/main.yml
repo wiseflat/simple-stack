@@ -17,19 +17,13 @@
     group: root
     mode: "0644"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    state: started
-    recreate: false
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:80
-    labels: "{{ traefik_labels_result.labels }}"
-    mounts:
-      - type: bind
-        target: /var/www/html
-        source: "{{ software_path }}/var/www/html"
-        read_only: true
-    pull: never
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

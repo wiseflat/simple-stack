@@ -10,24 +10,40 @@
     - "{{ software_path }}/var/lib/arangodb3"
     - "{{ software_path }}/var/lib/arangodb3-apps"
     - "{{ software_path }}/var/backup"
+    - "{{ software_path }}/run"
+    - "{{ software_path }}/etc/arangodb3"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:8529
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      ARANGO_ROOT_PASSWORD: "{{ arangodb_root_password }}"
-    volumes:
-      - "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
-      - "{{ software_path }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
+- name: Copy config file
+  ansible.builtin.template:
+    src: arangod.conf
+    dest: "{{ software_path }}/etc/arangodb3/arangod.conf"
+    owner: root
+    group: root
+    mode: '0600'
 
-- name: Add systemd timer to backup software
-  ansible.builtin.include_role:
-    name: timer
-    tasks_from: create
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"
+
+- name: Copy periodic nomad job
+  ansible.builtin.template:
+    src: nomad.periodic.hcl
+    dest: "/var/tmp/{{ domain }}.periodic.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: backup
+    command: /usr/bin/arangodump
+    args: --output-directory /var/backup --server.username root --server.password '{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}' --server.authentication true --server.endpoint unix:///run/arangodb.sock --overwrite true --all-databases true
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.periodic.nomad"

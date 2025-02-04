@@ -28,12 +28,17 @@ ansible-init:
 
 image:
 	@echo "Build a new docker image"
+	@echo "Software name: $(software)"
+	@if [ -z "$(software)" ]; then \
+		echo "Error: You must specify a software name using 'make image software=<name>'"; \
+		exit 1; \
+	fi
 	@echo "Instance name: $(instance)"
 	@if [ -z "$(instance)" ]; then \
 		echo "Error: You must specify an instance name using 'make image instance=<name>'"; \
 		exit 1; \
 	fi
-	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_IMAGE) -l ${instance}
+	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_IMAGE) -e "software=$(software)"  -l ${instance}
 
 deploy:
 	@echo "Deploy (or redeploy) a software"
@@ -79,7 +84,7 @@ check-vars:
 		exit 1; \
 	fi
 
-ansible-test:
+ansible-test-deploy: image
 	@echo "Testing a software lifecycle with Ansible"
 	@echo "Domain name: $(domain)"
 	@if [ -z "$(domain)" ]; then \
@@ -99,4 +104,22 @@ ansible-test:
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_DEPLOY) -e "domain=$(domain)" -e "software=$(software)" -e "confirmation=yes" -l ${instance}
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=backup" -l ${instance}
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=restore" -l ${instance}
+
+ansible-test-destroy:
+	@echo "Testing a software lifecycle with Ansible"
+	@echo "Domain name: $(domain)"
+	@if [ -z "$(domain)" ]; then \
+		echo "Error: You must specify a domain name using 'make ansible-test domain=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Software name: $(software)"
+	@if [ -z "$(software)" ]; then \
+		echo "Error: You must specify a software name using 'make ansible-test software=<name>'"; \
+		exit 1; \
+	fi
+	@echo "Instance name: $(instance)"
+	@if [ -z "$(instance)" ]; then \
+		echo "Error: You must specify an instance name using 'make ansible-test instance=<name>'"; \
+		exit 1; \
+	fi
 	cd $(ANSIBLE_DIR) && ansible-playbook $(PLAYBOOK_OPERATE) -e "domain=$(domain)" -e "software=$(software)" -e "task=destroy" -l ${instance}

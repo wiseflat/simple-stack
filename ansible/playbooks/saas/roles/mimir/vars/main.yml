@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: grafana
+    repo: mimir
+    type: release
+    format: tar.gz
+    file: mimir-VERSION
+    os: linux
+  labels: {}
+  name: mimir

@@ -1,16 +1,16 @@
 ---
-- name: Inspect container
-  docker_container_info:
-    name: "{{ domain }}-1"
-  register: docker_inspect
-
-- name: Restore data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-1"
-    argv:
-      - /bin/sh
-      - "-c"
-      - "/usr/bin/arangorestore --input-directory ./ --server.username root --server.password {{ arangodb_password_from_env.split('=')[1] }} --server.authentication true --server.endpoint tcp://127.0.0.1:8529 --overwrite true"
-    chdir: "/var/backup"
+- name: Copy restore nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.backup.nomad"
+    owner: root
+    group: root
+    mode: '0600'
   vars:
-    arangodb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^ARANGO_ROOT_PASSWORD=') | first | default('') }}"
+    operation: restore
+    command: /usr/bin/arangorestore
+    args: --input-directory /var/backup --server.username root --server.password '{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}' --server.authentication true --server.endpoint unix:///run/arangodb.sock --overwrite true
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.backup.nomad"

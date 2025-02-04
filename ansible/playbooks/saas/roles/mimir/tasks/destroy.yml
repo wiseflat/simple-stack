@@ -1,0 +1,10 @@
+---
+- name: Tear down existing services
+  community.docker.docker_compose_v2:
+    project_src: "{{ software_path }}"
+    state: absent
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent

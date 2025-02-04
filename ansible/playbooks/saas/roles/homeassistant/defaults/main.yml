@@ -1,3 +1,9 @@
 ---
-homeassistant_devices: "{{ software_vars.devices | default(homeassistant_devices_default) }}"
+homeassistant_configuration_default:
+  http:
+    use_x_forwarded_for: true
+    trusted_proxies:
+      - 172.17.0.0/24
+
 homeassistant_configuration: "{{ software_vars.configuration | default(homeassistant_configuration_default) }}"
+

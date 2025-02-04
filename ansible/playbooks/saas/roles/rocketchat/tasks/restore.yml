@@ -1,6 +1,16 @@
 ---
-- name: Restore data
-  community.docker.docker_container_exec:
-    container: "{{ domain }}-mongodb-1"
-    command: mongorestore /var/backup
-    user: mongod
+- name: Copy restore nomad job
+  ansible.builtin.template:
+    src: nomad.operation.hcl
+    dest: "/var/tmp/{{ domain }}.backup.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    operation: restore
+    command: /usr/bin/mongorestore
+    args: args: --uri=mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true /var/backup
+    chdir: /var/backup
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.backup.nomad"

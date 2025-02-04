@@ -1,8 +1,6 @@
 ---
-- name: Remove containers
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    state: absent
+- name: Stop nomad job
+  ansible.builtin.shell: "nomad job stop {{ domain }}"
 
 - name: Remove software directory
   ansible.builtin.file:

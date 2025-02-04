@@ -14,23 +14,18 @@
     - "{{ software_path }}/var/backup"
     - "{{ software_path }}/var/log"
 
-- name: Inspect mariadb container
-  community.docker.docker_container_info:
-    name: mariadb
-  register: docker_inspect
-
-- name: Set fact
-  ansible.builtin.set_fact:
-    service: "{{ docker_inspect.container.NetworkSettings.Ports['3306/tcp'][0] }}"
-    mariadb_password_from_env: "{{ docker_inspect.container.Config.Env | select('search', '^MARIADB_ROOT_PASSWORD=') | first | default('') }}"
+- name: Query SRV records
+  dig:
+    service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  register: service
 
 - name: Create mysql database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ forgejo_db_name }}"
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ service_name[:32] }}"
     encoding: utf8
     collation: utf8_general_ci
     state: present
@@ -38,14 +33,14 @@
 - name: Create mysql user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ mariadb_password_from_env.split('=')[1] }}"
-    login_host: "{{ service.HostIp }}"
-    login_port: "{{ service.HostPort }}"
-    name: "{{ forgejo_db_user }}"
-    host: 'localhost'
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }}"
+    host: '%'
     column_case_sensitive: false
-    password: "{{ forgejo_db_password }}"
-    priv: "{{ forgejo_db_name }}.*:ALL"
+    password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12) }}"
+    priv: "{{ service_name[:32] }}.*:ALL"
     state: present
 
 - name: Copy default config file
@@ -56,38 +51,20 @@
     group: ubuntu
     mode: "0644"
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
-    state: started
-    recreate: true
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:3000
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      USER_UID: "1000"
-      USER_GID: "1000"
-      APP_DATA_PATH: "/data"
-    volumes:
-      - "{{ software_path }}/data:/data:rw"
-      - "{{ software_path }}/var/backup:/var/backup:rw"
-      - "{{ software_path }}/var/log:/var/log:rw"
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /data/mariadb/run/mysqld:/run/mysqld:rw
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
 
-- name: Set secret variable
-  ansible.builtin.set_fact:
-    secret:
-      name: "{{ forgejo_db_name }}"
-      username: "{{ forgejo_db_user }}"
-      pass: "{{ forgejo_db_password }}"
-      group: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}/forgejo"
-      url: "https://{{ domain }}"
+- name: Run nomad jobs
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ item }}.nomad"
+  loop:
+    - "{{ domain }}"
+    # - "{{ domain }}-periodic"
 
-- name: Add systemd timer to backup software
-  ansible.builtin.include_role:
-    name: timer
-    tasks_from: create
+- name: Add first user
+  ansible.builtin.include_tasks: first-user.yml

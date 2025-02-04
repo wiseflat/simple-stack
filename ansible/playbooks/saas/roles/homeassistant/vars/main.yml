@@ -11,12 +11,3 @@ image:
     os: linux
   labels: {}
   name: homeassistant
-
-
-homeassistant_devices_default: []
-
-homeassistant_configuration_default:
-  http:
-    use_x_forwarded_for: true
-    trusted_proxies:
-      - 172.17.0.0/24

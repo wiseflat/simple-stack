@@ -12,4 +12,3 @@ www.domain.com:
   domain_alias: domain.com    # (string) Primary domain name for the application.
   ipfilter: []                # (list) List of allowed IPs for access control (empty for unrestricted access).
   basic_auth: False           # (bool) Enable/disable HTTP Basic Authentication (True/False).
-  # dbhost: mariadb.domain.com  # (string) Hostname of the database server.

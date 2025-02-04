@@ -16,11 +16,3 @@ image:
   dependances:
     - git
     - bash
-
-forgejo_db_name: "{{ service_name[:32] }}"
-forgejo_db_user: "{{ service_name[:32] }}"
-forgejo_db_password: "{{ secret.password | default(lookup('password', '/dev/null', chars=['ascii_letters', 'digits', 'hexdigits'], length=15, seed=inventory_hostname)) }}"
-
-forgejo_admin_login_default: forgejo
-forgejo_admin_password_default: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_PASSWORD') }}"
-forgejo_admin_email_default: "{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"

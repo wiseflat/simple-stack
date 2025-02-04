@@ -23,19 +23,14 @@
     group: 1883
     mode: '0644'
 
-- name: Create container
-  community.docker.docker_container:
-    name: "{{ domain }}-1"
-    image: "eclipse-mosquitto:{{ ansible_local.software_version[software] }}"
-    state: started
-    restart_policy: always
-    published_ports:
-      - 172.17.0.1:0:1883
-    labels: "{{ traefik_labels_result.labels }}"
-    env:
-      CRON_MIN: "*/15"
-      TZ: "Europe/Paris"
-    volumes:
-      - "{{ software_path }}/mosquitto/config:/mosquitto/config:rw"
-      - "{{ software_path }}/mosquitto/data:/mosquitto/data:rw"
-      - "{{ software_path }}/mosquitto/log:/mosquitto/log:rw"
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

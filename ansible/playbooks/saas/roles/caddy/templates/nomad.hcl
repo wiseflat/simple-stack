@@ -14,14 +14,7 @@ job "{{ domain }}" {
   }
 
   group "{{ domain }}" {
-    count = 1
-
-    restart {
-      attempts = 2
-      interval = "10m"
-      delay = "15s"
-      mode = "fail"
-    }
+    count = {{ software_vars.scale | default(1) }}
 
     network {
       port "caddy" {
@@ -60,16 +53,6 @@ job "{{ domain }}" {
         "host:{{ inventory_hostname }}",
       ]
     }
-
-{% if software_vars.domain_type == "public" %}
-    service {
-      name = "external-check"
-      provider = "nomad"
-      tags = [
-        "fqdn:https://{{ domain }}",
-      ]
-    }
-{% endif %}
 
     task "{{ domain }}-caddy" {
       driver = "docker"
