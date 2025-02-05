@@ -63,8 +63,7 @@
       retries: 10
 
     - name: Install latest available version of fpm
-      shell: gem install fpm        
-
+      shell: gem install fpm
   roles:
     - ansible-unattendedUpgrades
     # - ansible-pull
@@ -102,6 +101,39 @@
   become: true
   roles:
     - ansible-ufw
+
+- name: Create CA TLS
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  strategy: linear
+  become: true
+  vars:
+    certificate_ca_host: "localhost"
+    certificate_ca_host_dir: "tls/ca"
+    certificate_ca_pubkey: "simplestack-ca.pem"
+    certificate_ca_privatekey: "simplestack-ca-key.pem"
+    certificate_host_certificate_dir: "/etc/ssl/simplestack"
+    certificate_common_name: "simplestack"
+  tasks:
+    - name: "Create TLS directory on ansible controller"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        recurse: true
+        mode: '0755'
+      loop:
+        - tls/ca
+        - tls/servers
+        - tls/clients
+      delegate_to: localhost
+      become: false
+
+    - name: "Create TLS CA"
+      ansible.builtin.include_role:
+        name: certificate
+        tasks_from: ca
+      run_once: true
 
 - name: Install docker
   any_errors_fatal: true
