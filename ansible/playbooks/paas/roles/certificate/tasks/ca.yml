@@ -1,0 +1,62 @@
+- name: Certificate | Create TLS directory
+  ansible.builtin.file:
+    path: "{{ host_certificate_dir }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+
+- name: Certificate | Check stats of CA pubkey file
+  ansible.builtin.stat:
+    path: "{{ host_certificate_dir }}/{{ ca_pubkey }}"
+  register: ca_pubkey_present
+
+- name: Certificate | Create TLS directory on ansible controller to generate TLS
+  ansible.builtin.file:
+    path: "{{ ca_host_dir }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+  delegate_to: "{{ ca_host }}"
+  become: false
+  when: not ca_pubkey_present.stat.exists
+
+- name: Certificate | Create private key for CA
+  community.crypto.openssl_privatekey:
+    path: "{{ ca_host_dir }}/{{ ca_privatekey }}"
+  delegate_to: "{{ ca_host }}"
+  become: false
+  when: not ca_pubkey_present.stat.exists
+
+- name: Certificate | Generate an OpenSSL Certificate Signing Request for CA
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ ca_host_dir }}/{{ ca_privatekey }}"
+    common_name: "{{ common_name }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - cRLSign
+      - keyCertSign
+    key_usage_critical: true
+  register: csr
+  delegate_to: "{{ ca_host }}"
+  become: false
+  when: not ca_pubkey_present.stat.exists
+
+- name: Certificate | Create self-signed CA certificate from CSR for CA
+  community.crypto.x509_certificate:
+    csr_content: "{{ csr.csr }}"
+    path: "{{ ca_host_dir }}/{{ ca_pubkey }}"
+    privatekey_path: "{{ ca_host_dir }}/{{ ca_privatekey }}"
+    provider: selfsigned
+  delegate_to: "{{ ca_host }}"
+  become: false
+  when: not ca_pubkey_present.stat.exists
+
+- name: Certificate | Copy CA pubkey on server
+  ansible.builtin.copy:
+    src: "{{ ca_host_dir }}/{{ ca_pubkey }}"
+    dest: "{{ host_certificate_dir }}/{{ ca_pubkey }}"
+    mode: "0600"
+  when: not ca_pubkey_present.stat.exists

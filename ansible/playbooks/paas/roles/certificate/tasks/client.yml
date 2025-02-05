@@ -1,0 +1,48 @@
+- name: Certificate | Create TLS directories
+  ansible.builtin.file:
+    path: "{{ host_certificate_dir }}"
+    state: directory
+    mode: '0755'
+    recurse: yes
+
+- name: Certificate | Block certificate
+  block:
+    - name: Certificate | Create private key
+      community.crypto.openssl_privatekey:
+        path: "{{ ca_host_dir }}/{{ client_privatekey }}"
+
+    - name: Certificate | Generate an OpenSSL Certificate Signing Request
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "{{ ca_host_dir }}/{{ client_privatekey }}"
+        common_name: "{{ common_name }}"
+        subject_alt_name: "{{ subject_alt_name }}"
+        basic_constraints: "CA:FALSE"
+        basic_constraints_critical: True
+        key_usage:
+          - digitalSignature
+          - keyEncipherment
+        key_usage_critical: True
+        extended_key_usage:
+          - serverAuth
+          - clientAuth
+      register: csr
+
+    - name: Certificate | Generate an OpenSSL certificate signed with your own CA certificate
+      community.crypto.x509_certificate_pipe:
+        csr_content: "{{ csr.csr }}"
+        ownca_path: "{{ ca_host_dir }}/{{ ca_pubkey }}"
+        ownca_privatekey_path: "{{ ca_host_dir }}/{{ ca_privatekey }}"
+        provider: "{{ ca_provider }}"
+      register: certificate
+  delegate_to: "{{ ca_host }}"
+  become: no
+
+- name: Certificate | Write certificate file on server
+  ansible.builtin.copy:
+    content: "{{ certificate.certificate }}"
+    dest: "{{ host_certificate_dir }}/{{ cert }}"
+
+- name: Certificate | Copy privatekey on server
+  ansible.builtin.copy:
+    src: "{{ ca_host_dir }}/{{ client_privatekey }}"
+    dest: "{{ host_certificate_dir }}/{{ client_privatekey }}"
