@@ -6,5 +6,3 @@ collections:
     version: 10.2.0
   - name: community.docker
     version: 4.0.0
-  - name: ansible.builtin.deb822_repository
-    version: 2.18.1
