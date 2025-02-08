@@ -1,16 +1,7 @@
 ---
-- name: Install packages
-  ansible.builtin.apt:
-    pkg:
-      - ansible
-    state: present
-    install_recommends: false
-    update_cache: true
-    cache_valid_time: 86400
-  register: apt_status
-  until: apt_status is success
-  delay: 6
-  retries: 10
+- name: Install ansible package
+  ansible.builtin.pip:
+    name: ansible
 
 - name: Install units for ansible-pull
   ansible.builtin.template:
