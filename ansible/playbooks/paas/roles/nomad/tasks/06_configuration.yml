@@ -1,0 +1,134 @@
+---
+- name: "Nomad Install | Generate Gossip Encryption Key"
+  ansible.builtin.command: "openssl rand -base64 32"
+  register: nomad_encrypt_key_out
+  changed_when: nomad_encrypt_key_out.rc != 0
+  when: nomad_encrypt_key is not defined and ansible_local.nomad_encrypt_key.nomad_encrypt_key is not defined
+  run_once: true
+
+- name: "Nomad Install | Set Gossip Encryption Key and insert in PasswordStore"
+  ansible.builtin.set_fact:
+    nomad_encrypt_key: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_encrypt_key', missing='create', userpass=nomad_encrypt_key_out.stdout) }}"
+  when: nomad_encrypt_key is not defined and ansible_local.nomad_encrypt_key.nomad_encrypt_key is not defined
+
+- name: "Nomad Install | Read Gossip Encryption Key from PasswordStore"
+  ansible.builtin.set_fact:
+    nomad_encrypt_key: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_encrypt_key') }}"
+  when: nomad_encrypt_key is not defined
+
+- name: "Nomad Install | Set Gossip Encryption Key init done local facts"
+  ansible.builtin.copy:
+    dest: /etc/ansible/facts.d/nomad_encrypt_key.fact
+    content: |
+      {
+        "nomad_encrypt_key": "init_done"
+      }
+    mode: "0600"
+  when: ansible_local.nomad_encrypt_key.nomad_encrypt_key is not defined
+
+- name: "Nomad Configuration | Add user nomad to docker group"
+  ansible.builtin.user:
+    name: "nomad"
+    groups: docker
+    append: true
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'
+
+- name: "Nomad Configuration | Insert Nomad docker configuration"
+  ansible.builtin.template:
+    src: "docker.hcl.j2"
+    dest: "{{ nomad_config_dir }}/docker.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0644'
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'
+
+- name: "Nomad Install | Copy configurations files"
+  ansible.builtin.template:
+    src: "nomad.hcl.j2"
+    dest: "{{ nomad_config_dir }}/nomad.hcl"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+
+- name: "Nomad Install | Copy configurations files for servers"
+  ansible.builtin.template:
+    src: "server.hcl.j2"
+    dest: "{{ nomad_config_dir }}/server.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0644'
+  notify: Nomad_restart
+  when: nomad_node_role == 'server' or nomad_node_role == 'both'
+
+- name: "Nomad Install | Copy configurations files for clients"
+  ansible.builtin.template:
+    src: "client.hcl.j2"
+    dest: "{{ nomad_config_dir }}/client.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0644'
+  notify: Nomad_restart
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'
+
+- name: "Nomad | Configuration | Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Nomad Configuration | Wait for Nomad started"
+  ansible.builtin.wait_for:
+    host: "{{ nomad_http_ip }}"
+    port: "{{ nomad_http_port }}"
+
+- name: "Nomad ACL | Generate Bootstrap token"
+  ansible.builtin.uri:
+    url: "{{ nomad_http_scheme }}://{{ nomad_http_ip }}:{{ nomad_http_port }}/v1/acl/bootstrap"
+    ca_path: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    client_cert: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    method: POST
+    body_format: json
+    status_code:
+      - 200
+  register: nomad_management_token_result
+  run_once: true
+  when:
+    - nomad_management_token is not defined
+    - ansible_local.nomad_management_token.nomad_management_token is not defined
+
+- name: "Nomad Install | Set Nomad management token and insert in PasswordStore"
+  ansible.builtin.set_fact:
+    nomad_management_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token', missing='create', userpass=nomad_management_token_result.json.SecretID) }}"
+  when: nomad_management_token is not defined and ansible_local.nomad_management_token.nomad_management_token is not defined
+
+- name: "Nomad Install | Read Nomad management token from PasswordStore"
+  ansible.builtin.set_fact:
+    nomad_management_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+  when: nomad_management_token is not defined
+
+- name: "Nomad Install | Set Nomad management token init done local facts"
+  ansible.builtin.copy:
+    dest: /etc/ansible/facts.d/nomad_management_token.fact
+    content: |
+      {
+        "nomad_management_token": "init_done"
+      }
+    mode: "0600"
+  when: ansible_local.nomad_management_token.nomad_management_token is not defined
+
+- name: "Nomad Configuration | Enable MemoryOversubscription"
+  ansible.builtin.uri:
+    url: "{{ nomad_http_scheme }}://{{ nomad_http_ip }}:{{ nomad_http_port }}/v1/operator/scheduler/configuration"
+    ca_path: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    client_cert: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    headers:
+      X-Nomad-Token: "{{ nomad_management_token_result.json.SecretID | default(nomad_management_token) }}"
+    method: POST
+    body_format: json
+    body:
+      MemoryOversubscriptionEnabled: true
+    return_content: true
+    status_code:
+      - 200
+  when: nomad_node_role == 'server' or nomad_node_role == 'both'
+  register: nomad_memoryoversubscription
+  ignore_errors: true

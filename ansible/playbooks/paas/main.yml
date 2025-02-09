@@ -110,7 +110,7 @@
   become: true
   vars:
     certificate_ca_host: "localhost"
-    certificate_ca_host_dir: "tls/ca"
+    certificate_ca_host_dir: "../../tls"
     certificate_ca_pubkey: "simplestack-ca.pem"
     certificate_ca_privatekey: "simplestack-ca-key.pem"
     certificate_host_certificate_dir: "/etc/ssl/simplestack"
@@ -118,14 +118,12 @@
   tasks:
     - name: "Create TLS directory on ansible controller"
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ certificate_ca_host_dir }}"
         state: directory
         recurse: true
         mode: '0755'
-      loop:
-        - tls/ca
-        - tls/servers
-        - tls/clients
+        access_time: "preserve"
+        modification_time: "preserve"
       delegate_to: localhost
       become: false
 

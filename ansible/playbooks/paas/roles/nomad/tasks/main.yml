@@ -1,21 +1,31 @@
 ---
-- name: Add Hashicorp Stable APT repository
-  ansible.builtin.deb822_repository:
-    name: hashicorp
-    types: [deb]
-    uris: "https://apt.releases.hashicorp.com"
-    signed_by: "https://apt.releases.hashicorp.com/gpg"
-    suites: ["{{ ansible_distribution_release|lower }}"]
-    components: [main]
-    state: present
-    enabled: true
+# tasks file for install
 
-- name: Update APT Cache
-  ansible.builtin.apt:
-    update_cache: true
+- name: "Nomad | Commons tasks"
+  ansible.builtin.include_tasks: "01_nodes_roles.yml"
 
-- name: Install nomad
-  ansible.builtin.include_tasks: install.yml
+- name: "Nomad | Install CNI"
+  ansible.builtin.include_tasks: "02_network.yml"
 
-- name: Configure nomad
-  ansible.builtin.include_tasks: configure.yml
+- name: "Nomad | Commons tasks"
+  ansible.builtin.include_tasks: "03_commons_tasks.yml"
+
+- name: "Nomad | TLS certs configuration"
+  ansible.builtin.include_tasks: "04_tls_certs.yml"
+
+- name: "Nomad | Install"
+  ansible.builtin.include_tasks: "05_install.yml"
+
+- name: "Nomad | Global Configuration"
+  ansible.builtin.include_tasks: "06_configuration.yml"
+
+- name: "Nomad | Install Nomad Auto Eligibility Node"
+  ansible.builtin.include_tasks: "07_autoeligibility.yml"
+  when: nomad_mode == 'single'
+
+- name: "Nomad | Change SystemD configuration"
+  ansible.builtin.include_tasks: "08_systemd_tuning.yml"
+
+- name: "Nomad | Firewall configuration"
+  ansible.builtin.include_tasks: "09_firewall.yml"
+  when: nomad_firewall
