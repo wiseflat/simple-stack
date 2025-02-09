@@ -20,13 +20,13 @@
       when: confirmation != "yes"
 
     - name: Create ansible facts.d directory
-      become: yes
-      file:
+      become: true
+      ansible.builtin.file:
         path: /etc/ansible/facts.d
         state: directory
         owner: "root"
         group: "root"
-        mode: 0755
+        mode: "0755"
 
     - name: Get ipinfo.io
       ansible.builtin.uri:
@@ -63,7 +63,9 @@
       retries: 10
 
     - name: Install latest available version of fpm
-      shell: gem install fpm
+      ansible.builtin.command: gem install fpm
+      register: fpm_install
+      changed_when: fpm_install.rc != 0
   roles:
     - ansible-unattendedUpgrades
     # - ansible-pull
@@ -154,13 +156,5 @@
   hosts: nomad
   gather_facts: true
   become: true
-  vars:
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
   roles:
     - nomad
