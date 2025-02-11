@@ -1,0 +1,75 @@
+FROM nextcloud:{{ upstream_version }}
+
+### Tesseract
+
+RUN set -ex; \
+    \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        lsb-release \
+        software-properties-common \
+        wget \
+        curl \
+        vim \
+        libmagickcore-6.q16-6-extra \
+        less \
+        zip \
+        smbclient \
+        ghostscript \
+        gnupg2 \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        tesseract-ocr-fra \
+        imagemagick \
+        ocrmypdf \
+        tmux \
+    ; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" ; \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer ; \
+    chmod +x /usr/local/bin/composer ; \
+    composer require thiagoalessio/tesseract_ocr
+
+###
+
+RUN set -ex; \
+    \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        ghostscript \
+        libmagickcore-6.q16-6-extra \
+        procps \
+        smbclient \
+        supervisor \
+    ; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update; \
+    apt-get install -y --no-install-recommends \
+        libbz2-dev \
+        libc-client-dev \
+        libkrb5-dev \
+        libsmbclient-dev \
+    ; \
+    \
+    docker-php-ext-configure imap --with-kerberos --with-imap-ssl; \
+    docker-php-ext-install \
+        bz2 \
+        imap \
+    ; \
+    pecl install smbclient; \
+    docker-php-ext-enable smbclient;
+
+RUN mkdir -p \
+    /var/log/supervisord \
+    /var/run/supervisord \
+;
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+ENV NEXTCLOUD_UPDATE=1
+
+CMD ["/usr/bin/supervisord"]

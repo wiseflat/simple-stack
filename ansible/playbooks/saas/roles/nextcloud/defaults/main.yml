@@ -1,1 +1,111 @@
----
+# simplestack
+
+# nextcloud info
+nextcloud_admin_user: "admin{{ fqdn | replace('.', '') | replace('-', '') }}"
+# nextcloud_admin_password: ""
+nextcloud_admin_mail: ""
+nextcloud_trusted_domains:
+  - "{{ fqdn }}"
+  - 127.0.0.1
+
+nextcloud_cron: true
+nextcloud_overwriteprotocol: https
+
+nextcloud_database_name: "{{ fqdn | replace('.', '') | replace('-', '') }}"
+nextcloud_database_user: "{{ fqdn | replace('.', '') | replace('-', '') }}"
+
+nextcloud_country_code: FR
+nextcloud_default_language: fr
+nextcloud_default_locale: fr_FR
+nextcloud_skeletondirectory: ""
+nextcloud_knowledgebaseenabled: "false"
+nextcloud_user_default_group: "utilisateurs"
+nextcloud_user_default_quota: "5GB"
+
+nextcloud_disable_firstrunwizard: true
+
+nextcloud_apps_list:
+  - announcementcenter
+  - appointments
+  - apporder
+  - bookmarks
+  - calendar
+  - contacts
+  - deck
+  - electronicsignatures
+  - event_update_notification
+  - external
+  - files_accesscontrol
+  - files_antivirus
+  - files_automatedtagging
+  - files_fulltextsearch
+  - files_fulltextsearch_tesseract
+  - files_mindmap
+  - forms
+  - fulltextsearch
+  - geoblocker
+  - groupfolders
+  - guests
+  - listman
+  - mail
+  - maps
+  - notes
+  - passwords
+  - polls
+  - printer
+  - ransomware_protection
+  - socialsharing_email
+  - spreed
+  - tasks
+  - unsplash
+  - webhooks
+  - workflow_ocr
+  - workflow_script
+
+# nextcloud smtp
+nextcloud_smtp_enabled: true
+nextcloud_smtp_host: ""
+nextcloud_smtp_secure: "tls" # ssl / tls
+nextcloud_smtp_port: 587 # 465 / 587
+nextcloud_smtp_authtype: "LOGIN" # LOGIN = standard / PLAIN = no auth
+nextcloud_smtp_name: ""
+nextcloud_smtp_password: ""
+nextcloud_smtp_from_address: ""
+nextcloud_smtp_mail_domain: ""
+
+# redis
+redis_enable: true
+redis_host: "redis.{{ consul_service_domain }}"
+redis_host_port: 6379
+# redis_password: ""
+
+# clamAV
+clamav_enable: true
+clamav_host: "clamav.{{ consul_service_domain }}"
+clamav_mode: "daemon"
+clamav_port: 3310
+
+# OFFICE
+office_subdomain: "office"
+
+# collabora
+collabora_admin_user: "collabora"
+# collabora_admin_password:  ""
+collabora_nextcloud_fqdn: "{{ fqdn | replace('.','\\\\.') }}"
+collabora_dictionaries: "de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru"
+
+# Elasticsearch
+elastic_host: "elasticsearch.{{ consul_service_domain }}"
+elastic_port: 9200
+# elastic_password: elasticpasswd
+
+# OCR
+ocr_enable: true
+nextcloud_tesseract_lang: fra
+
+# coTURN
+coturn_subdomain: turn
+coturn_port: 3478
+# coturn_password: ""
+coturn_min_port: 49160
+coturn_max_port: 49200

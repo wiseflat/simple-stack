@@ -1,4 +1,17 @@
 ---
+- name: "Deploy | Check stats of job file - {{ domain }}"
+  ansible.builtin.stat:
+    path: "/var/tmp/{{ domain }}.nomad"
+  register: job
+
+- name: "PasswordStore | Set passwords"
+  ansible.builtin.set_fact:
+    nextcloud_admin_password: "{{ lookup('community.general.passwordstore', 'nextcloud/' + domain, subkey='nextcloud_admin_password', create=true, length=20) }}"
+    redis_password: "{{ lookup('community.general.passwordstore', 'nextcloud/' + domain, subkey='redis_password', create=true, length=20) }}"
+    collabora_admin_password: "{{ lookup('community.general.passwordstore', 'nextcloud/' + domain, subkey='collabora_admin_password', create=true, length=20) }}"
+    elastic_password: "{{ lookup('community.general.passwordstore', 'nextcloud/' + domain, subkey='elastic_password', create=true, length=20) }}"
+    coturn_password: "{{ lookup('community.general.passwordstore', 'nextcloud/' + domain, subkey='coturn_password', create=true, length=20) }}"
+
 - name: Create default directories
   ansible.builtin.file:
     path: "{{ item }}"
@@ -9,9 +22,27 @@
   loop:
     - "{{ software_path }}/var/www/html"
 
+- name: Create default directories for tesseract and clamav
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0777'
+  loop:
+    - "{{ software_path }}/usr/share/elasticsearch/data"
+    - "{{ software_path }}/var/lib/clamav"
+    - "{{ software_path }}/usr/share/tesseract-ocr/4.00/tessdata"
+
+- name: "Nextcloud | Get localized for tesseract"
+  ansible.builtin.get_url:
+    url: 'https://github.com/tesseract-ocr/tessdata/raw/main/{{ nextcloud_tesseract_lang }}.traineddata'
+    dest: "{{ software_path }}/usr/share/tesseract-ocr/4.00/tessdata/fra.traineddata"
+    mode: '0440'
+
 - name: Query SRV records
-  dig:
-    service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  community.general.dig:
+    service: "{{ software_vars.dbhost | replace('-', '') | replace('.', '') }}.default.service.nomad"
   register: service
 
 - name: Create mysql database
@@ -38,6 +69,11 @@
     priv: "{{ service_name[:32] }}.*:ALL"
     state: present
 
+- name: "Nomad | Read Nomad management token from PasswordStore"
+  ansible.builtin.set_fact:
+    nomad_management_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+  when: nomad_management_token is not defined
+
 - name: Copy nomad job
   ansible.builtin.template:
     src: nomad.hcl
@@ -47,4 +83,154 @@
     mode: '0600'
 
 - name: Run nomad job
-  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"
+  ansible.builtin.command: "/usr/bin/nomad job run /var/tmp/{{ domain }}.nomad"
+  environment:
+    NOMAD_ADDR: "https://127.0.0.1:4646"
+    NOMAD_TOKEN: "{{ nomad_management_token }}"
+    NOMAD_CLIENT_CERT: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
+    NOMAD_CLIENT_KEY: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    NOMAD_CACERT: "/etc/ssl/simplestack/simplestack-ca.pem"
+  register: nomad_run
+  changed_when: nomad_run.rc != 0
+
+- name: "Nextcloud | Wait until nextcloud first start installation over"
+  ansible.builtin.wait_for:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    search_regex: "  'installed' => true,"
+
+- name: "Nextcloud | Add phone region to config file"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'default_phone_region' => '{{ nextcloud_country_code }}',"
+
+- name: "Nextcloud | Add default language"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'default_language' => '{{ nextcloud_default_language }}',"
+
+- name: "Nextcloud | Add default locale"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'default_locale' => '{{ nextcloud_default_locale }}',"
+
+- name: "Nextcloud | Add default skeleton files"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'skeletondirectory' => '{{ nextcloud_skeletondirectory }}',"
+
+- name: "Nextcloud | Disable help menu"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'knowledgebaseenabled' => '{{ nextcloud_knowledgebaseenabled }}',"
+
+- name: "Nextcloud | Add overwrite cli url"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'overwrite.cli.url' => 'https://{{ domain }}',"
+
+- name: "Nextcloud | Add maintenance windows start"
+  ansible.builtin.lineinfile:
+    path: "{{ software_path }}/var/www/html/config/config.php"
+    insertbefore: '^\);'
+    line: "  'maintenance_window_start' => 1,"
+
+- name: "Nomad operate | Nomad shell command find allocation ID"
+  ansible.builtin.command: /usr/bin/nomad job allocs  -t {% raw %} '{{ range . }}{{ if eq .TaskGroup "{% endraw %}{{ nomad_operate_tasks_name }}{% raw %}" }}{{ println .ID }}{{ end }}{{ end }}' {% endraw %}{{ nomad_operate_job }}{% raw %}  | head -n 1{% endraw %}
+  environment:
+    NOMAD_ADDR: "https://127.0.0.1:4646"
+    NOMAD_TOKEN: "{{ nomad_management_token }}"
+    NOMAD_CLIENT_CERT: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
+    NOMAD_CLIENT_KEY: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    NOMAD_CACERT: "/etc/ssl/simplestack/simplestack-ca.pem"
+  register: allocation_id
+  changed_when: allocation_id.rc != 0
+
+- name: "Show Allocation ID from Nomad job"
+  ansible.builtin.debug:
+    msg: "{{ allocation_id.stdout }}"
+
+- name: "Nextcloud | Configure (admin) mail - {{ nextcloud_admin_user }}"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: su -s /bin/sh www-data -c 'php occ user:setting {{ nextcloud_admin_user }} settings email "{{ nextcloud_admin_mail }}"'
+
+- name: "Nextcloud | Create group {{ nextcloud_user_default_group }}"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: su -s /bin/sh www-data -c 'php occ group:add {{ nextcloud_user_default_group }}'
+  when: not job.stat.exists
+
+- name: "Nextcloud | Pre-Install useful apps"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: su -s /bin/sh www-data -c 'php occ app:install {{ item }}'
+  loop: "{{ nextcloud_apps_list }}"
+  ignore_errors: true
+
+- name: "Nextcloud | Disable firstrunwizard"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: su -s /bin/sh www-data -c 'php occ app:disable firstrunwizard'
+  when:
+    - nextcloud_disable_firstrunwizard
+    - not job.stat.exists
+
+- name: "Nextcloud | Configure Nextcloud Office (Collabora)"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: "{{ item }}"
+  loop:
+    - su -s /bin/sh www-data -c 'php occ app:install richdocuments'
+    - su -s /bin/sh www-data -c 'php occ app:enable richdocuments'
+    - su -s /bin/sh www-data -c 'php occ config:app:set richdocuments wopi_url --value https://{{ office_subdomain }}.{{ domain }}'
+  ignore_errors: true
+
+- name: "Nextcloud | Configure Maintenace Windows Start"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: su -s /bin/sh www-data -c 'php occ config:system:set maintenance_window_start --type=integer --value=1'
+
+- name: "Nextcloud | Configure ClamAV"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: "{{ item }}"
+  loop:
+    - su -s /bin/sh www-data -c 'php occ config:app:set files_antivirus av_mode --value="{{ clamav_mode }}"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set files_antivirus av_host --value="{{ clamav_host }}"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set files_antivirus av_port --value="{{ clamav_port }}"'
+
+- name: "Nextcloud | Configure fulltextsearch and index"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: "{{ item }}"
+  loop:
+    - su -s /bin/sh www-data -c 'php occ app:install fulltextsearch_elasticsearch'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch search_platform --value "OCA\FullTextSearch_Elasticsearch\Platform\ElasticSearchPlatform"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch app_navigation --value="1"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch_elasticsearch enabled yes'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch_elasticsearch analyzer_tokenizer --value "standard"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch_elasticsearch elastic_index --value "{{ fqdn | replace('-', '') | replace('.', '') }}"'
+    - su -s /bin/sh www-data -c 'php occ config:app:set fulltextsearch_elasticsearch elastic_host --value "http://{{ elastic_host }}:{{ elastic_port }}"'
+  ignore_errors: true
+
+- name: "Nextcloud | Configure Turn server for Talk"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: "{{ item }}"
+  loop:
+    - su -s /bin/sh www-data -c 'php occ talk:turn:add --secret {{ coturn_password }} -- turn {{ coturn_subdomain }}.{{ domain }}:{{ coturn_port }} udp,tcp'
+    - su -s /bin/sh www-data -c 'php occ talk:stun:add {{ coturn_subdomain }}.{{ domain }}:{{ coturn_port }}'
+  ignore_errors: true
+
+- name: "Nextcloud | Fix missing indices"
+  community.docker.docker_container_exec:
+    container: "nextcloud-{{ allocation_id.stdout }}"
+    command: "{{ item }}"
+  loop:
+    - su -s /bin/sh www-data -c 'php occ db:add-missing-indices'

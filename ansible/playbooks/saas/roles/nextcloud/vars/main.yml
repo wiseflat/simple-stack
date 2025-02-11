@@ -1,6 +1,6 @@
 ---
 image:
-  build: false
+  build: true
   upstream:
     source: github
     user: nextcloud
