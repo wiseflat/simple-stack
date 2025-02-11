@@ -1,0 +1,8 @@
+#!/bin/sh
+set +eu
+
+echo "Backup data..."
+tar -czf /var/backup/data.tgz -C /var/www/html documents custom
+
+echo "Backup database..."
+/usr/bin/mariadb-dump ${1} > /var/backup/dump.sql

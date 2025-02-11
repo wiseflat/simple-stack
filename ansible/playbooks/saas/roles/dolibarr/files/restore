@@ -1,0 +1,13 @@
+#!/bin/sh
+set +eu
+
+cd /var/backup
+
+echo "Unarchive backup..."
+tar -xzf data.tgz
+
+echo "Restore data"
+rsync -av --perms --delete --exclude "data.tgz" --exclude "dump.sql" . /var/www/html
+
+echo "Import database..."
+/usr/bin/mariadb ${1} < /var/backup/dump.sql
