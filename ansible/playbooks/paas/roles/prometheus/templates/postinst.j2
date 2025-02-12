@@ -7,7 +7,7 @@ USER_NAME="prometheus"
 GROUP_NAME="prometheus"
 SERVICE_UID=109
 SERVICE_GID=112
-
+ 
 if ! getent group "$GROUP_NAME" >/dev/null; then
   echo "Creating group $GROUP_NAME with GID $SERVICE_GID..."
   groupadd --gid $SERVICE_GID $GROUP_NAME
@@ -18,6 +18,8 @@ if ! id -u "$USER_NAME" >/dev/null 2>&1; then
   useradd --system --uid $SERVICE_UID --gid $GROUP_NAME --shell /usr/sbin/nologin --no-create-home $USER_NAME
 fi
 
+mkdir -p /var/lib/prometheus
+chown $USER_NAME:$GROUP_NAME /var/lib/prometheus
 
 if command -v systemctl >/dev/null 2>&1; then
   echo "Reloading systemd configuration..."
