@@ -19,7 +19,7 @@ job "{{ domain }}" {
     network {
       port "mosquitto" {
         to = 1883
-        # static = 1883
+        static = 1883
       }
     }
 
