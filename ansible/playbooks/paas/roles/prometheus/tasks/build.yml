@@ -64,6 +64,7 @@
         - "{{ build_work_dir }}/build/etc/prometheus"
         - "{{ build_work_dir }}/build/etc/systemd/system"
         - "{{ build_work_dir }}/build/usr/local/bin"
+        - "{{ build_work_dir }}/build/var/lib/prometheus"
 
     - name: Copy custom files
       ansible.builtin.template:
