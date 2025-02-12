@@ -67,7 +67,7 @@
 
   roles:
     - ansible-unattendedUpgrades
-    - ansible-pull
+    # - ansible-pull
 
 - name: Install metrology
   any_errors_fatal: true
