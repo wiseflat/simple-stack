@@ -9,13 +9,13 @@
   loop:
     - "{{ software_path }}/config"
 
-- name: Copy configuration file
-  ansible.builtin.template:
-    src: configuration.yaml
-    dest: "{{ software_path }}/config/configuration.yaml"
-    owner: root
-    group: root
-    mode: '0600'
+# - name: Copy configuration file
+#   ansible.builtin.template:
+#     src: configuration.yaml
+#     dest: "{{ software_path }}/config/configuration.yaml"
+#     owner: root
+#     group: root
+#     mode: '0600'
 
 - name: Copy nomad job to destination
   ansible.builtin.template:
