@@ -63,19 +63,9 @@ job "{{ domain }}" {
       config {
         image = "{{ software }}/home-assistant:{{ ansible_local.software_version[software] }}"
 
-        # network_mode = "host"
-
-        privileged = "true"
-
         volumes = [
           "/data/{{ domain }}/config:/config:rw"
         ]
-
-        devices = [{
-          container_path = "/dev/ttyACM0",
-          host_path = "/dev/ttyACM0"
-        }]
-
         ports = ["homeassistant"]
       }
 

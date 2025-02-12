@@ -1,0 +1,6 @@
+---
+- name: Disable ansible-pull timer
+  ansible.builtin.service:
+    name: ansible-pull.timer
+    state: stopped
+    enabled: false

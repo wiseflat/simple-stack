@@ -15,6 +15,11 @@
       owner: 1001
       group: 1001
 
+- name: Test if config file exists
+  ansible.builtin.stat:
+    path: "{{ software_path }}/app/data/configuration.yaml"
+  register: stat_result
+
 - name: Copy default config file
   ansible.builtin.template:
     src: configuration.yaml.j2
@@ -22,6 +27,7 @@
     owner: 1001
     group: 1001
     mode: "0644"
+  when: not stat_result.stat.exists
 
 - name: Copy nomad job to destination
   ansible.builtin.template:

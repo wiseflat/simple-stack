@@ -37,7 +37,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       env {
-        WORDPRESS_DB_PASSWORD="{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd') }}"
+        WORDPRESS_DB_PASSWORD="{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.userpass | default(none)) }}"
       }
 
       config {
