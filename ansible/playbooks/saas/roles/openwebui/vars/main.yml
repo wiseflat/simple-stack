@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: open-webui
+    repo: open-webui
+    type: archive
+    format: tar.gz
+    file: VERSION.FORMAT
+    os: linux
+  labels: {}
+  name: open-webui
