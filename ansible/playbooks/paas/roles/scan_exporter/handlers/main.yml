@@ -1,0 +1,6 @@
+---
+- name: Restart scan_exporter
+  ansible.builtin.service:
+    name: scan_exporter
+    state: restarted
+    enabled: true
