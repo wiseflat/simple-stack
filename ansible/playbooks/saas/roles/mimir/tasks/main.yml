@@ -22,7 +22,6 @@
   loop:
     - prometheus.yaml
     - rules.yaml
-    - alertmanager-fallback-config.yaml
 
 - name: Template services configurations files
   ansible.builtin.template:
@@ -33,17 +32,15 @@
     mode: '0644'
   loop:
     - mimir.yaml
-    - nginx.conf
+    - alertmanager-fallback-config.yaml
 
-- name: Copy docker-compose file
+- name: Copy nomad job
   ansible.builtin.template:
-    src: docker-compose.yaml.j2
-    dest: "/data/{{ domain }}/docker-compose.yaml"
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
     owner: root
     group: root
-    mode: '0644'
+    mode: '0600'
 
-- name: Run `docker compose up`
-  community.docker.docker_compose_v2:
-    project_src: "/data/{{ domain }}"
-  register: output
+- name: Run nomad jobs
+  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.nomad"

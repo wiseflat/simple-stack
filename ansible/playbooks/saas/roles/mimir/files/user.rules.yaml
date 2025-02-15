@@ -1,0 +1,1052 @@
+namespace: rules
+groups:
+
+- name: prometheus
+  rules:
+  - alert: PrometheusConfigurationReloadFailure
+    expr: prometheus_config_last_reload_successful != 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: prometheus_config_last_reload_successful != 1
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Prometheus configuration reload failure"
+
+  - alert: PrometheusTooManyRestarts
+    expr: changes(process_start_time_seconds[15m]) > 5
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: changes(process_start_time_seconds[15m]) > 5
+    annotations:
+      summary: "Host: {{ $labels.instance }} \nFqdn: {{ $labels.fqdn }} \nService: {{ $labels.job }} \nValue: {{ $value }}"
+      description: "A service has restarted more than twice in the last 15 minutes. It might be crashlooping."
+
+  # - alert: PrometheusNotConnectedToAlertmanager
+  #   expr: prometheus_notifications_alertmanagers_discovered < 1
+  #   for: 0m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Prometheus cannot connect the alertmanager"
+
+  - alert: PrometheusRuleEvaluationFailures
+    expr: increase(prometheus_rule_evaluation_failures_total[3m]) > 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: increase(prometheus_rule_evaluation_failures_total[3m]) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Prometheus encountered {{ $value }} rule evaluation failures, leading to potentially ignored alerts."
+
+  - alert: PrometheusRuleEvaluationSlow
+    expr: prometheus_rule_group_last_duration_seconds > prometheus_rule_group_interval_seconds
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: prometheus_rule_group_last_duration_seconds > prometheus_rule_group_interval_seconds
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Prometheus rule evaluation took more time than the scheduled interval. It indicates a slower storage backend access or too complex query."
+
+  #  - alert: PrometheusTargetEmpty
+  #     expr: prometheus_sd_discovered_targets == 0
+  #     for: 0m
+  #     labels:
+  #       severity: critical
+  #     annotations:
+  #       summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #       description: Prometheus has no target in service discovery
+
+  - alert: PrometheusTargetScrapingSlow
+    expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 90
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 90
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Prometheus is scraping exporters slowly"
+
+  - alert: PrometheusLargeScrape
+    expr: increase(prometheus_target_scrapes_exceeded_sample_limit_total[10m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: increase(prometheus_target_scrapes_exceeded_sample_limit_total[10m]) > 10
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Prometheus has many scrapes that exceed the sample limit"
+
+- name: prometheus-systemd
+  rules:
+  - alert: systemdUnitState
+    expr: systemd_unit_state{state='active'} != 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: systemd_unit_state{state='active'} != 1
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Service {{ $labels.name }}"
+      description: "Systemd unit {{ $labels.name }} is in a wrong state"
+
+- name: prometheus-alertmanager
+  rules:
+  - alert: PrometheusAlertmanagerConfigurationReloadFailure
+    expr: alertmanager_config_last_reload_successful != 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: alertmanager_config_last_reload_successful != 1
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "AlertManager configuration reload error"
+
+  - alert: PrometheusAlertmanagerConfigNotSynced
+    expr: count(count_values("config_hash", alertmanager_config_hash)) > 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: count(count_values("config_hash", alertmanager_config_hash)) > 1
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Configurations of AlertManager cluster instances are out of sync"
+
+  - alert: PrometheusAlertmanagerNotificationFailing
+    expr: rate(alertmanager_notifications_failed_total[1m]) > 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: rate(alertmanager_notifications_failed_total[1m]) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Alertmanager is failing sending notifications"
+
+- name: nomad_job_alerts
+  rules:
+  # exclusion qws-bot: Because nomad cron jobs stay exposed (as a down job) by nomad and prometheus scrap it
+  # - alert: nomad job down
+  #   expr: nomad_nomad_job_summary_running{parent_id!="qws-bot.wiseflat.fr", job="nomad_metrics"} < 5
+  #   for: 5m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Job {{ $labels.exported_job }} down"
+  #     description: "{{ $labels.exported_job }} has been down for more than 5 minutes"
+
+  - alert: NomadJobFailed
+    expr: nomad_nomad_job_summary_failed > 0
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "nomad_nomad_job_summary_failed{instance='{{ $labels.instance }}',exported_job='{{ $labels.exported_job }}'} > 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Job: {{ $labels.exported_job }}\n Task_group: {{ $labels.task_group }}\n  Value: {{ $value }}"
+      description: "A task in a nomad group failed"
+
+  - alert: NomadJobLost
+    expr: nomad_nomad_job_summary_lost > 0
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "nomad_nomad_job_summary_lost{instance='{{ $labels.instance }}',exported_job='{{ $labels.exported_job }}'} > 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nomad job lost"
+
+  - alert: NomadJobQueued
+    expr: nomad_nomad_job_summary_queued > 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "nomad_nomad_job_summary_queued{instance='{{ $labels.instance }}',exported_job='{{ $labels.exported_job }}'} > 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nomad job queued"
+
+  - alert: NomadBlockedEvaluation
+    expr: rate(nomad_nomad_blocked_evals_total_blocked[3m]) > 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "rate(nomad_nomad_blocked_evals_total_blocked{instance='{{ $labels.instance }}'}[3m]) > 1"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nomad blocked evaluation of some jobs during more than 3 minutes"
+
+- name: website
+  rules:
+  - alert: SSLCertExpiringSoon
+    expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 10
+    for: 1h
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_ssl_earliest_cert_expiry{instance='{{ $labels.instance }}'} - time() < 86400 * 10"
+    annotations:
+      summary: "{{ $labels.job }}\nValue: {{ $value }}"
+      description: "SSL is expiring in 10 days."
+
+  - alert: BlackboxSslCertificateExpired
+    expr: probe_ssl_earliest_cert_expiry - time() <= 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_ssl_earliest_cert_expiry{instance='{{ $labels.instance }}'} - time() <= 0"
+    annotations:
+      summary: "{{ $labels.job }}\nValue: {{ $value }}"
+      description: "Blacbkox SSL certificate has expired already"
+
+  - alert: "404 Not Found"
+    expr: probe_http_status_code == 404
+    for: 5m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_http_status_code{instance='{{ $labels.instance }}'} == 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}"
+      description: "FQDN is unavailable"
+
+  # - alert: "Invalid domain"
+  #   expr: probe_http_status_code == 0
+  #   for: 10m
+  #   labels:
+  #     severity: critical
+  #     projectid: "{{ $labels.projectid }}"
+  #     projectName: "{{ $labels.project }}"
+  #     expr: "probe_http_status_code{instance='{{ $labels.instance }}'} == 0"
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}"
+  #     description: "FQDN does not exist"
+
+  - alert: "500 Internal Server Error"
+    expr: probe_http_status_code == 500
+    for: 5m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_http_status_code == 500
+    annotations:
+      summary: "Host: {{ $labels.instance }}"
+      description: "FQDN is unavailable"
+
+  - alert: "502 Bad Gateway"
+    expr: probe_http_status_code == 502
+    for: 5m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_http_status_code == 502
+    annotations:
+      summary: "Host: {{ $labels.instance }}"
+      description: "FQDN is unavailable"
+
+  - alert: "503 Service Unavailable"
+    expr: probe_http_status_code == 503
+    for: 5m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_http_status_code == 503
+    annotations:
+      summary: "Host: {{ $labels.instance }}"
+      description: "FQDN is unavailable"
+
+  - alert: "504 Gateway Timeout"
+    expr: probe_http_status_code == 504
+    for: 5m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_http_status_code == 504
+    annotations:
+      summary: "Host: {{ $labels.instance }}"
+      description: "FQDN is unavailable"
+
+  - alert: DNSLookupTime
+    expr: probe_dns_lookup_time_seconds > 2
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_dns_lookup_time_seconds{fqdn='{{ $labels.fqdn }}'} > 2
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Fqdn: {{ $labels.fqdn }}\n Service: {{ $labels.service }}\n {{ $labels.job }}"
+      description: "DNS lookup time exceed 2 sec resolution."
+
+  - alert: RedirectsExceeded
+    expr: probe_http_redirects > 2
+    for: 1m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: probe_http_redirects{fqdn='{{ $labels.fqdn }}'} > 2
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Fqdn: {{ $labels.fqdn }}\n Service: {{ $labels.service }}\n {{ $labels.job }}"
+      description: "More than 2 redirections"
+
+  # TODO: instance exclusion : it maybe comes from node_exporter service because it is a service running from the host. I did not find out yet, it's a quick and dirty fix. This is an invalid IP regex but this IP is dynamic and provided by consul, so it should be good enough :-/
+  - alert: BlackboxInternalService
+    expr: probe_success{instance!~"^[0-9]*.[0-9]*.[0-9]*.[0-9]*:0", job="internal_check", service!="external-check"} < 1
+    for: 2m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_success{instance!~'^[0-9]*.[0-9]*.[0-9]*.[0-9]*:0', job='internal_check', service!='external-check'} < 1"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Fqdn: {{ $labels.fqdn }}\n Service: {{ $labels.service }}"
+      description: "Service is not available"
+
+  - alert: BlackboxInternalApplication
+    expr: probe_success{fqdn!~"^$", job=~"internal_check", service!="external-check"} < 1
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_success{fqdn!~'^$', job=~'internal_check', service!='external-check'} < 1"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Fqdn: {{ $labels.fqdn }}\n Service: {{ $labels.service }}"
+      description: "Application is not available"
+
+  - alert: BlackboxExternalServices
+    expr: probe_success{job=~"external_check"} < 1 and probe_http_status_code >= 500
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "probe_success{job=~'external_check'} < 1 and probe_http_status_code >= 500"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n Fqdn: {{ $labels.fqdn }}\n Service: {{ $labels.service }}"
+      description: "Service is not available"
+
+- name: node
+  rules:
+  - alert: HostOutOfMemory
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Node memory is filling up (< 10% left)"
+
+  - alert: HostMemoryUnderMemoryPressure
+    expr: rate(node_vmstat_pgmajfault[1m]) > 1000
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: rate(node_vmstat_pgmajfault[1m]) > 1000
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "The node is under heavy memory pressure. High rate of major page faults"
+
+  - alert: HostUnusualNetworkThroughputIn
+    expr: sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual network throughput. Host network interfaces are probably receiving too much data (> 100 MB/s)"
+
+  - alert: HostUnusualNetworkThroughputOut
+    expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual network throughput. Host network interfaces are probably sending too much data (> 100 MB/s)"
+
+  - alert: HostUnusualDiskReadRate
+    expr: sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual disk read rate. Disk is probably reading too much data (> 50 MB/s)"
+
+  - alert: HostUnusualDiskWriteRate
+    expr: sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual disk write rate. Disk is probably writing too much data (> 50 MB/s)"
+
+  - alert: HostOutOfDiskSpace
+    expr: ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~'.+'}"
+    annotations:
+      summary: Host out of disk space (instance {{ $labels.instance }})
+      description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # Please add ignored mountpoints in node_exporter parameters like
+  # "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|run)($|/)".
+  # Same rule using "node_filesystem_free_bytes" will fire when disk fills for non-root users.
+  - alert: HostDiskWillFillIn24Hours
+    expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) predict_linear(node_filesystem_avail_bytes{fstype!~"tmpfs"}[1h], 24 * 3600) < 0 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "(node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) predict_linear(node_filesystem_avail_bytes{fstype!~'tmpfs'}[1h], 24 * 3600) < 0 and ON (instance, device, mountpoint) node_filesystem_readonly == 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host disk will fill in 24 hours. Filesystem is predicted to run out of space within the next 24 hours at current write rate"
+
+  - alert: HostOutOfInodes
+    expr: node_filesystem_files_free{mountpoint ="/rootfs"} / node_filesystem_files{mountpoint="/rootfs"} * 100 < 10 and ON (instance, device, mountpoint) node_filesystem_readonly{mountpoint="/rootfs"} == 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "node_filesystem_files_free{mountpoint ='/rootfs'} / node_filesystem_files{mountpoint='/rootfs'} * 100 < 10 and ON (instance, device, mountpoint) node_filesystem_readonly{mountpoint='/rootfs'} == 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host out of inodes. Disk is almost running out of available inodes (< 10% left)"
+
+  - alert: HostFilesystemDeviceError
+    expr: node_filesystem_device_error == 1
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: node_filesystem_device_error == 1
+    annotations:
+      summary: "Host: filesystem device error (instance {{ $labels.instance }})"
+      description: "{{ $labels.instance }}: Device error with the {{ $labels.mountpoint }} filesystem\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: HostInodesWillFillIn24Hours
+    expr: node_filesystem_files_free{mountpoint ="/rootfs"} / node_filesystem_files{mountpoint="/rootfs"} * 100 < 10 and predict_linear(node_filesystem_files_free{mountpoint="/rootfs"}[1h], 24 * 3600) < 0 and ON (instance, device, mountpoint) node_filesystem_readonly{mountpoint="/rootfs"} == 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "node_filesystem_files_free{mountpoint ='/rootfs'} / node_filesystem_files{mountpoint='/rootfs'} * 100 < 10 and predict_linear(node_filesystem_files_free{mountpoint='/rootfs'}[1h], 24 * 3600) < 0 and ON (instance, device, mountpoint) node_filesystem_readonly{mountpoint='/rootfs'} == 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host inodes will fill in 24 hours. Filesystem is predicted to run out of inodes within the next 24 hours at current write rate"
+
+  - alert: HostUnusualDiskReadLatency
+    expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 0.1 and rate(node_disk_reads_completed_total[1m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 0.1 and rate(node_disk_reads_completed_total[1m]) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual disk read latency. Disk latency is growing (read operations > 100ms)"
+
+  - alert: HostUnusualDiskWriteLatency
+    expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 0.1 and rate(node_disk_writes_completed_total[1m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 0.1 and rate(node_disk_writes_completed_total[1m]) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host unusual disk write latency. Disk latency is growing (write operations > 100ms)"
+
+  - alert: HostHighCpuLoad
+    expr: 100 - (avg by(instance, projectid, project) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "100 - (avg by(instance, projectid, project) (rate(node_cpu_seconds_total{mode='idle',instance='{{ $labels.instance }}'}[2m])) * 100)"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host high CPU load. CPU load is > 80%"
+
+  # - alert: HostCpuStealNoisyNeighbor
+  #   expr: avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 20
+  #   for: 0m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Host CPU steal noisy neighbor. CPU steal is > 20%. A noisy neighbor is killing VM performances or a spot instance may be out of credit."
+
+  # 1000 context switches is an arbitrary number.
+  # Alert threshold depends on nature of application.
+  # Please read: https://github.com/samber/awesome-prometheus-alerts/issues/58
+  - alert: HostContextSwitching
+    #expr: (rate(node_context_switches_total[5m])) / (count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 8000
+    expr: (rate(node_context_switches_total[5m]))/(count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 20000
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "(rate(node_context_switches_total[5m]))/(count without(cpu, mode) (node_cpu_seconds_total{mode='idle'})) > 20000"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host context switching. Context switching is growing on node (> 20000 / s)"
+
+  # - alert: HostSwapIsFillingUp
+  #   expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80
+  #   for: 2m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Host swap is filling up. Swap is filling up (>80%)"
+
+#  - alert: HostSystemdServiceCrashed
+#     expr: node_systemd_unit_state{state="failed"} == 1
+#     for: 0m
+#     labels:
+#       severity: warning
+#     annotations:
+#       summary: "Host SystemD service crashed (instance {{ $labels.instance }})"
+#       description: "SystemD service crashed\nValue: {{ $value }}"
+
+  # - alert: HostPhysicalComponentTooHot
+  #   expr: node_hwmon_temp_celsius > 75
+  #   for: 5m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Host physical component too hot. Physical hardware component too hot"
+
+  # - alert: HostNodeOvertemperatureAlarm
+  #   expr: node_hwmon_temp_crit_alarm_celsius == 1
+  #   for: 0m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Host node overtemperature alarm. Physical node temperature alarm triggered"
+
+  # - alert: HostKernelVersionDeviations
+  #   expr: count(sum(label_replace(node_uname_info, "kernel", "$1", "release", "([0-9]+.[0-9]+.[0-9]+).*")) by (kernel)) > 1
+  #   for: 6h
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host kernel version deviations (instance {{ $labels.instance }})"
+  #     description: "Different kernel versions are running\nValue: {{ $value }}"
+
+  - alert: HostOomKillDetected
+    expr: increase(node_vmstat_oom_kill[1m]) > 0
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host OOM kill detected. "
+
+  # - alert: HostEdacCorrectableErrorsDetected
+  #   expr: increase(node_edac_correctable_errors_total[1m]) > 0
+  #   for: 0m
+  #   labels:
+  #     severity: info
+  #   annotations:
+  #     summary: "Host EDAC Correctable Errors detected (instance {{ $labels.instance }})"
+  #     description: "Host: {{ $labels.instance }} has had {{ printf "%.0f" $value }} correctable memory errors reported by EDAC in the last 5 minutes.\nValue: {{ $value }}"
+
+  # - alert: HostEdacUncorrectableErrorsDetected
+  #   expr: node_edac_uncorrectable_errors_total > 0
+  #   for: 0m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host EDAC Uncorrectable Errors detected (instance {{ $labels.instance }})"
+  #     description: "Host: {{ $labels.instance }} has had {{ printf "%.0f" $value }} uncorrectable memory errors reported by EDAC in the last 5 minutes.\nValue: {{ $value }}"
+
+  - alert: HostNetworkReceiveErrors
+    expr: rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host Network Receive Errors. Interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} receive errors in the last five minutes."
+
+  - alert: HostNetworkTransmitErrors
+    expr: rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Host Network Transmit Errors. Interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} transmit errors in the last five minutes."
+
+  # - alert: HostNetworkInterfaceSaturated
+  #   expr: (rate(node_network_receive_bytes_total{device!~"^tap.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*"} > 0.8
+  #   for: 1m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host Network Interface Saturated (instance {{ $labels.instance }})"
+  #     description: "The network interface "{{ $labels.interface }}" on "Host: {{ $labels.instance }}" is getting overloaded.\nValue: {{ $value }}"
+
+  - alert: HostConntrackLimit
+    expr: node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.85
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "The number of conntrack is approching a limit > 0.85"
+
+  - alert: HostClockSkew
+    expr: (node_timex_offset_seconds > 0.05 and deriv(node_timex_offset_seconds[5m]) >= 0) or (node_timex_offset_seconds < -0.05 and deriv(node_timex_offset_seconds[5m]) <= 0)
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Clock skew detected. Clock is out of sync."
+
+  # - alert: HostClockNotSynchronising
+  #   expr: min_over_time(node_timex_sync_status[1m]) == 0 and node_timex_maxerror_seconds >= 16
+  #   for: 2m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+  #     description: "Host clock not synchronising. "
+
+
+  # # 1.4.7. Blackbox probe slow HTTP
+  # # HTTP request took more than 1s
+
+  # - alert: BlackboxProbeSlowHttp
+  #   expr: avg_over_time(probe_http_duration_seconds[1m]) > 1
+  #   for: 1m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: Blackbox probe slow HTTP (instance {{ $labels.instance }})
+  #     description: HTTP request took more than 1s\nValue: {{ $value }}
+
+
+# 2. 1. MySQL : prometheus/mysqld_exporter (9 rules)
+- name: mysql
+  rules:
+
+  - alert: MysqlDown
+    expr: mysql_up == 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: mysql_up == 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL instance is down"
+
+  - alert: MysqlTooManyConnections(>80%)
+    expr: avg by (instance) (rate(mysql_global_status_threads_connected[1m])) / avg by (instance) (mysql_global_variables_max_connections) * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: avg by (instance) (rate(mysql_global_status_threads_connected[1m])) / avg by (instance) (mysql_global_variables_max_connections) * 100 > 80
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL too many connections (> 80%). More than 80% of MySQL connections are in use"
+
+  - alert: MysqlHighThreadsRunning
+    expr: avg by (instance) (rate(mysql_global_status_threads_running[1m])) / avg by (instance) (mysql_global_variables_max_connections) * 100 > 60
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: avg by (instance) (rate(mysql_global_status_threads_running[1m])) / avg by (instance) (mysql_global_variables_max_connections) * 100 > 60
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL high threads running. More than 60% of MySQL connections are in running state"
+
+  - alert: MysqlSlowQueries
+    expr: increase(mysql_global_status_slow_queries[1m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: increase(mysql_global_status_slow_queries[1m]) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL slow queries"
+
+  - alert: MysqlInnodbLogWaits
+    expr: rate(mysql_global_status_innodb_log_waits[15m]) > 10
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: rate(mysql_global_status_innodb_log_waits[15m]) > 10
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL InnoDB log waits. MySQL innodb log writes stalling"
+
+  - alert: MysqlRestarted
+    expr: mysql_global_status_uptime < 60
+    for: 0m
+    labels:
+      severity: info
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: mysql_global_status_uptime < 60
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "MySQL restarted. MySQL has just been restarted, less than one minute ago"
+
+- name: nginx
+  rules:
+  - alert: NginxHighHttpRequestsRate
+    expr: rate(nginx_http_requests_total{fqdn=~"$fqdn"}[1m]) > 1000
+    for: 1m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "rate(nginx_http_requests_total{fqdn=~'{{ $labels.fqdn }}'}[1m]) > 1000"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nginx high HTTP total requests rate.Too many HTTP requests"
+
+  - alert: NginxHighHttp4xxErrorRate
+    expr: sum(rate(nginx_http_requests_total{status=~"^4.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > 15
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "sum(rate(nginx_http_requests_total{status=~'^4..''}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > 15"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nginx high HTTP 4xx error rate.Too many HTTP requests with status 4xx (> 5%)"
+
+  - alert: NginxHighHttp5xxErrorRate
+    expr: sum(rate(nginx_http_requests_total{status=~"^5.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > 15
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "sum(rate(nginx_http_requests_total{status=~'^5..''}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > 15"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nginx high HTTP 5xx error rate. Status 5xx (> 5%)"
+
+  - alert: NginxLatencyHigh
+    expr: histogram_quantile(0.99, sum(rate(nginx_http_request_duration_seconds_bucket[2m])) by (host, node)) > 3
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: histogram_quantile(0.99, sum(rate(nginx_http_request_duration_seconds_bucket[2m])) by (host, node)) > 3
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Nginx latency high. Nginx p99 latency is higher than 3 seconds"
+
+- name: apache
+  rules:
+  - alert: ApacheDown
+    expr: apache_up == 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: apache_up == 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Apache down "
+
+  - alert: ApacheWorkersLoad
+    expr: (sum by (instance) (apache_workers{state="busy"}) / sum by (instance) (apache_scoreboard) ) * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "(sum by (instance) (apache_workers{state='busy'}) / sum by (instance) (apache_scoreboard) ) * 100 > 80"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Apache workers load. Apache workers in busy state approach the max workers count 80% workers busy"
+
+  - alert: ApacheRestart
+    expr: apache_uptime_seconds_total / 60 < 1
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: apache_uptime_seconds_total / 60 < 1
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Apache restart. Apache has just been restarted."
+
+- name: traefik
+  rules:
+  - alert: TraefikBackendDown
+    expr: count(traefik_backend_server_up) by (backend) == 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: count(traefik_backend_server_up) by (backend) == 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Traefik backend down. All Traefik backends are down"
+
+  - alert: TraefikHighHttp4xxErrorRateBackend
+    expr: sum(rate(traefik_backend_requests_total{code=~"4.*"}[3m])) by (backend) / sum(rate(traefik_backend_requests_total[3m])) by (backend) * 100 > 5
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "sum(rate(traefik_backend_requests_total{code=~'4.*'}[3m])) by (backend) / sum(rate(traefik_backend_requests_total[3m])) by (backend) * 100 > 5"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Traefik high HTTP 4xx error rate backend. Traefik backend 4xx error rate is above 5%"
+
+  - alert: TraefikHighHttp5xxErrorRateBackend
+    expr: sum(rate(traefik_backend_requests_total{code=~"5.*"}[3m])) by (backend) / sum(rate(traefik_backend_requests_total[3m])) by (backend) * 100 > 5
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "sum(rate(traefik_backend_requests_total{code=~'5.*'}[3m])) by (backend) / sum(rate(traefik_backend_requests_total[3m])) by (backend) * 100 > 5"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Traefik high HTTP 5xx error rate backend. Traefik backend 5xx error rate is above 5%"
+
+  - alert: TraefikServiceDown
+    expr: count(traefik_service_server_up) by (service) == 0
+    for: 0m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: count(traefik_service_server_up) by (service) == 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Traefik service down. All Traefik services are down"
+
+  # TODO: minio renvoit des 4xx non désirés
+  # - alert: TraefikHighHttp4xxErrorRateService
+  #   expr: sum(rate(traefik_service_requests_total{service!="minio@consulcatalog", code=~"4.*"}[3m])) by (service) / sum(rate(traefik_service_requests_total[3m])) by (service) * 100 > 5
+  #   for: 1m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Traefik high HTTP 4xx error rate service (instance {{ $labels.instance }})"
+  #     description: "Traefik service 4xx error rate is above 5%\nValue: {{ $value }}"
+
+  # - alert: TraefikHighHttp5xxErrorRateService
+  #   expr: sum(rate(traefik_service_requests_total{code=~"5.*"}[3m])) by (service) / sum(rate(traefik_service_requests_total[3m])) by (service) * 100 > 5
+  #   for: 1m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Traefik high HTTP 5xx error rate service (instance {{ $labels.instance }})"
+  #     description: "Traefik service 5xx error rate is above 5%\nValue: {{ $value }}"
+
+- name: minio
+  rules:
+  # # TODO: sonne, sonde non maîtrisée
+  # - alert: MinioDiskOffline
+  #   expr: minio_disks_offline > 0
+  #   for: 0m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: "Minio disk offline (instance {{ $labels.instance }})"
+  #     description: "Minio disk is offline\nValue: {{ $value }}"
+
+  - alert: MinioDiskSpaceUsage
+    expr: disk_storage_available / disk_storage_total * 100 < 10
+    for: 0m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: disk_storage_available / disk_storage_total * 100 < 10
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Minio disk space usage. Minio available free space is low (< 10%)"
+
+  - alert: FailedProcess
+    expr: node_systemd_unit_state{job="node",state="failed",name!="hv-fcopy-daemon.service",name!="hv-kvp-daemon.service",name!="hv-vss-daemon.service"} == 1
+    for: 1m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "node_systemd_unit_state{job='node',state='failed',name!='hv-fcopy-daemon.service',name!='hv-kvp-daemon.service',name!='hv-vss-daemon.service'} == 1"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n {{ $labels.name }} is KO"
+      description: "{{ $labels.name }} is in KO state."
+
+  - alert: BlockedProcess
+    expr: node_procs_blocked{job="node"} > 0
+    for: 1m
+    labels:
+      severity: critical
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "node_procs_blocked{job='node'} > 0"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "Blocked process"
+
+  - alert: NtpOffset
+    expr: node_ntp_offset_seconds{job="node"} > 0.95
+    for: 1m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: "node_ntp_offset_seconds{job='node'} > 0.95"
+    annotations:
+      summary: "Host: {{ $labels.instance }}\nValue: {{ $value }}"
+      description: "NTP offset problem. NTP has more than 1 sec offset."
+
+- name: php-fpm
+  rules:
+  - alert: PHPHasSlowQueries
+    expr: phpfpm_slow_requests > 0
+    for: 1m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: phpfpm_slow_requests > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n fqdn: {{ $labels.fqdn }}\nValue: {{ $value }}"
+      description: "PHP slow queries"
+
+  - alert: PHPMaxChildrenReached
+    expr: sum(phpfpm_max_children_reached_total) by (instance) > 0
+    for: 5m
+    labels:
+      severity: warning
+      projectid: "{{ $labels.projectid }}"
+      projectName: "{{ $labels.project }}"
+      expr: sum(phpfpm_max_children_reached_total) by (instance) > 0
+    annotations:
+      summary: "Host: {{ $labels.instance }}\n fqdn: https://{{ $labels.fqdn }}\nValue: {{ $value }}"
+      description: "PHP max_children reached."
+
+- name: scanexporter
+  rules:
+  - alert: UnexpectedOpenPorts
+    expr: scanexporter_unexpected_open_ports_total > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "{{ $labels.ip }}\n name: {{ $labels.name }}\nValue: {{ $value }}"
+      description: "Unexpected open ports"
+
+  - alert: UnexpectedClosedPorts
+    expr: scanexporter_unexpected_closed_ports_total > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "{{ $labels.ip }}\n name: {{ $labels.name }}\nValue: {{ $value }}"
+      description: "Unexpected closed ports"

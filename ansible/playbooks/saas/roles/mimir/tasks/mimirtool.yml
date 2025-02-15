@@ -1,0 +1,32 @@
+---
+- name: Copy config file
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ mimir_tmp_dir }}/{{ item }}"
+    mode: '0600'
+  loop:
+    - user.alertmanager.yml
+
+- name: Copy config file
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ mimir_tmp_dir }}/{{ item }}"
+    mode: '0600'
+  loop:
+    - user.rules.yaml
+    - user.records.yaml
+
+- name: Mimirtool load alertmanager configuration
+  ansible.builtin.shell:
+    cmd: ~/bin/mimirtool alertmanager load {{ mimir_tmp_dir }}/user.alertmanager.yml
+  environment: "{{ mimir_env }}"
+
+- name: Mimirtool load rules
+  ansible.builtin.shell:
+    cmd: "~/bin/mimirtool rules load {{ mimir_tmp_dir }}/user.rules.yaml"
+  environment: "{{ mimir_env }}"
+
+- name: Mimirtool load records
+  ansible.builtin.shell:
+    cmd: "~/bin/mimirtool rules load {{ mimir_tmp_dir }}/user.records.yaml"
+  environment: "{{ mimir_env }}"

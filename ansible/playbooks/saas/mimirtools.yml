@@ -1,0 +1,32 @@
+---
+- name: Deploy mimir records and rules
+  any_errors_fatal: true
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    project: default
+    mimir_tmp_dir: /tmp/mimirtool
+    mimir_env:
+      MIMIR_TENANT_ID: demo
+      MIMIR_ADDRESS: "{{ mimir.url }}"
+      MIMIR_API_USER: "{{ mimir.login }}"
+      MIMIR_API_KEY: "{{ mimir.password }}"
+  pre_tasks:
+    - name: Create temporary directory
+      ansible.builtin.file:
+        path: "{{ mimir_tmp_dir }}"
+        state: directory
+        mode: '0755'
+
+  tasks:
+    - name: Deploy configuration
+      ansible.builtin.include_role:
+        name: mimir
+        tasks_from: mimirtool
+
+  post_tasks:
+    - name: Remove temporary directory
+      ansible.builtin.file:
+        path: "{{ mimir_tmp_dir }}"
+        state: absent
