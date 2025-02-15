@@ -7,19 +7,17 @@ global:
     cluster: demo
     namespace: demo
 
-rule_files:
-  # - rules.yml
-  - mimir.yml
+rule_files: []
 
 {% if prometheus_remote_write %}
 remote_write:
-  - url: {{ prometheus_remote_url }}/api/v1/push
+  - url: {{ prometheus_remote_write.url }}/api/v1/push
     headers:
       X-Scope-OrgID: demo
     send_exemplars: true
     basic_auth:
-      username: "{{ prometheus_remote_login }}"
-      password: "{{ prometheus_remote_password }}"
+      username: "{{ prometheus_remote_write.login }}"
+      password: "{{ prometheus_remote_write.password }}"
     queue_config:
       capacity: 10000
       #max_shards: 100
@@ -78,6 +76,18 @@ scrape_configs:
           project: "{{ prometheus_project }}"
           projectid: "{{ prometheus_project }}"
 
+  - job_name: "scan_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    static_configs:
+      - targets: ['127.0.0.1:2112']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+
   - job_name: "systemd_exporter"
     static_configs:
       - targets: ['127.0.0.1:9558']
@@ -85,6 +95,15 @@ scrape_configs:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
           projectid: "{{ prometheus_project }}"
+
+  - job_name: 'mimir_exporter'
+    nomad_sd_configs:
+      - server: "http://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+    relabel_configs:
+      - source_labels: ['__meta_nomad_service']
+        regex: 'mimir-exporter'
+        action: keep
 
   - job_name: 'loki'
     static_configs:
