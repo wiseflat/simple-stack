@@ -173,7 +173,7 @@ nomad_client_reserved_disk: 0
 
 # TLS
 nomad_tls_ca_host: localhost
-nomad_tls_ca_host_dir: "../../tls"
+nomad_tls_ca_host_dir: "~/.simple-stack/tls"
 nomad_tls_ca_pubkey: "simplestack-ca.pem"
 nomad_tls_ca_privatekey: "simplestack-ca-key.pem"
 nomad_tls_ca_provider: "ownca"

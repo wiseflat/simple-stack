@@ -68,7 +68,7 @@
       changed_when: fpm_install.rc != 0
   roles:
     - ansible-unattendedUpgrades
-    # - ansible-pull
+    - ansible-pull
 
 - name: Install metrology
   any_errors_fatal: true
@@ -112,7 +112,7 @@
   become: true
   vars:
     certificate_ca_host: "localhost"
-    certificate_ca_host_dir: "../../tls"
+    certificate_ca_host_dir: "~/.simple-stack/tls"
     certificate_ca_pubkey: "simplestack-ca.pem"
     certificate_ca_privatekey: "simplestack-ca-key.pem"
     certificate_host_certificate_dir: "/etc/ssl/simplestack"
