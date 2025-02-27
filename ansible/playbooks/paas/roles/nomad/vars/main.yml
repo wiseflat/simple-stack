@@ -1,1 +1,12 @@
 ---
+# vars file for install
+
+# Architecture replacement
+architecture_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv7l: 'armv7'
+  armv6l: 'armv6'
+
+architecture: "{{ architecture_map[ansible_architecture] | default(ansible_architecture) }}"

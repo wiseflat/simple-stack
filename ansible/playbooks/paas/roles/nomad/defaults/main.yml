@@ -1,150 +1,161 @@
 ---
-nomad_version: 1.9.4
-nomad_config_dir: /etc/nomad.d
-nomad_data_dir: "/opt/nomad"
-nomad_data_dir_server: "/opt/nomad/server"
+# defaults file for install
 
-nomad_acl: false
-
+# General
 nomad_mode: "{% if (ansible_play_hosts | length) == 1 %}single{% elif (ansible_play_hosts | length) > 1 %}cluster{% endif %}"
+nomad_node_role: "{% if nomad_mode == 'single' %}both{% elif nomad_mode == 'cluster' %}{{ nomad_node_role | default('both') }}{% endif %}"
+
+nomad_deploy_cluster_name: "{{ nomad_cluster_name | default('default') }}"
+nomad_firewall: true
+nomad_timezone: "Europe/Paris"
+
+nomad_group: "simplestack"
+
+nomad_ansible_venv_on_target_dir: "/root/nomad_venv"
+
+# Configuration
+nomad_dc_name: "dc1"
 
 nomad_node_name: "{{ inventory_hostname }}"
 nomad_region: "{{ fact_instance.region }}"
-nomad_dc_name: "dc1"
+
+nomad_system_user: "{% if nomad_node_role == 'server' %}nomad{% elif nomad_node_role == 'client' or nomad_node_role == 'both' %}root{% endif %}"
+nomad_system_group: "{% if nomad_node_role == 'server' %}nomad{% elif nomad_node_role == 'client' or nomad_node_role == 'both' %}root{% endif %}"
+
+nomad_config_dir: "/etc/nomad.d"
+nomad_config_file: "nomad.hcl"
+nomad_bin_dir: "/usr/bin"
+nomad_data_dir: "/opt/nomad"
+nomad_data_dir_server: "/opt/nomad/server"
+nomad_state_dir_client: "/opt/nomad/client"
+nomad_job_files_dir: "/var/tmp/nomad"
 
 nomad_disable_anonymous_signature: "false"
 nomad_disable_update_check: "false"
 
+nomad_leave_on_terminate: true
+nomad_leave_on_interrupt: true
+
+nomad_client_auto_join: 'true'
+nomad_server_auto_join: 'true'
+
+# Network
+nomad_http_scheme: "https"
+nomad_http_ip: "127.0.0.1"
+nomad_http_port: 4646
+
+nomad_cluster_bridge: "br0"
+nomad_iface: "{{ ansible_default_ipv4.interface }}"
+
+nomad_list_node_ip: "\
+  {% set nomad_list_node_ip = [] %}\
+  {% for host in groups[consul_deploy_cluster_name] %}\
+    {% if nomad_list_node_ip.append(hostvars[host]['ansible_' + hostvars[host].nomad_cluster_bridge].ipv4.address | default(nomad_cluster_bridge)) %}{% endif %}\
+  {% endfor %}\
+  {{ nomad_list_node_ip }}"
+
+nomad_bind_address: "{{ hostvars[inventory_hostname]['ansible_' + nomad_iface | replace('-', '_')]['ipv4']['address'] }}"
+
 nomad_bind_addr: "0.0.0.0"
 
 nomad_address_http: "0.0.0.0"
-nomad_address_rpc: "{% if nomad_mode == 'single' %}0.0.0.0{% else %}{{ hostvars[inventory_hostname]['ansible_'+ nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
-nomad_address_serf: "{% if nomad_mode == 'single' %}0.0.0.0{% else %}{{ hostvars[inventory_hostname]['ansible_'+ nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
+nomad_address_rpc: "{% if nomad_mode == 'single' %}0.0.0.0{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
+nomad_address_serf: "{% if nomad_mode == 'single' %}0.0.0.0{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
 
-nomad_advertise_http: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_'+ nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
-nomad_advertise_rpc: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_'+ nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
-nomad_advertise_serf: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_'+ nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
+nomad_advertise_http: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
+nomad_advertise_rpc: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
+nomad_advertise_serf: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_cluster_bridge | replace('-', '_')]['ipv4']['address'] }}{% endif %}"
 
 nomad_port_http: 4646
 nomad_port_rpc: 4647
 nomad_port_serf: 4648
 
+# Network
+nomad_bridge: true
+
+nomad_bridge_list:
+  - { name: "internal", interface: "br-internal", ip_range: "172.18.0.1/16" }
+  - { name: "metrics", interface: "br-metrics", ip_range: "172.19.0.1/16" }
+
 # Log
 nomad_debug: "true"
 nomad_log_file: "/var/log/nomad/nomad.log"
-nomad_log_level: "DEBUG"
+nomad_log_level: "INFO"
 nomad_log_rotate_bytes: 0
 nomad_log_rotate_duration: "24h"
 nomad_log_rotate_max_files: 0
 
-nomad_leave_on_terminate: true
-nomad_leave_on_interrupt: true
+# Server
+nomad_server_enabled: "true"
 
-# ACL
-nomad_acl_enabled: "true"
-nomad_acl_token_ttl: "30s"
-nomad_acl_policy_ttl: "30s"
+nomad_server_bootstrap_expect: "\
+  {% set nomad_server_bootstrap_expect = [] %}\
+  {% if nomad_mode == 'single' %}\
+    {% set _ = nomad_server_bootstrap_expect.append(1) %}\
+  {% else %}\
+    {% for host in groups[nomad_deploy_cluster_name] %}\
+      {% if hostvars[host].consul_node_role in ['server', 'both'] %}\
+        {% set _ = nomad_server_bootstrap_expect.append(1) %}\
+      {% endif %}\
+    {% endfor %}\
+  {% endif %}\
+  {{ nomad_server_bootstrap_expect | length }}"
 
-# Telemetry
-nomad_telemetry_disable_hostname: "false"
-nomad_telemetry_collection_interval: "5s"
-nomad_telemetry_use_node_name: "false"
-nomad_telemetry_publish_allocation_metrics: "true"
-nomad_telemetry_publish_node_metrics: "true"
-nomad_telemetry_filter_default: "true"
-# nomad_telemetry_prefix_filter:
-nomad_telemetry_disable_dispatched_job_summary_metrics: "false"
-# nomad_telemetry_statsite_address: ""
-# nomad_telemetry_statsd_address: ""
-# nomad_telemetry_datadog_address: ""
-# nomad_telemetry_datadog_tags:
-nomad_telemetry_prometheus_metrics: "true"
-#nomad_telemetry_circonus_api_token: ""
-nomad_telemetry_circonus_api_app: "nomad"
-nomad_telemetry_circonus_api_url: "https://api.circonus.com/v2"
-nomad_telemetry_circonus_submission_interval: "10s"
-# nomad_telemetry_circonus_submission_url: ""
-# nomad_telemetry_circonus_check_id: ""
-nomad_telemetry_circonus_check_force_metric_activation: "false"
-# nomad_telemetry_circonus_check_instance_id: ""
-# nomad_telemetry_circonus_check_search_tag: ""
-# nomad_telemetry_circonus_check_display_name: ""
-# nomad_telemetry_circonus_check_tags: ""
-# nomad_telemetry_circonus_broker_id: ""
-# nomad_telemetry_circonus_broker_select_tag: ""
+nomad_server_rejoin_after_leave: "true"
 
-# Autopilot
-nomad_autopilot_cleanup_dead_servers: "false"
-nomad_autopilot_last_contact_threshold: "200ms"
-nomad_autopilot_max_trailing_logs: 250
-nomad_autopilot_server_stabilization_time: "10s"
+nomad_server_enabled_schedulers:
+  - service
+  - batch
+  - system
 
-# UI
-nomad_ui_enabled: "true"
-nomad_ui_content_security_policy_connect_src: "*"
-nomad_ui_content_security_policy_default_src: "'none'"
-nomad_ui_content_security_policy_form_action: "'none'"
-nomad_ui_content_security_policy_frame_ancestors: "'none'"
-# nomad_ui_content_security_policy_img_src: ""
-nomad_ui_content_security_policy_script_src: "'self'"
-# nomad_ui_content_security_policy_style_src: ""
+nomad_server_num_schedulers: 2
 
-nomad_ui_label_text: "{{ inventory_hostname }}"
-nomad_ui_label_background_color: "blue"
-nomad_ui_label_text_color: "white"
+nomad_server_event_buffer_size: 100
+nomad_server_node_gc_threshold: "24h"
+nomad_server_eval_gc_threshold: "1h"
+nomad_server_job_gc_threshold: "4h"
+nomad_server_deployment_gc_threshold: "1h"
 
-nomad_docker_private_registry_state: false
-nomad_docker_private_registry_config: /etc/docker/config.json
-nomad_docker_allow_privileged: "true"
-nomad_docker_volume_enable: "true"
-nomad_docker_client_allow_caps:
-- audit_write
-- chown
-- dac_override
-- fowner
-- fsetid
-- kill
-- mknod
-- net_bind_service
-- setfcap
-- setgid
-- setpcap
-- setuid
-- sys_chroot
-- sys_ptrace
-- sys_admin
-nomad_docker_gc_image: "true"
-nomad_docker_gc_image_delay: 1h
-nomad_docker_gc_container: "true"
-nomad_docker_gc_dangling_containers_enabled: "true"
-nomad_docker_gc_dangling_containers_dry_run: "false"
-nomad_docker_gc_dangling_containers_period: "5m"
-nomad_docker_gc_dangling_containers_creation_grace: "5m"
+nomad_server_heartbeat_grace: "10s"
+nomad_server_min_heartbeat_ttl: "10s"
+nomad_server_failover_heartbeat_ttl: "5m"
+nomad_server_max_heartbeats_per_second: 50.0
+
+# nomad_server_encrypt: ""
+
+nomad_server_raft_protocol: 3
 
 # Client
 nomad_client_enabled: "true"
-nomad_state_dir_client: "/opt/nomad/client"
 
 nomad_client_node_class: "{{ inventory_hostname }}-client"
 nomad_client_node_pool: "default"
 
 nomad_client_no_host_uuid: "false"
+nomad_client_max_kill_timeout: "30s"
 
-nomad_client_network_interface: docker0
+nomad_client_network_interface: "{{ ansible_default_ipv4.interface }}"
 
-nomad_client_host_network_list:
-  - { name: "private", interface: "lo" }
-# - { name: "public", interface: "{{ ansible_default_ipv4.interface }}" }
-# - { name: "cluster", interface: "{{ nomad_cluster_bridge | default(ansible_default_ipv4.interface) }}" }
-# - { name: "private", interface: "{{ nomad_bridge_list | map(attribute='name') | first }}" }
+nomad_client_host_network_default:
+  name: "public"
+  interface: "{{ ansible_default_ipv4.interface }}"
+
+nomad_client_host_network_cluster:
+  name: "cluster"
+  interface: "{{ nomad_cluster_bridge }}"
 
 nomad_client_meta_list: {"arch": "{{ architecture_map[ansible_facts.architecture] }}", "location": "{{ fact_instance.location }}", "instance": "{{ inventory_hostname }}"}
+
+nomad_server_join: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) or (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) | unique | list }}{% endif %}"
+nomad_server_join_retry_max: 3
+nomad_server_join_retry_interval: "15s"
+
+nomad_client_server_join_retry_max: 3
+nomad_client_server_join_retry_interval: "15s"
 
 nomad_client_drain_on_shutdown_deadline: "1m"
 nomad_client_drain_on_shutdown_force: "true"
 nomad_client_drain_on_shutdown_ignore_system_jobs: "true"
-
-nomad_client_max_kill_timeout: "30s"
 
 nomad_client_cpu_total_compute: 0
 nomad_client_memory_total_mb: 0
@@ -160,42 +171,129 @@ nomad_client_reserved_cpu: 0
 nomad_client_reserved_memory: 0
 nomad_client_reserved_disk: 0
 
-# Server
-nomad_server_enabled: "true"
-nomad_server_bootstrap_expect: 1
-# nomad_server_bootstrap_expect: "\
-#   {% set nomad_server_bootstrap_expect = [] %}\
-#   {% if nomad_mode == 'single' %}\
-#     {% set _ = nomad_server_bootstrap_expect.append(1) %}\
-#   {% else %}\
-#     {% for host in groups[nomad_deploy_cluster_name] %}\
-#       {% if hostvars[host].consul_node_role in ['server', 'both'] %}\
-#         {% set _ = nomad_server_bootstrap_expect.append(1) %}\
-#       {% endif %}\
-#     {% endfor %}\
-#   {% endif %}\
-#   {{ nomad_server_bootstrap_expect | length }}"
+# TLS
+nomad_tls_ca_host: localhost
+nomad_tls_ca_host_dir: "~/.simple-stack/tls"
+nomad_tls_ca_pubkey: "simplestack-ca.pem"
+nomad_tls_ca_privatekey: "simplestack-ca-key.pem"
+nomad_tls_ca_provider: "ownca"
+nomad_tls_host_certificate_dir: "/etc/ssl/simplestack"
+nomad_tls_common_name: "nomad"
+nomad_tls_check_delay: "+2w"
 
-nomad_server_rejoin_after_leave: "true"
+nomad_tls_http: "true"
+nomad_tls_rpc: "true"
 
-nomad_server_enabled_schedulers:
-- service
-- batch
-- system
+# TLS Server
+nomad_tls_cert_server: "{{ nomad_dc_name }}-server-nomad.pem"
+nomad_tls_privatekey_server: "{{ nomad_dc_name }}-server-nomad.key"
 
-nomad_server_num_schedulers: 2
+nomad_tls_common_name_server: "*.{{ nomad_dc_name }}.nomad"
+nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad,IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
 
-nomad_server_heartbeat_grace: "10s"
-nomad_server_min_heartbeat_ttl: "10s"
-nomad_server_failover_heartbeat_ttl: "5m"
-nomad_server_max_heartbeats_per_second: 50.0
+# TLS client
+nomad_tls_cert_client: "{{ nomad_dc_name }}-client-nomad.pem"
+nomad_tls_privatekey_client: "{{ nomad_dc_name }}-client-nomad.key"
 
-nomad_server_event_buffer_size: 100
-nomad_server_node_gc_threshold: "24h"
-nomad_server_eval_gc_threshold: "1h"
-nomad_server_job_gc_threshold: "4h"
-nomad_server_deployment_gc_threshold: "1h"
+nomad_tls_common_name_client: "*.{{ nomad_dc_name }}.nomad"
+nomad_tls_subject_alt_name_client: "DNS:localhost,IP:127.0.0.1,DNS:client.global.nomad,DNS:client.{{ nomad_region }}.nomad,DNS:client.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad,IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
 
-nomad_encrypt_key: 95vOBlIGXEIaGe3dPApEpZsVkAf2PJyrQbWamzeBNp8=
+nomad_tls_rpc_upgrade_mode: "false"
+nomad_tls_verify_server_hostname: "true"
+nomad_tls_verify_https_client: "false"
 
-nomad_server_raft_protocol: 3
+# ACL
+nomad_acl_enabled: "true"
+nomad_acl_token_ttl: "30s"
+nomad_acl_policy_ttl: "30s"
+
+# Docker
+nomad_docker_client_dc_name: "dc1"
+
+nomad_docker_tcp_listen_address: "127.0.0.1"
+nomad_docker_tcp_listen_port: 2376
+
+docker_tls_configuration: false
+
+nomad_docker_client_tls_host_certificate_dir: "/etc/ssl/docker"
+nomad_docker_client_tls_cert: "{{ nomad_docker_client_dc_name }}-client-docker.pem"
+nomad_docker_client_tls_privatekey: "{{ nomad_docker_client_dc_name }}-client-docker.key"
+nomad_docker_client_tls_ca_pubkey: "docker-ca.pem"
+
+nomad_docker_client_allow_caps:
+  - audit_write
+  - chown
+  - dac_override
+  - fowner
+  - fsetid
+  - kill
+  - mknod
+  - net_bind_service
+  - setfcap
+  - setgid
+  - setpcap
+  - setuid
+  - sys_chroot
+  - sys_ptrace
+  - sys_admin
+
+nomad_docker_private_registry_state: false
+nomad_docker_private_registry_config: /etc/docker/config.json
+
+nomad_docker_allow_privileged: "false"
+nomad_docker_volume_enable: "true"
+nomad_docker_gc_image: "true"
+nomad_docker_gc_image_delay: "1h"
+nomad_docker_gc_container: "true"
+nomad_docker_gc_dangling_containers_enabled: "true"
+nomad_docker_gc_dangling_containers_dry_run: "false"
+nomad_docker_gc_dangling_containers_period: "5m"
+nomad_docker_gc_dangling_containers_creation_grace: "5m"
+
+# Telemetry
+nomad_telemetry_disable_hostname: "false"
+nomad_telemetry_collection_interval: "5s"
+nomad_telemetry_use_node_name: "false"
+nomad_telemetry_publish_allocation_metrics: "true"
+nomad_telemetry_publish_node_metrics: "true"
+nomad_telemetry_filter_default: "true"
+# nomad_telemetry_prefix_filter:
+nomad_telemetry_disable_dispatched_job_summary_metrics: "false"
+# nomad_telemetry_statsite_address: ""
+# nomad_telemetry_statsd_address: ""
+# nomad_telemetry_datadog_address: ""
+# nomad_telemetry_datadog_tags:
+nomad_telemetry_prometheus_metrics: "true"
+# nomad_telemetry_circonus_api_token: ""
+nomad_telemetry_circonus_api_app: "nomad"
+nomad_telemetry_circonus_api_url: "https://api.circonus.com/v2"
+nomad_telemetry_circonus_submission_interval: "10s"
+# nomad_telemetry_circonus_submission_url: ""
+# nomad_telemetry_circonus_check_id: ""
+nomad_telemetry_circonus_check_force_metric_activation: "false"
+# nomad_telemetry_circonus_check_instance_id: ""
+# nomad_telemetry_circonus_check_search_tag: ""
+# nomad_telemetry_circonus_check_display_name: ""
+# nomad_telemetry_circonus_check_tags: ""
+# nomad_telemetry_circonus_broker_id: ""
+# nomad_telemetry_circonus_broker_select_tag: ""
+
+# Autopilot
+nomad_autopilot_cleanup_dead_servers: "true"
+nomad_autopilot_last_contact_threshold: "200ms"
+nomad_autopilot_max_trailing_logs: 250
+nomad_autopilot_server_stabilization_time: "10s"
+
+# UI
+nomad_ui_enabled: "true"
+nomad_ui_content_security_policy_connect_src: "*"
+nomad_ui_content_security_policy_default_src: "'none'"
+nomad_ui_content_security_policy_form_action: "'none'"
+nomad_ui_content_security_policy_frame_ancestors: "'none'"
+nomad_ui_content_security_policy_img_src: ""
+nomad_ui_content_security_policy_script_src: "'self'"
+nomad_ui_content_security_policy_style_src: ""
+
+nomad_ui_label_text: "{{ inventory_hostname }}"
+nomad_ui_label_background_color: "blue"
+nomad_ui_label_text_color: "white"

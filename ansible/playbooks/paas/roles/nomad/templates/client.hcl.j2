@@ -9,23 +9,46 @@ client {
 
     no_host_uuid = {{ nomad_client_no_host_uuid }}
 
-    {% if nomad_client_network_interface is defined -%}
+{% if nomad_client_network_interface is defined %}
     network_interface = "{{ nomad_client_network_interface }}"
-    {% endif -%}
-{% for item in nomad_client_host_network_list %}
+{% endif %}
+
+    host_network "{{ nomad_client_host_network_default.name }}" {
+      interface = "{{ nomad_client_host_network_default.interface }}"
+{% if nomad_client_host_network_default.cidr is defined %}
+      cidr = "{{ nomad_client_host_network_default.cidr }}"
+{% endif %}
+{% if nomad_client_host_network_default.reserved_ports is defined %}
+      reserved_ports = "{{ nomad_client_host_network_default.reserved_ports }}"
+{% endif %}
+    }
+{% if nomad_mode == "cluster" %}
+    host_network "{{ nomad_client_host_network_cluster.name }}" {
+      interface = "{{ nomad_client_host_network_cluster.interface }}"
+{% if nomad_client_host_network_cluster.cidr is defined %}
+      cidr = "{{ nomad_client_host_network_cluster.cidr }}"
+{% endif %}
+{% if nomad_client_host_network_cluster.reserved_ports is defined %}
+      reserved_ports = "{{ nomad_client_host_network_cluster.reserved_ports }}"
+{% endif %}
+    }
+{% endif %}
+{% if nomad_bridge %}
+{% for item in nomad_bridge_list %}
     host_network "{{ item.name }}"  {
-{% if nomad_client_host_network_list is defined and item.interface is defined %}
+{% if nomad_bridge_list is defined and item.interface is defined %}
       interface = "{{ item.interface }}"
 {% endif %}
-{% if nomad_client_host_network_list is defined and item.cidr is defined %}
+{% if nomad_bridge_list is defined and item.cidr is defined %}
       cidr = "{{ item.cidr }}"
 {% endif %}
-{% if nomad_client_host_network_list is defined and item.reserved_ports is defined %}
+{% if nomad_bridge_list is defined and item.reserved_ports is defined %}
       reserved_ports = "{{ item.reserved_ports }}"
 {% endif %}
     }
-
 {% endfor %}
+{% endif %}
+
 {% if nomad_client_meta_list%}
     meta = {
     {% for key, value in nomad_client_meta_list.items() %}

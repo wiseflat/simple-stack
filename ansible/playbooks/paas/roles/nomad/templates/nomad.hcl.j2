@@ -38,14 +38,41 @@ log_rotate_max_files = {{ nomad_log_rotate_max_files }}
 leave_on_terminate = {{ nomad_leave_on_terminate | lower }}
 leave_on_interrupt = {{ nomad_leave_on_interrupt | lower }}
 
-{% if nomad_acl %}
+
+{% if nomad_node_role == 'server' or nomad_node_role == 'both' %}
+
+tls {
+    http = {{ nomad_tls_http }}
+    rpc = {{ nomad_tls_rpc }}
+    ca_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    cert_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    key_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    rpc_upgrade_mode = {{ nomad_tls_rpc_upgrade_mode }}
+    verify_server_hostname = "{{ nomad_tls_verify_server_hostname }}"
+    verify_https_client = "{{ nomad_tls_verify_https_client }}"
+}
+
+{% elif nomad_node_role == 'client'  %}
+
+tls {
+    http = {{ nomad_tls_http }}
+    rpc = {{ nomad_tls_rpc }}
+    ca_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    cert_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
+    key_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_client }}"
+    rpc_upgrade_mode = {{ nomad_tls_rpc_upgrade_mode }}
+    verify_server_hostname = "{{ nomad_tls_verify_server_hostname }}"
+    verify_https_client = "{{ nomad_tls_verify_https_client }}"
+}
+
+{% endif %}
+
 acl {
     enabled = {{ nomad_acl_enabled }}
     token_ttl = "{{ nomad_acl_token_ttl }}"
     policy_ttl = "{{ nomad_acl_policy_ttl }}"
     replication_token = ""
 }
-{% endif %}
 
 telemetry {
     disable_hostname = {{ nomad_telemetry_disable_hostname }}
