@@ -14,8 +14,8 @@
 - name: Certificate | Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ certificate_ca_host_dir }}/{{ certificate_client_privatekey }}"
-    common_name: "{{ common_name }}"
-    subject_alt_name: "{{ subject_alt_name }}"
+    common_name: "{{ certificate_common_name }}"
+    subject_alt_name: "{{ certificate_subject_alt_name }}"
     basic_constraints: "CA:FALSE"
     basic_constraints_critical: true
     key_usage:
@@ -32,9 +32,9 @@
 - name: Certificate | Generate an OpenSSL certificate signed with your own CA certificate
   community.crypto.x509_certificate_pipe:
     csr_content: "{{ csr.csr }}"
-    ownca_path: "{{ certificate_ca_host_dir }}/{{ ca_pubkey }}"
-    ownca_privatekey_path: "{{ certificate_ca_host_dir }}/{{ ca_privatekey }}"
-    provider: "{{ ca_provider }}"
+    ownca_path: "{{ certificate_ca_host_dir }}/{{ certificate_ca_pubkey }}"
+    ownca_privatekey_path: "{{ certificate_ca_host_dir }}/{{ certificate_ca_privatekey }}"
+    provider: "{{ certificate_ca_provider }}"
   register: certificate
   delegate_to: "{{ certificate_ca_host }}"
   become: false
@@ -42,11 +42,11 @@
 - name: Certificate | Write certificate file on server
   ansible.builtin.copy:
     content: "{{ certificate.certificate }}"
-    dest: "{{ certificate_host_certificate_dir }}/{{ cert }}"
-    mode: "0644"
+    dest: "{{ certificate_host_certificate_dir }}/{{ certificate_cert }}"
+    mode: "0640"
 
 - name: Certificate | Copy privatekey on server
   ansible.builtin.copy:
     src: "{{ certificate_ca_host_dir }}/{{ certificate_client_privatekey }}"
     dest: "{{ certificate_host_certificate_dir }}/{{ certificate_client_privatekey }}"
-    mode: "0644"
+    mode: "0640"
