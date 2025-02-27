@@ -1,0 +1,60 @@
+- name: "Nomad | Commons tasks | Install requiered OS packages"
+  ansible.builtin.apt:
+    update_cache: true
+    pkg: ufw
+
+- name: "Nomad | Firewall | Open ports for Nomad Servers"
+  community.general.ufw:
+    rule: allow
+    interface: "{{ nomad_cluster_bridge }}"
+    direction: "{{ item.direction }}"
+    proto: "{{ item.proto }}"
+    port: "{{ item.port }}"
+  loop:
+    - { proto: "tcp", port: "4646", direction: "in" }
+    - { proto: "tcp", port: "4646", direction: "out" }
+    - { proto: "tcp", port: "4647", direction: "in" }
+    - { proto: "tcp", port: "4647", direction: "out" }
+    - { proto: "tcp", port: "4648", direction: "in" }
+    - { proto: "tcp", port: "4648", direction: "out" }
+    - { proto: "udp", port: "4648", direction: "in" }
+    - { proto: "udp", port: "4648", direction: "out" }
+  when: nomad_node_role == 'server'
+
+- name: "Nomad | Firewall | Open ports for Nomad Clients"
+  community.general.ufw:
+    rule: allow
+    interface: "{{ nomad_cluster_bridge }}"
+    direction: "{{ item.direction }}"
+    proto: "{{ item.proto }}"
+    port: "{{ item.port }}"
+  loop:
+    - { proto: "tcp", port: "4646", direction: "in" }
+    - { proto: "tcp", port: "4646", direction: "out" }
+    - { proto: "tcp", port: "4647", direction: "in" }
+    - { proto: "tcp", port: "4647", direction: "out" }
+    - { proto: "tcp", port: "20000:32000", direction: "in" }
+    - { proto: "tcp", port: "20000:32000", direction: "out" }
+    - { proto: "udp", port: "20000:32000", direction: "in" }
+    - { proto: "udp", port: "20000:32000", direction: "out" }
+  when: nomad_node_role == 'client'
+
+- name: "Nomad | Firewall | Allow in and out on interface docker0"
+  community.general.ufw:
+    rule: allow
+    interface: docker0
+    direction: "{{ item }}"
+  loop:
+    - in
+    - out
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'
+
+- name: "Nomad | Firewall | Allow in and out on interface nomad"
+  community.general.ufw:
+    rule: allow
+    interface: nomad
+    direction: "{{ item }}"
+  loop:
+    - in
+    - out
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'

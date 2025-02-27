@@ -24,7 +24,7 @@ server {
     job_gc_threshold = "{{ nomad_server_job_gc_threshold }}"
     deployment_gc_threshold = "{{ nomad_server_deployment_gc_threshold }}"
 
-    encrypt = "{{ nomad_encrypt_key | default(ansible_local.nomad_encrypt_key.nomad_encrypt_key) }}"
+    encrypt = "{{ nomad_encrypt_key }}"
 
     raft_protocol = {{ nomad_server_raft_protocol }}
 

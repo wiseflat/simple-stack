@@ -1,0 +1,17 @@
+- name: "Nomad SystemD tuning | Create systemd override directory"
+  ansible.builtin.file:
+    path: "/etc/systemd/system/nomad.service.d"
+    state: directory
+    mode: '0755'
+    owner: "root"
+    group: "root"
+
+- name: Nomad SystemD tuning | Template for systemd override
+  ansible.builtin.template:
+    src: "override.conf.j2"
+    dest: "/etc/systemd/system/nomad.service.d/override.conf"
+    mode: '0644'
+  notify: Systemd_reload
+
+- name: "Nomad | SystemD | Flush handlers"
+  ansible.builtin.meta: flush_handlers

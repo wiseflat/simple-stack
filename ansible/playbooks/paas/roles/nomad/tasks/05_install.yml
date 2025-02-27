@@ -1,0 +1,34 @@
+- name: "Nomad Install | Install binary"
+  ansible.builtin.apt:
+    name: nomad
+    update_cache: true
+  when: nomad_version is not defined
+
+- name: "Nomad Install | Install binary"
+  ansible.builtin.apt:
+    name: "nomad={{ nomad_version }}-1"
+    update_cache: true
+  when: nomad_version is defined
+
+- name: "Nomad Install | Create Nomad logs and data directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    group: "{{ nomad_system_group }}"
+    owner: "{{ nomad_system_user }}"
+    mode: '0755'
+  loop:
+    - /var/log/nomad
+    - /opt/nomad
+
+- name: "Nomad Install | Prevent Nomad from being upgraded"
+  ansible.builtin.dpkg_selections:
+    name: nomad
+    selection: hold
+
+- name: "Nomad Install | Add user nomad to group {{ nomad_group }}"
+  ansible.builtin.user:
+    name: nomad
+    groups: nomad,{{ nomad_group }}
+    append: true
+  when: nomad_node_role == 'server'
