@@ -119,6 +119,20 @@
   roles:
     - ansible-docker
 
+
+- name: Create CA TLS
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  strategy: linear
+  become: true
+  tasks:
+    - name: "Create TLS CA"
+      ansible.builtin.include_role:
+        name: certificate
+        tasks_from: ca
+      run_once: true
+
 - name: Install nomad
   any_errors_fatal: true
   hosts: nomad
