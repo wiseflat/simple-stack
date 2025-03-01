@@ -1,10 +1,20 @@
 plugin "docker" {
     config {
-    	endpoint = "unix:///var/run/docker.sock"
+{% if docker_tls_configuration == true %}
+    	endpoint = "tcp://{{ nomad_docker_tcp_listen_address }}:{{ nomad_docker_tcp_listen_port }}"
 
-{% if nomad_docker_private_registry_state %}
+    	tls {
+      	  cert = "{{ nomad_docker_client_tls_host_certificate_dir }}/{{ nomad_docker_client_tls_cert }}"
+      	  key  = "{{ nomad_docker_client_tls_host_certificate_dir }}/{{ nomad_docker_client_tls_privatekey }}"
+      	  ca   = "{{ nomad_docker_client_tls_host_certificate_dir }}/{{ nomad_docker_client_tls_ca_pubkey }}"
+    	}
+{% else %}
+    	endpoint = "unix:///var/run/docker.sock"
+{% endif %}
+
+{% if nomad_docker_private_registry_state == true %}
         auth {
-            config = {{ nomad_docker_private_registry_config }}
+            config = "{{ nomad_docker_private_registry_config }}"
         }
 {% endif %}
 
