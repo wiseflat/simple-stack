@@ -60,11 +60,10 @@
     mode: '0600'
   become: true
 
-- name: Run nomad jobs
-  ansible.builtin.shell: "nomad job run /var/tmp/{{ item }}.nomad"
-  loop:
-    - "{{ domain }}"
-    # - "{{ domain }}-periodic"
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
 
 - name: Add first user
   ansible.builtin.include_tasks: first-user.yml

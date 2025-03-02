@@ -49,8 +49,14 @@
     args: db export --allow-root --path=/var/www/html /var/backup/dump.sql
     chdir: /var/www/html
 
-- name: Run nomad jobs
-  ansible.builtin.shell: "nomad job run /var/tmp/{{ item }}.nomad"
-  loop:
-    - "{{ domain }}"
-    - "{{ domain }}-periodic"
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
+- name: Run nomad job periodic
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+  vars: 
+    domain: "{{ domain }}-periodic"
