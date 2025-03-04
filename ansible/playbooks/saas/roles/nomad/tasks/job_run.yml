@@ -11,5 +11,5 @@
   register: nomad_job_start
   failed_when: nomad_job_start.rc >= 2
   changed_when:
-    - '"ERROR" in nomad_job_start.stderr'
+    - '"error" in nomad_job_start.stdout'
     - nomad_job_start.rc >= 2
