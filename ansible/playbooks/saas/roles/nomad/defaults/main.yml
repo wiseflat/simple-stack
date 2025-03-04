@@ -5,6 +5,6 @@ nomad_http_ip: "127.0.0.1"
 
 # TLS
 nomad_tls_host_certificate_dir: "/etc/ssl/simplestack"
-nomad_tls_cert_server: "{{ nomad_region }}-server-nomad.pem"
-nomad_tls_privatekey_server: "{{ nomad_region }}-server-nomad.key"
+nomad_tls_cert_server: "{{ fact_instance.datacenter }}-server-nomad.pem"
+nomad_tls_privatekey_server: "{{ fact_instance.datacenter }}-server-nomad.key"
 nomad_tls_ca_pubkey: "simplestack-ca.pem"
