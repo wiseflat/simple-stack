@@ -24,3 +24,17 @@
     - src: Corefile.j2
       dest: /etc/coredns/Corefile
   notify: Restart coredns
+
+- name: Copy systemd resolved config
+  ansible.builtin.copy:
+    content: |
+      [Resolve]
+      DNS=127.0.0.1:1053
+      DNSSEC=no
+      DNSOverTLS=no
+      Domains=~default.service.nomad
+      Cache=no
+      DNSStubListenerExtra=172.17.0.1:53          
+    dest: /etc/systemd/resolved.conf.d/consul.conf
+    mode: 0644
+  notify: Restart systemd-resolved 

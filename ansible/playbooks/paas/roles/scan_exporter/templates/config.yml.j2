@@ -1,0 +1,25 @@
+---
+timeout: 2
+limit: 1024
+log_level: "error"
+queries_per_sec: 2000
+tcp_period: 6h
+# icmp_period: 30s
+
+{% if build_step is defined and build_step %}
+targets: []
+{% else %}
+targets:
+{% for host in groups['infrastructure'] if (host.split('.')[1] in ['frontends', 'frontends_vrack'] and host != inventory_hostname) %}
+  - name: "{{ host }}"
+    ip: "{{ hostvars[host].ansible_local.ipinfo.ip }}"
+    queries_per_sec: 500
+    tcp:
+      period: "12h"
+      range: "all"
+      expected: "80,443"
+    # icmp:
+    #   period: "1m"
+
+{% endfor %}
+{% endif %}

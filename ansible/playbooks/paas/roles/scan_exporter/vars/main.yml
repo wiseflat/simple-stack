@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    repo: scan-exporter
+    user: devops-works
+    type: binary
+    format: ""
+    file: REPO_OS_ARCH
+    os: linux
+    binary: scan-exporter
+  labels: {}
+  name: scan_exporter
+
+build_work_dir: /tmp/scan_exporter

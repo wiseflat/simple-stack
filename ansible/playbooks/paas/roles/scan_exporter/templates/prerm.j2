@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+# Variables
+SERVICE_NAME="{{ image.name }}"
+
+# Stop and disable the service
+if command -v systemctl >/dev/null 2>&1; then
+  echo "Stopping and disabling $SERVICE_NAME service..."
+  systemctl stop "$SERVICE_NAME" || true
+  systemctl disable "$SERVICE_NAME" || true
+fi

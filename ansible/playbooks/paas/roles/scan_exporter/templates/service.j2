@@ -1,0 +1,19 @@
+[Unit]
+Description=Massive TCP/ICMP port scanning tool with exporter for Prometheus and JSON-formatted logs.
+Documentation=https://github.com/devops-works/scan-exporter
+
+[Service]
+Restart=always
+RestartSec=10
+User=prometheus
+Group=prometheus
+RuntimeDirectory={{ image.name }}
+EnvironmentFile=/etc/default/{{ image.name }}
+ExecStart=/bin/sh -c "/usr/local/bin/{{ image.upstream.binary }} $ARGS"
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

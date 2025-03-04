@@ -1,4 +1,4 @@
-{% raw %}
+namespace: records
 groups:
 - name: mimir_api_1
   rules:
@@ -570,5 +570,3 @@ groups:
   - expr: |
       sum by(cluster, namespace, pod) (rate(cortex_ingester_ingested_samples_total[1m]))
     record: cluster_namespace_pod:cortex_ingester_ingested_samples_total:rate1m
-
-{% endraw %}

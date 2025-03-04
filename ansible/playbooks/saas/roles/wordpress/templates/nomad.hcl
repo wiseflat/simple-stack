@@ -72,7 +72,7 @@ job "{{ domain }}" {
         ports   = ["exporter"]
 
         command      = "sh"
-        args         = ["-c", "/usr/local/bin/php-fpm_exporter server --phpfpm.scrape-uri='unix:///var/run/php-fpm/www-${NOMAD_ALLOC_INDEX}.sock;/status'"]
+        args         = ["-c", "/usr/local/bin/php-fpm_exporter server --phpfpm.scrape-uri='unix:///var/run/php-fpm/www-${NOMAD_ALLOC_INDEX}.sock;/status' --phpfpm.fix-process-count=true"]
       }
 
       resources {
@@ -172,7 +172,7 @@ job "{{ domain }}" {
         command = "/usr/local/bin/nginx-prometheus-exporter"
         args    = [
           "--nginx.scrape-uri",
-          "http://{% raw %}{{ env NOMAD_ADDR_nginx }}{% endraw %}/stub_status"
+          "http://${NOMAD_ADDR_nginx}/stub_status"
         ]
       }
 
