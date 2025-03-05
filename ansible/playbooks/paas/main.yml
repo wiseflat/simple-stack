@@ -63,7 +63,7 @@
       retries: 10
 
     - name: Install latest available version of fpm
-      shell: gem install fpm
+      ansible.builtin.shell: gem install fpm
 
   roles:
     - ansible-unattendedUpgrades
