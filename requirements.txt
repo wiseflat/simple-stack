@@ -2,3 +2,4 @@ ansible
 jmespath
 passlib
 bcrypt
+pre-commit
