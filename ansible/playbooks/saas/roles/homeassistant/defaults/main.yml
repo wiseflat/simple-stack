@@ -6,4 +6,3 @@ homeassistant_configuration_default:
       - 172.17.0.0/24
 
 homeassistant_configuration: "{{ software_vars.configuration | default(homeassistant_configuration_default) }}"
-

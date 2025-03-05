@@ -64,7 +64,7 @@ job "{{ domain }}" {
       }
       port "mimir_9095" {
         to = 9095
-      } 
+      }
       port "mimir_8080" {
         to = 8080
       }
@@ -88,7 +88,7 @@ job "{{ domain }}" {
       port = "mimir_8080"
       provider = "nomad"
     }
-    
+
     task "{{ domain }}-mimir" {
 
       driver = "docker"

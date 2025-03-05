@@ -9,9 +9,9 @@
   vars:
     operation: backup
     command: forgejo
-    args: 
-      - dump 
-      - --config 
+    args:
+      - dump
+      - --config
       - /data/conf/app.ini
     chdir: /var/backup
 

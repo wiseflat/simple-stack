@@ -9,7 +9,7 @@
   vars:
     operation: firstuser
     command: forgejo
-    args: 
+    args:
       - admin
       - user
       - create
@@ -17,7 +17,7 @@
       - /data/conf/app.ini
       - --username
       - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }}"
-      - --password 
+      - --password
       - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='passwd', nosymbols=true, length=12) }}"
       - --email
       - "{{ software_vars.email | default(lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL')) }}"

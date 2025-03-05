@@ -43,7 +43,7 @@
     password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.userpass | default(none)) }}"
     priv: "{{ service_name[:32] }}.*:ALL"
     state: present
-  
+
 - name: Install wordpress
   community.docker.docker_container:
     name: "{{ domain }}-install"

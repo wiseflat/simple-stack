@@ -43,7 +43,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       user = "1001:1001"
-      
+
       config {
         image = "koenkk/zigbee2mqtt:{{ ansible_local.software_version[software] }}"
 

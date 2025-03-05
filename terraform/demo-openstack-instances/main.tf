@@ -51,14 +51,14 @@ module "instances" {
 
   for_each = var.instances
 
-  hostname       = each.key
-  groups         = each.value.groups
-  region         = each.value.region
-  flavor_name    = each.value.flavor_name
-  image_id       = data.openstack_images_image_v2.default.id
-  key_pair_id    = openstack_compute_keypair_v2.keypair.id
-  network_id     = data.openstack_networking_network_v2.public.id
-  access_network = true
-  private_key    = var.private_key
+  hostname           = each.key
+  groups             = each.value.groups
+  region             = each.value.region
+  flavor_name        = each.value.flavor_name
+  image_id           = data.openstack_images_image_v2.default.id
+  key_pair_id        = openstack_compute_keypair_v2.keypair.id
+  network_id         = data.openstack_networking_network_v2.public.id
+  access_network     = true
+  private_key        = var.private_key
   security_group_ids = [openstack_networking_secgroup_v2.ingress.id]
 }

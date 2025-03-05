@@ -7,7 +7,7 @@ USER_NAME="prometheus"
 GROUP_NAME="prometheus"
 SERVICE_UID=109
 SERVICE_GID=112
- 
+
 if ! getent group "$GROUP_NAME" >/dev/null; then
   echo "Creating group $GROUP_NAME with GID $SERVICE_GID..."
   groupadd --gid $SERVICE_GID $GROUP_NAME
