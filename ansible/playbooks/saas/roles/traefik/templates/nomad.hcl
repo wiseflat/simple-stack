@@ -65,7 +65,8 @@ job "{{ domain }}" {
         network_mode = "host"
         volumes = [
           "/data/{{ domain }}:/etc/traefik",
-          "/var/log/traefik:/var/log/traefik"
+          "/var/log/traefik:/var/log/traefik",
+          "/etc/ssl/simplestack:/etc/ssl/simplestack"
         ]
         ports = ["traefik_ui", "traefik_ssl_ui"]
       }
