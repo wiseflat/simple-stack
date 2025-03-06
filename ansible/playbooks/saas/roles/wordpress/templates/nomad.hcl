@@ -84,7 +84,7 @@ job "{{ domain }}" {
 
   group "nginx" {
     count = {{ software_vars.scale.nginx }}
-    
+
     network {
       port "nginx" {
         to = 80

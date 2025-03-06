@@ -34,7 +34,7 @@
       DNSOverTLS=no
       Domains=~default.service.nomad
       Cache=no
-      DNSStubListenerExtra=172.17.0.1:53          
+      DNSStubListenerExtra=172.17.0.1:53
     dest: /etc/systemd/resolved.conf.d/consul.conf
     mode: 0644
-  notify: Restart systemd-resolved 
+  notify: Restart systemd-resolved

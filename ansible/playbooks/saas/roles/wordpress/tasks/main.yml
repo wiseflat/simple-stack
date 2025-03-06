@@ -19,7 +19,7 @@
     src: phpfpm.conf
     dest: "{{ software_path }}/etc/php-fpm.d/www.conf"
     mode: '0644'
-  
+
 - name: Recursively change ownership of a directory
   ansible.builtin.file:
     path: "{{ software_path }}/var/www/html"
@@ -58,5 +58,5 @@
   ansible.builtin.include_role:
     name: nomad
     tasks_from: job_run.yml
-  vars: 
+  vars:
     domain: "{{ domain }}-periodic"
