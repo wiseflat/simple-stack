@@ -1,0 +1,33 @@
+job "plugin-s3-controller" {
+  datacenters = ["{{ fact_instance.datacenter }}"]
+
+   group "controllers" {
+     task "plugin" {
+     driver = "docker"
+
+     resources {
+       memory = 100
+     }
+
+     config {
+       image = "ctrox/csi-s3:v1.2.0-rc.2"
+
+       args = [
+         "--endpoint=unix://csi/csi.sock",
+         "--nodeid=${node.unique.name}",
+         "--logtostderr",
+         "--v=5",
+       ]
+
+       privileged = true
+     }
+
+     csi_plugin {
+       id = "s3"
+       type = "controller"
+       mount_dir = "/csi"
+       stage_publish_base_dir = "/local/csi"
+     }
+    }
+  }
+}
