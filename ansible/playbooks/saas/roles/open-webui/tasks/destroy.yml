@@ -1,0 +1,10 @@
+---
+- name: Stop nomad job
+  ansible.builtin.command: "nomad job stop {{ domain }}"
+  register: nomad_job_stop
+  changed_when: nomad_job_run.rc != 0
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent
