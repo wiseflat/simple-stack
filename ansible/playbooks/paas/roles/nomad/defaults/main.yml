@@ -28,7 +28,7 @@ nomad_bin_dir: "/usr/bin"
 nomad_data_dir: "/opt/nomad"
 nomad_data_dir_server: "/opt/nomad/server"
 nomad_state_dir_client: "/opt/nomad/client"
-nomad_job_files_dir: "/var/tmp/nomad"
+nomad_job_files_dir: "/var/tmp"
 
 nomad_disable_anonymous_signature: "false"
 nomad_disable_update_check: "false"
@@ -38,6 +38,8 @@ nomad_leave_on_interrupt: true
 
 nomad_client_auto_join: 'true'
 nomad_server_auto_join: 'true'
+
+nomad_s3_storage_enabled: true
 
 # Network
 nomad_http_scheme: "https"
@@ -240,7 +242,7 @@ nomad_docker_client_allow_caps:
 nomad_docker_private_registry_state: false
 nomad_docker_private_registry_config: /etc/docker/config.json
 
-nomad_docker_allow_privileged: "false"
+nomad_docker_allow_privileged: "{% if nomad_s3_storage_enabled %}true{% else %}false{% endif %}"
 nomad_docker_volume_enable: "true"
 nomad_docker_gc_image: "true"
 nomad_docker_gc_image_delay: "1h"
