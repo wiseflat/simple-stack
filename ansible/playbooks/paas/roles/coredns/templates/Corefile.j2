@@ -1,11 +1,12 @@
 service.nomad.:1053 {
     bind 127.0.0.1
     errors
-    debug
-    log
+    #debug
+    #log
     nomad {
         zone service.nomad
-        address http://127.0.0.1:4646
+        address https://127.0.0.1:4646
+        token {{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}
         ttl 10
     }
     prometheus 127.0.0.1:9153

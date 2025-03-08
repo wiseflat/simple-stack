@@ -25,6 +25,11 @@
       dest: /etc/coredns/Corefile
   notify: Restart coredns
 
+- name: Remove invalid file (todo remove)
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d/consul.conf
+    state: absent
+
 - name: Copy systemd resolved config
   ansible.builtin.copy:
     content: |
@@ -35,6 +40,6 @@
       Domains=~default.service.nomad
       Cache=no
       DNSStubListenerExtra=172.17.0.1:53
-    dest: /etc/systemd/resolved.conf.d/consul.conf
+    dest: /etc/systemd/resolved.conf.d/coredns.conf
     mode: 0644
   notify: Restart systemd-resolved

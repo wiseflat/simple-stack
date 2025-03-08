@@ -54,6 +54,8 @@
   ansible.builtin.shell:
     cmd: "{{ item }}"
     chdir: "{{ build_work_dir }}/download/coredns"
+  environment:
+    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
   loop:
     - echo "nomad:github.com/ituoga/coredns-nomad" >> plugin.cfg
     - go mod edit -replace github.com/ituoga/coredns-nomad={{ build_work_dir }}/download/coredns-nomad-{{ latest_version }}

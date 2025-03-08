@@ -1,0 +1,6 @@
+---
+
+go_platform: linux
+go_arch: "{{ upstream_default_arch }}"
+go_tarball: go{{ go_version }}.{{ go_platform }}-{{ go_arch }}.tar.gz
+go_download_url: https://dl.google.com/go/{{ go_tarball }}
