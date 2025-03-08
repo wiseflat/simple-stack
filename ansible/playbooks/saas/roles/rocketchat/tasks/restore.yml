@@ -9,7 +9,7 @@
   vars:
     operation: restore
     command: /usr/bin/mongorestore
-    args: args: --uri=mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true /var/backup
+    args: --uri=mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true /var/backup
     chdir: /var/backup
 
 - name: Run nomad job
