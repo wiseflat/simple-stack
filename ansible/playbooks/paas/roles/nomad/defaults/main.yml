@@ -134,7 +134,7 @@ nomad_client_node_pool: "default"
 nomad_client_no_host_uuid: "false"
 nomad_client_max_kill_timeout: "30s"
 
-nomad_client_network_interface: "{{ ansible_default_ipv4.interface }}"
+nomad_client_network_interface: docker0
 
 nomad_client_host_network_default:
   name: "public"
