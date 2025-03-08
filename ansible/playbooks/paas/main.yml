@@ -74,7 +74,6 @@
   gather_facts: true
   become: true
   vars:
-    golang_version: '1.23.7'
     architecture_map:
       amd64: amd64
       x86_64: amd64
@@ -92,8 +91,6 @@
     - blackbox_exporter
     - nginx_exporter
     - loki
-    - golang
-    - coredns
 
 - name: Install ufw firewall
   any_errors_fatal: true
@@ -139,3 +136,21 @@
   become: true
   roles:
     - nomad
+
+- name: Install coredns
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  vars:
+    golang_version: '1.23.7'
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+  roles:
+    - golang
+    - coredns
