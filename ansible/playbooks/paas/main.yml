@@ -49,7 +49,6 @@
           - python3-passlib
           - libxml2-utils
           - ruby-rubygems
-          - golang
           - binutils
           - unzip
           - make
@@ -75,7 +74,7 @@
   gather_facts: true
   become: true
   vars:
-    golang_version: '1.23.3'
+    golang_version: '1.23.7'
     architecture_map:
       amd64: amd64
       x86_64: amd64
@@ -93,6 +92,7 @@
     - blackbox_exporter
     - nginx_exporter
     - loki
+    - golang
     - coredns
 
 - name: Install ufw firewall
@@ -118,7 +118,6 @@
     upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
   roles:
     - ansible-docker
-
 
 - name: Create CA TLS
   any_errors_fatal: true
