@@ -1,0 +1,4 @@
+---
+# defaults file for open-webui
+
+valkey_version: "8.0.2"
