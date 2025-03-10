@@ -132,3 +132,19 @@
   when: nomad_node_role == 'server' or nomad_node_role == 'both'
   register: nomad_memoryoversubscription
   ignore_errors: true
+
+- name: "Nomad Configuration | Add S3 storage plugin job templates"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ nomad_job_files_dir }}/{{ item }}"
+    mode: '0644'
+  loop:
+    - "plugin-s3-controller.hcl"
+    - "plugin-s3-node.hcl"
+  when: 
+    - nomad_s3_storage_enabled
+    - nomad_node_role == 'client' or nomad_node_role == 'both'
+  notify: Nomad_s3_jobs
+
+- name: "Nomad Configuration | Flush handlers"
+  ansible.builtin.meta: flush_handlers
