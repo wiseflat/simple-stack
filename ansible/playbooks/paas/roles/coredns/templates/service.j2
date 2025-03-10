@@ -8,6 +8,7 @@ RestartSec=10
 User=coredns
 Group=coredns
 RuntimeDirectory=coredns
+Environment=NOMAD_SKIP_VERIFY=True
 ExecStart=/bin/sh -c "/usr/local/bin/coredns -conf /etc/coredns/Corefile"
 ExecReload=/bin/kill -HUP $MAINPID
 TimeoutStopSec=20s

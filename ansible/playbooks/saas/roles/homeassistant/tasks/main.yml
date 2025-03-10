@@ -11,7 +11,7 @@
 
 # - name: Copy configuration file
 #   ansible.builtin.template:
-#     src: configuration.yaml
+#     src: configuration.yaml.j2
 #     dest: "{{ software_path }}/config/configuration.yaml"
 #     owner: root
 #     group: root
