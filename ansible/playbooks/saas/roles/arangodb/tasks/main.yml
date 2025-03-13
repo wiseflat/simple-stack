@@ -37,7 +37,7 @@
 - name: Copy periodic nomad job
   ansible.builtin.template:
     src: nomad.periodic.hcl
-    dest: "/var/tmp/{{ domain }}.periodic.nomad"
+    dest: "/var/tmp/{{ domain }}-periodic.nomad"
     owner: root
     group: root
     mode: '0600'
@@ -48,4 +48,8 @@
     chdir: /var/backup
 
 - name: Run nomad job
-  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.periodic.nomad"
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+  vars:
+    job_name: "{{ domain }}-periodic"
