@@ -141,7 +141,7 @@
   loop:
     - "plugin-s3-controller.hcl"
     - "plugin-s3-node.hcl"
-  when: 
+  when:
     - nomad_s3_storage_enabled
     - nomad_node_role == 'client' or nomad_node_role == 'both'
   notify: Nomad_s3_jobs
