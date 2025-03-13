@@ -27,18 +27,6 @@ job "{{ domain }}" {
       port = "forgejo"
       provider = "nomad"
       tags = [{% for label in traefik_labels_result.labels %}"{{ label }}",{% endfor %}]
-      check {
-        name     = "{{ service_name }}"
-        type     = "http"
-        path     = "/"
-        interval = "60s"
-        timeout  = "30s"
-        check_restart {
-          limit = 3
-          grace = "90s"
-          ignore_warnings = false
-        }
-      }
     }
 
     task "{{ domain }}-forgejo" {
