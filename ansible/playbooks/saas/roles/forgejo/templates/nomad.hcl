@@ -47,7 +47,7 @@ job "{{ domain }}" {
       env {
         USER_UID = "1000"
         USER_GID = "1000"
-        APP_DATA_PATH = "/data"
+        APP_DATA_PATH = "/"
       }
 
       config {
