@@ -3,14 +3,11 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: "0755"
   loop:
     - "{{ software_path }}/data"
-    - "{{ software_path }}/data/log"
-    - "{{ software_path }}/data/custom"
-    - "{{ software_path }}/data/conf"
     - "{{ software_path }}/var/backup"
     - "{{ software_path }}/var/log"
 
@@ -47,8 +44,8 @@
   ansible.builtin.template:
     src: app.ini
     dest: "{{ software_path }}/data/conf/app.ini"
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: "0644"
 
 - name: Copy nomad job to destination
