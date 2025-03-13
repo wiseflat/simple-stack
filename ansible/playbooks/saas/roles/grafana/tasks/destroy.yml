@@ -1,6 +1,8 @@
 ---
 - name: Stop nomad job
-  ansible.builtin.shell: "nomad job stop {{ domain }}"
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_stop.yml
 
 - name: Remove software directory
   ansible.builtin.file:

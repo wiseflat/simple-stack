@@ -1,5 +1,5 @@
 - name: "Nomad operate | Stop job"
-  ansible.builtin.command: "/usr/bin/nomad job stop {{ domain }}"
+  ansible.builtin.command: "/usr/bin/nomad job stop {{ nomad_job_name }}"
   environment:
     NOMAD_ADDR: "https://{{ nomad_http_ip }}:4646"
     NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"

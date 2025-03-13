@@ -36,6 +36,11 @@
     group: root
     mode: '0600'
 
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
 - name: Copy periodic nomad job
   ansible.builtin.template:
     src: nomad.periodic.hcl
@@ -48,11 +53,6 @@
     command: wp-cli
     args: db export --allow-root --path=/var/www/html /var/backup/dump.sql
     chdir: /var/www/html
-
-- name: Run nomad job
-  ansible.builtin.include_role:
-    name: nomad
-    tasks_from: job_run.yml
 
 - name: Run nomad job periodic
   ansible.builtin.include_role:

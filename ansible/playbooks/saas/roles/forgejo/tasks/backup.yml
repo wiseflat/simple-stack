@@ -2,7 +2,7 @@
 - name: Copy backup nomad job
   ansible.builtin.template:
     src: nomad.operation.hcl
-    dest: "/var/tmp/{{ domain }}.operation.nomad"
+    dest: "/var/tmp/{{ domain }}-operation.nomad"
     owner: root
     group: root
     mode: '0600'
@@ -16,4 +16,8 @@
     chdir: /var/backup
 
 - name: Run nomad job
-  ansible.builtin.shell: "nomad job run /var/tmp/{{ domain }}.operation.nomad"
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+  vars:
+    job_name: "{{ domain }}-operation"

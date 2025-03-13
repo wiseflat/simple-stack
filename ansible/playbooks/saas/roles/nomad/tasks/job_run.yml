@@ -1,5 +1,5 @@
 - name: "Nomad operate | Start job"
-  ansible.builtin.command: "/usr/bin/nomad job run {{ domain }}.nomad"
+  ansible.builtin.command: "/usr/bin/nomad job run {{ nomad_job_name }}"
   args:
     chdir: "{{ nomad_job_dir }}"
   environment:

@@ -1,10 +1,8 @@
 ---
-- name: Stop nomad jobs
-  ansible.builtin.shell: "nomad job stop {{ item }}"
-  loop:
-    - "{{ domain }}"
-    # - "{{ domain }}-periodic"
-  # ignore_errors: true
+- name: Stop nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_stop.yml
 
 - name: Query SRV records
   dig:
