@@ -3,7 +3,7 @@ nomad_job_dir: "/var/tmp"
 
 nomad_http_ip: "127.0.0.1"
 
-nomad_job_name: "{{ job_name | default(domain) }}.nomad"
+nomad_job_name: "{{ job_name | default(domain) }}"
 # TLS
 nomad_tls_host_certificate_dir: "/etc/ssl/simplestack"
 nomad_tls_cert_server: "{{ fact_instance.datacenter }}-server-nomad.pem"
