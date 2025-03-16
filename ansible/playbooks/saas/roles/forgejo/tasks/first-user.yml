@@ -21,6 +21,7 @@
       - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='passwd', nosymbols=true, length=12) }}"
       - --email
       - "{{ software_vars.email | default(lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL')) }}"
+      - --admin
     chdir: /var/backup
 
 - name: Run nomad job
