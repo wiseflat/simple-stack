@@ -58,3 +58,20 @@
     - name: Deploy service
       ansible.builtin.include_role:
         name: "{{ software }}"
+
+  post_tasks:
+    - name: Initialize bucket
+      ansible.builtin.shell:
+        cmd: "/usr/local/bin/restic -r s3:https://{{ restic_server }}/{{ domain }} init"
+      environment:
+        RESTIC_REPOSITORY: "{{ domain }}"
+        RESTIC_PASSWORD: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
+        AWS_ACCESS_KEY_ID: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
+        AWS_SECRET_ACCESS_KEY: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
+      register: restic_init
+      failed_when:
+        - restic_init.rc >= 1 and "already initialized" not in restic_init.stderr
+      changed_when:
+        - '"already initialized" not in restic_init.stderr'
+      no_log: true
+      when: restic_backup is defined and restic_backup

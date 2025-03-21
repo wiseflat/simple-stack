@@ -1,0 +1,15 @@
+---
+mariadb_actions:
+  environment:
+  volumes:
+    - "{{ software_path }}/root:/root:rw"
+    - "{{ software_path }}/run/mysqld:/run/mysqld:rw"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+  backup:
+    command: /usr/bin/mariadb-dump
+    args: --all-databases > /var/backup/dump.sql
+    chdir: /var/backup
+  restore:
+    command: /usr/bin/mariadb
+    args: < /var/backup/dump.sql
+    chdir: /var/backup
