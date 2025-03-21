@@ -1,0 +1,5 @@
+---
+latest_version: "{{ (lookup('url', 'https://api.github.com/repos/{{ image.upstream.user }}/{{ image.upstream.repo }}/releases/latest', headers={'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + lookup('ansible.builtin.env', 'GITHUB_API_TOKEN') }) | from_json).get('tag_name') | replace('v', '') }}"
+upstream_file_name: "{{ image.upstream.file | replace('REPO', image.upstream.repo) | replace('VERSION', latest_version) | replace('OS', image.upstream.os) | replace('ARCH', upstream_default_arch) | replace('FORMAT', image.upstream.format) }}"
+unarchived_file_name: "{{ (image.upstream.file | replace('REPO', image.upstream.repo) | replace('VERSION', latest_version) | replace('OS', image.upstream.os) | replace('ARCH', upstream_default_arch) | replace('FORMAT', image.upstream.format) | split('.bz2'))[0] }}"
+upstream_file_url: "https://github.com/{{ image.upstream.user }}/{{ image.upstream.repo }}/releases/download/v{{ latest_version }}/{{ upstream_file_name }}"

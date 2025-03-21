@@ -1,0 +1,14 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: restic
+    repo: restic
+    type: binary
+    format: bz2
+    file: REPO_VERSION_OS_ARCH.FORMAT
+    os: linux
+    binary: restic
+  labels: {}
+  name: restic
