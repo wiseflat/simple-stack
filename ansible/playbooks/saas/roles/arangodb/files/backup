@@ -1,0 +1,10 @@
+#!/bin/sh
+set +eu
+
+/usr/bin/arangodump \
+    --output-directory /var/backup \
+    --server.username root \
+    --server.password "${ARANGO_RANDOM_ROOT_PASSWORD}" \
+    --server.authentication true --server.endpoint unix:///run/arangodb.sock \
+    --overwrite true \
+    --all-databases true
