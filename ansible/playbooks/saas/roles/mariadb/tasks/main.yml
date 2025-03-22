@@ -46,22 +46,15 @@
     name: nomad
     tasks_from: job_run.yml
 
-- name: Copy periodic nomad job
-  ansible.builtin.template:
-    src: nomad.periodic.hcl
-    dest: "/var/tmp/{{ domain }}-periodic.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: backup
-    command: /usr/bin/mariadb-dump
-    args: --all-databases > /var/backup/dump.sql
-    chdir: /var/backup
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
 - name: Run nomad job periodic
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_action.yml
   vars:
+    operation: backup
     job_name: "{{ domain }}-periodic"
+    periodic: true
+    action: "{{ mariadb_actions }}"

@@ -66,6 +66,7 @@
 
   roles:
     - ansible-unattendedUpgrades
+    - restic
     # - ansible-pull
 
 - name: Install metrology

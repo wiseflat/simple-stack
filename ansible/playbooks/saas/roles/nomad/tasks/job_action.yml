@@ -1,0 +1,23 @@
+- name: Copy periodic nomad job
+  ansible.builtin.template:
+    src: nomad.{{ operation }}.hcl.j2
+    dest: "/var/tmp/{{ nomad_job_name }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: "Nomad operate | Start job"
+  ansible.builtin.command: "/usr/bin/nomad job run {{ nomad_job_name }}.nomad"
+  args:
+    chdir: "{{ nomad_job_dir }}"
+  environment:
+    NOMAD_ADDR: "https://{{ nomad_http_ip }}:4646"
+    NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+    NOMAD_CLIENT_CERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+  register: nomad_job_start
+  failed_when: nomad_job_start.rc >= 2
+  changed_when:
+    - '"error" in nomad_job_start.stdout'
+    - nomad_job_start.rc >= 2
