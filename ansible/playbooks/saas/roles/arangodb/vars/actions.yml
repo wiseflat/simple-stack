@@ -1,0 +1,17 @@
+---
+mariadb_actions:
+  environment: |
+    ARANGO_RANDOM_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}"
+  volumes:
+    - "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
+    - "{{ software_path }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "{{ software_path }}/run:/run:rw"
+  backup:
+    command: /usr/bin/arangodump
+    args: --output-directory /var/backup --server.username root --server.password '{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}' --server.authentication true --server.endpoint unix:///run/arangodb.sock --overwrite true --all-databases true
+    chdir: /var/backup
+  restore:
+    command: /usr/bin/arangorestore
+    args: --input-directory /var/backup --server.username root --server.password '{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}' --server.authentication true --server.endpoint unix:///run/arangodb.sock --overwrite true
+    chdir: /var/backup
