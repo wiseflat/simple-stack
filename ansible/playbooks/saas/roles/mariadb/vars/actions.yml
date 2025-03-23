@@ -5,11 +5,6 @@ mariadb_actions:
     - "{{ software_path }}/root:/root:rw"
     - "{{ software_path }}/run/mysqld:/run/mysqld:rw"
     - "{{ software_path }}/var/backup:/var/backup:rw"
-  backup:
-    command: /usr/bin/mariadb-dump
-    args: --all-databases > /var/backup/dump.sql
-    chdir: /var/backup
-  restore:
-    command: /usr/bin/mariadb
-    args: < /var/backup/dump.sql
-    chdir: /var/backup
+    - "/usr/local/bin/mariadb-backup:/usr/local/bin/mariadb-backup:ro"
+    - "/usr/local/bin/mariadb-restore:/usr/local/bin/mariadb-restore:ro"
+  image: "mariadb:{{ ansible_local.software_version['mariadb'] }}"

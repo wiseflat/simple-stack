@@ -10,4 +10,4 @@
     operation: restore
     job_name: "{{ domain }}-restore"
     periodic: false
-    action: "{{ mariadb_actions }}"
+    actions: "{{ mariadb_actions }}"
