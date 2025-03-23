@@ -62,8 +62,12 @@ job "{{ domain }}" {
         ports = ["arangodb"]
 
         command = "arangod"
-        args    = ["--server.authentication=true",  "--config",  "/etc/arangodb3/arangod.conf", "--server.authentication-unix-sockets=true"]
-
+        args    = [
+          "--server.authentication=true",
+          "--config",
+          "/etc/arangodb3/arangod.conf",
+          "--server.authentication-unix-sockets=true"
+        ]
       }
 
       resources {
