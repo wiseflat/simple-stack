@@ -48,7 +48,8 @@ job "{{ domain }}" {
         image = "{{ software }}:{{ ansible_local.software_version[software] }}"
 
         volumes = [
-          "{{ software_path }}/var/www/html:/var/www/html:rw"
+          "{{ software_path }}/var/www/html:/var/www/html:rw",
+          "/data/{{ software_vars.dbhost }}/run/mysqld:/var/run/mysqld:ro"
         ]
 
         ports = ["apache"]

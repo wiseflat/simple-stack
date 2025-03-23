@@ -1,0 +1,13 @@
+---
+nextcloud_actions:
+  environment: |
+    DBUSER = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='user') }}"
+    DBPASS = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd') }}"
+  volumes:
+    - "{{ software_path }}/var/www/html:/var/www/html:rw"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "/data/{{ software_vars.dbhost }}/run/mysqld:/var/run/mysqld:ro"
+    - "/data/{{ software_vars.dbhost }}/root:/root:ro"
+    - "/usr/local/bin/nextcloud-backup:/usr/local/bin/nextcloud-backup:ro"
+    - "/usr/local/bin/nextcloud-restore:/usr/local/bin/nextcloud-restore:ro"
+  image: "{{ software }}:{{ ansible_local.software_version[software] }}"
