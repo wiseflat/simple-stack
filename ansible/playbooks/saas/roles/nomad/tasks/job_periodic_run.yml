@@ -1,14 +1,6 @@
 ---
-- name: Copy nomad job
-  ansible.builtin.template:
-    src: "{{ operation }}.hcl.j2"
-    dest: "/var/tmp/{{ nomad_job_name }}.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: "Nomad operate | Start job"
-  ansible.builtin.command: "/usr/bin/nomad job run {{ nomad_job_name }}.nomad"
+- name: "Nomad operate | Start periodic run"
+  ansible.builtin.command: "/usr/bin/nomad job periodic force {{ nomad_job_name }}"
   args:
     chdir: "{{ nomad_job_dir }}"
   environment:

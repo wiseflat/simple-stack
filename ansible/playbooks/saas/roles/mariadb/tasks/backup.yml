@@ -1,13 +1,7 @@
 ---
-- name: Include actions variables
-  ansible.builtin.include_vars: actions.yml
-
-- name: Run nomad backup job
+- name: Run nomad job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_action.yml
+    tasks_from: job_periodic_run.yml
   vars:
-    operation: backup
-    job_name: "{{ domain }}-backup"
-    periodic: false
-    action: "{{ mariadb_actions }}"
+    job_name: "{{ domain }}-periodic"

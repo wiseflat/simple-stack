@@ -1,3 +1,4 @@
+---
 - name: Copy doctor nomad job
   ansible.builtin.template:
     src: nomad.operation.hcl
