@@ -1,0 +1,16 @@
+---
+forgejo_actions:
+  environment: |
+    USER_UID = "1000"
+    USER_GID = "1000"
+    APP_DATA_PATH = "/data"
+    FORGEJO_WORK_DIR = "/data"
+  volumes:
+    - "{{ software_path }}/data:/data:rw"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "{{ software_path }}/var/log:/var/log:rw"
+    - "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
+    - "/data/{{ software_vars.dbhost }}/root:/root:ro"
+    - "/usr/local/bin/forgejo-backup:/usr/local/bin/forgejo-backup:ro"
+    - "/usr/local/bin/forgejo-restore:/usr/local/bin/forgejo-restore:ro"
+  image: "mariadb:{{ ansible_local.software_version['mariadb'] }}"

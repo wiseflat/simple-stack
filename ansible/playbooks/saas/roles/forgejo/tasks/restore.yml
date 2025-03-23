@@ -2,7 +2,7 @@
 - name: Include actions variables
   ansible.builtin.include_vars: actions.yml
 
-- name: Run nomad restore job
+- name: Run nomad job
   ansible.builtin.include_role:
     name: nomad
     tasks_from: job_action.yml
@@ -10,4 +10,4 @@
     operation: restore
     job_name: "{{ domain }}-restore"
     periodic: false
-    actions: "{{ mariadb_actions }}"
+    actions: "{{ forgejo_actions }}"

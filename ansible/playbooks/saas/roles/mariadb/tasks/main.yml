@@ -22,6 +22,17 @@
       owner: 999
       group: 999
 
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/mariadb-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
+
 - name: Copy config files
   ansible.builtin.template:
     src: "{{ item.src }}"
@@ -57,4 +68,4 @@
     operation: backup
     job_name: "{{ domain }}-periodic"
     periodic: true
-    action: "{{ mariadb_actions }}"
+    actions: "{{ mariadb_actions }}"

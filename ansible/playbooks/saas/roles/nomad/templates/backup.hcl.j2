@@ -22,22 +22,23 @@ job "{{ nomad_job_name }}" {
     }
 {% endif %}
 
-  group "{{ operation }}" {
+  group "backup" {
     count = 1
 
-    task "{{ operation }}" {
+    task "backup" {
       lifecycle {
         hook = "prestart"
       }
       driver = "docker"
       env {
-        {{ action.environment | default(omit) }}
+        {{ actions.environment | default(omit) }}
       }
+      user = "{{ actions.user | default('root') }}"
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
-        volumes = [{% for volume in action.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        image = "{{ actions.image }}"
+        volumes = [{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
         command = "sh"
-        args    = ["-c", "{{ action[operation].command }} {{ action[operation].args }}"]
+        args    = ["-c", "/usr/local/bin/{{ software }}-backup {{ service_name }}"]
       }
     }
 
@@ -52,7 +53,7 @@ job "{{ nomad_job_name }}" {
       }
       config {
         image = "alpine:latest"
-        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in action.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
 
         command = "/usr/local/bin/restic"
         args = [
@@ -66,24 +67,7 @@ job "{{ nomad_job_name }}" {
         ]
       }
     }
-{% endif %}
 
-    task "clean" {
-      lifecycle {
-        hook = "poststop"
-      }
-      driver = "docker"
-      config {
-        image = "alpine:latest"
-        command = "sh"
-        args    = ["-c", "/bin/rm -rfv /var/backup/*"]
-        volumes = [
-          "{{ software_path }}/var/backup:/var/backup:rw"
-        ]
-      }
-    }
-
-{% if restic_backup is defined and restic_backup %}
     task "snapshot-retention" {
       lifecycle {
         hook = "poststop"
@@ -110,5 +94,20 @@ job "{{ nomad_job_name }}" {
       }
     }
 {% endif %}
+
+    task "clean" {
+      lifecycle {
+        hook = "poststop"
+      }
+      driver = "docker"
+      config {
+        image = "alpine:latest"
+        command = "sh"
+        args    = ["-c", "/bin/rm -rfv /var/backup/*"]
+        volumes = [
+          "{{ software_path }}/var/backup:/var/backup:rw"
+        ]
+      }
+    }
   }
 }

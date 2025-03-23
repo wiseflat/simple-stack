@@ -33,19 +33,17 @@ job "{{ domain }}" {
       driver = "docker"
 
       env {
-        USER_UID = "1000"
-        USER_GID = "1000"
-        APP_DATA_PATH = "/"
+        {{ forgejo_actions.environment }}
       }
 
       config {
         image = "{{ software }}:{{ ansible_local.software_version[software] }}"
-        volumes = [
+        volumes =  [
+          "/etc/timezone:/etc/timezone:ro",
+          "/etc/localtime:/etc/localtime:ro",
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/var/backup:/var/backup:rw",
           "{{ software_path }}/var/log:/var/log:rw",
-          "/etc/timezone:/etc/timezone:ro",
-          "/etc/localtime:/etc/localtime:ro",
           "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
         ]
         ports = ["forgejo"]

@@ -1,32 +1,23 @@
 ---
-- name: Copy firstuser nomad job
-  ansible.builtin.template:
-    src: nomad.operation.hcl
-    dest: "/var/tmp/{{ domain }}-operation.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: firstuser
-    command: forgejo
-    args:
-      - admin
-      - user
-      - create
-      - --config
-      - /data/conf/app.ini
-      - --username
-      - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }}"
-      - --password
-      - "{{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='passwd', nosymbols=true, length=12) }}"
-      - --email
-      - "{{ software_vars.email | default(lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL')) }}"
-      - --admin
-    chdir: /var/backup
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
-- name: Run nomad job
-  ansible.builtin.include_role:
-    name: nomad
-    tasks_from: job_run.yml
-  vars:
-    job_name: "{{ domain }}-operation"
+- name: Create first user
+  community.docker.docker_container:
+    name: "{{ domain }}-firstuser"
+    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
+    detach: false
+    cleanup: true
+    env:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      APP_DATA_PATH: "/data"
+      FORGEJO_WORK_DIR: "/data"
+    volumes: "{{ forgejo_actions.volumes }}"
+    pull: never
+    memory: 256M
+    working_dir: "{{ forgejo_actions.firstuser.chdir }}"
+    command: /usr/local/bin/forgejo admin user create --config /data/conf/app.ini --username {{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }} --password {{ lookup('community.general.passwordstore', 'forgejo/' + domain, missing='create', subkey='passwd', nosymbols=true, length=12) }} --email {{ software_vars.email | default(lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL')) }} --admin
+  register: forgejo_firstuser
+  failed_when: forgejo_firstuser.status >= 1 and "user already exists" not in forgejo_firstuser.msg
+  changed_when: forgejo_firstuser.status == 0

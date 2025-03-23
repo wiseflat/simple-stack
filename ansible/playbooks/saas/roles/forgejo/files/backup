@@ -1,0 +1,5 @@
+#!/bin/sh
+set +eu
+
+tar -czf /var/backup/data.tgz -C /data .
+/usr/bin/mariadb-dump ${1} > /var/backup/dump.sql

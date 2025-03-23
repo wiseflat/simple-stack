@@ -1,0 +1,5 @@
+#!/bin/sh
+set +eu
+
+echo "Restore all databases..."
+/usr/bin/mariadb < /var/backup/dump.sql
