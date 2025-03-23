@@ -13,15 +13,6 @@ job "{{ nomad_job_name }}" {
     set_contains = "{{ inventory_hostname }}"
   }
 
-{% if periodic %}
-    periodic {
-      crons = [
-        "{{ 60 | random(seed=domain) }} {{ 24 | random(seed=domain) }} * * * *"
-      ]
-      prohibit_overlap = true
-    }
-{% endif %}
-
   group "{{ operation }}" {
     count = 1
 
@@ -39,7 +30,7 @@ job "{{ nomad_job_name }}" {
       }
       config {
         image = "alpine:latest"
-        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in action.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
 
         command = "/usr/local/bin/restic"
         args = [
@@ -57,20 +48,6 @@ job "{{ nomad_job_name }}" {
         ]
       }
     }
-{% endif %}
-
-    task "{{ operation }}" {
-      driver = "docker"
-      env {
-        {{ action.environment | default(omit) }}
-      }
-      config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
-        volumes = [{% for volume in action.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
-        command = "sh"
-        args    = ["-c", "{{ action[operation].command }} {{ action[operation].args }}"]
-      }
-    }
 
     task "clean" {
       lifecycle {
@@ -84,6 +61,21 @@ job "{{ nomad_job_name }}" {
         volumes = [
           "{{ software_path }}/var/backup:/var/backup:rw"
         ]
+      }
+    }
+{% endif %}
+
+    task "{{ operation }}" {
+      driver = "docker"
+      env {
+        {{ actions.environment | default(omit) }}
+      }
+      user = "{{ actions.user | default('root') }}"
+      config {
+        image = "{{ actions.image }}"
+        volumes = [{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        command = "sh"
+        args    = ["-c", "/usr/local/bin/{{ software }}-restore {{ service_name }}"]
       }
     }
   }
