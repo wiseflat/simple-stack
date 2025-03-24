@@ -1,0 +1,13 @@
+#!/bin/sh
+set +eu
+
+cd /var/backup
+
+echo "Unarchive backup..."
+tar -xzf data.tgz
+
+echo "Restore data"
+rsync -av --delete --exclude "data.tgz" --exclude "dump.sql" . /var/www/html
+
+echo "Import database..."
+/usr/bin/wp-cli db import --allow-root --path=/var/www/html /var/backup/dump.sql

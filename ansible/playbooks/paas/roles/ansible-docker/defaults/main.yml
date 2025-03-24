@@ -19,7 +19,7 @@ docker_private_registry_config: /etc/docker/config.json
 docker_dns_configuration: true
 docker_dns_servers:
 #  - "{{ docker_gateway_ip }}"
-  - 8.8.8.8
+  - 172.17.0.1
 
 docker_metrics_addr: "{{ docker_tcp_listen_address }}:9323"
 

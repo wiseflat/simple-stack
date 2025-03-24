@@ -1,0 +1,10 @@
+---
+wordpress_actions:
+  environment:
+  volumes:
+    - "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
+    - "{{ software_path }}/var/www/html:/var/www/html:ro"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "/usr/local/bin/wordpress-backup:/usr/local/bin/wordpress-backup:ro"
+    - "/usr/local/bin/wordpress-restore:/usr/local/bin/wordpress-restore:ro"
+  image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"

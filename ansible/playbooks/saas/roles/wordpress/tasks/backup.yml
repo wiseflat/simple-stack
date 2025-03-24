@@ -1,20 +1,13 @@
 ---
-- name: Copy backup nomad job
-  ansible.builtin.template:
-    src: nomad.operation.hcl
-    dest: "/var/tmp/{{ domain }}-{{ operation }}.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: backup
-    command: wp-cli
-    args: db export --allow-root --path=/var/www/html /var/backup/dump.sql
-    chdir: /var/www/html
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
-- name: Run nomad job
+- name: Run nomad backup job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_action.yml
   vars:
+    operation: backup
     job_name: "{{ domain }}-backup"
+    periodic: false
+    actions: "{{ wordpress_actions }}"

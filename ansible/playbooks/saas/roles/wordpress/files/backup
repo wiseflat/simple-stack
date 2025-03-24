@@ -1,0 +1,8 @@
+#!/bin/sh
+set +eu
+
+echo "Backup data..."
+tar -czf /var/backup/data.tgz -C /var/www/html .
+
+echo "Backup database..."
+/usr/bin/wp-cli db export --allow-root --path=/var/www/html /var/backup/dump.sql
