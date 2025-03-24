@@ -8,6 +8,17 @@
   ansible.builtin.include_tasks: install.yml
   when: not stat_result.stat.exists
 
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/wordpress-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
+
 - name: Copy nginx config file
   ansible.builtin.template:
     src: nginx.conf
@@ -41,22 +52,15 @@
     name: nomad
     tasks_from: job_run.yml
 
-- name: Copy periodic nomad job
-  ansible.builtin.template:
-    src: nomad.periodic.hcl
-    dest: "/var/tmp/{{ domain }}-periodic.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: backup
-    command: wp-cli
-    args: db export --allow-root --path=/var/www/html /var/backup/dump.sql
-    chdir: /var/www/html
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
 - name: Run nomad job periodic
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_action.yml
   vars:
-    domain: "{{ domain }}-periodic"
+    operation: backup
+    job_name: "{{ domain }}-periodic"
+    periodic: true
+    actions: "{{ wordpress_actions }}"
