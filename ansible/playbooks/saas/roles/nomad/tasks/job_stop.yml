@@ -1,3 +1,4 @@
+---
 - name: "Nomad operate | Stop job"
   ansible.builtin.command: "/usr/bin/nomad job stop {{ nomad_job_name }}"
   environment:
@@ -7,4 +8,8 @@
     NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
     NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
   register: nomad_job_stop
-  changed_when: nomad_job_stop.rc != 0
+  failed_when: |
+    nomad_job_stop.rc >=1 and
+    'Cancelled because job is stopped' not in nomad_job_stop.stdout and
+    'matched multiple jobs' not in nomad_job_stop.stderr
+  changed_when: nomad_job_stop.rc != 0 and 'Cancelled because job is stopped' not in nomad_job_stop.stdout

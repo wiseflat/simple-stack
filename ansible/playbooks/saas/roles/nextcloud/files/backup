@@ -1,0 +1,17 @@
+#!/bin/sh
+set +eu
+
+echo "Add few debian packages"
+apt-get -qq update && apt-get install -yqq mariadb-client sudo --no-install-recommends
+
+echo "Enable maintenance mode..."
+sudo -u www-data php occ maintenance:mode --on
+
+echo "Compress data..."
+tar -czf /var/backup/data.tgz -C /var/www/html .
+
+echo "Backup database"
+mysqldump --single-transaction -u${DBUSER} -p${DBPASS} ${1} > /var/backup/dump.sql
+
+echo "Disable maintenance mode..."
+sudo -u www-data php occ maintenance:mode --off

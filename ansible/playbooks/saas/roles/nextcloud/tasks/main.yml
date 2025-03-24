@@ -9,6 +9,17 @@
   loop:
     - "{{ software_path }}/var/www/html"
 
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/nextcloud-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
+
 - name: Query SRV records
   dig:
     service: "{{ software_vars.dbhost  | replace('-', '') | replace('.', '') }}.default.service.nomad"
@@ -50,3 +61,16 @@
   ansible.builtin.include_role:
     name: nomad
     tasks_from: job_run.yml
+
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
+
+- name: Run nomad job periodic
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_action.yml
+  vars:
+    operation: backup
+    job_name: "{{ domain }}-periodic"
+    periodic: true
+    actions: "{{ nextcloud_actions }}"

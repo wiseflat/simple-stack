@@ -7,7 +7,7 @@ echo "Unarchive backup..."
 tar -xzf data.tgz
 
 echo "Import mysql database..."
-/usr/bin/mariadb-dump ${1} > /var/backup/dump.sql
+/usr/bin/mariadb ${1} < /var/backup/dump.sql
 
 echo "Restore data"
 rsync -av --delete --exclude "data.tgz" --exclude "dump.sql" . /data

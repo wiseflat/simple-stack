@@ -1,1 +1,7 @@
 ---
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_periodic_run.yml
+  vars:
+    job_name: "{{ domain }}-periodic"
