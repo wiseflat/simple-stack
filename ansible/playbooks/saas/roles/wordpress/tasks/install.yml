@@ -26,7 +26,7 @@
     login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
     login_host: 172.17.0.1
     login_port: "{{ service.records[0].port }}"
-    name: "{{ service_name[:32] }}"
+    name: "{{ software_vars.dbname | default(service_name[:32]) }}"
     encoding: utf8
     collation: utf8_general_ci
     state: present
@@ -37,10 +37,10 @@
     login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
     login_host: 172.17.0.1
     login_port: "{{ service.records[0].port }}"
-    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, missing='create', subkey='user', nosymbols=true, length=8, userpass=software_vars.userpass | default(none)) }}"
+    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, missing='create', subkey='user', nosymbols=true, length=8, userpass=software_vars.dbuser | default(none)) }}"
     host: '%'
     column_case_sensitive: false
-    password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.userpass | default(none)) }}"
+    password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.dbpass | default(none)) }}"
     priv: "{{ service_name[:32] }}.*:ALL"
     state: present
 
