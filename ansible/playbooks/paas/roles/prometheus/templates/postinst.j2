@@ -5,17 +5,15 @@ set -e
 SERVICE_NAME="{{ image.name }}"
 USER_NAME="prometheus"
 GROUP_NAME="prometheus"
-SERVICE_UID=109
-SERVICE_GID=112
 
 if ! getent group "$GROUP_NAME" >/dev/null; then
-  echo "Creating group $GROUP_NAME with GID $SERVICE_GID..."
-  groupadd --gid $SERVICE_GID $GROUP_NAME
+  echo "Creating group $GROUP_NAME..."
+  groupadd --system $GROUP_NAME
 fi
 
 if ! id -u "$USER_NAME" >/dev/null 2>&1; then
-  echo "Creating user $USER_NAME with UID $SERVICE_UID..."
-  useradd --system --uid $SERVICE_UID --gid $GROUP_NAME --shell /usr/sbin/nologin --no-create-home $USER_NAME
+  echo "Creating user $USER_NAME..."
+  useradd --system --gid $GROUP_NAME --shell /usr/sbin/nologin --no-create-home $USER_NAME
 fi
 
 mkdir -p /var/lib/prometheus

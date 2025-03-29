@@ -28,17 +28,13 @@ job "{{ domain }}" {
       provider = "nomad"
       tags = [
         "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "host:{{ inventory_hostname }}"
       ]
     }
 
     task "{{ domain }}-phpfpm" {
 
       driver = "docker"
-
-      env {
-        WORDPRESS_DB_PASSWORD="{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.userpass | default(none)) }}"
-      }
 
       config {
         image = "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
