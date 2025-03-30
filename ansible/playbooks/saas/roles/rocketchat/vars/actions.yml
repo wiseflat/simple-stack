@@ -1,0 +1,9 @@
+---
+rocketchat_actions:
+  environment:
+  volumes:
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "/usr/local/bin/rocketchat-backup:/usr/local/bin/rocketchat-backup:ro"
+    - "/usr/local/bin/rocketchat-restore:/usr/local/bin/rocketchat-restore:ro"
+  image: "docker.io/bitnami/mongodb:7.0.15"
+  user: root

@@ -13,7 +13,7 @@ job "{{ domain }}" {
     set_contains = "{{ inventory_hostname }}"
   }
 
-  group "{{ domain }}-mongodb" {
+  group "{{ domain }}-rocketchat" {
     count = 1
 
     network {
@@ -23,25 +23,16 @@ job "{{ domain }}" {
       port "exporter" {
         to = 9216
       }
+      port "rocketchat" {
+        to = 3000
+      }
     }
 
     service {
       name = "{{ service_name }}-mongodb"
       port = "mongodb"
       provider = "nomad"
-      tags = [
-      ]
-      check {
-        name     = "mongodb"
-        type     = "tcp"
-        interval = "60s"
-        timeout  = "30s"
-        check_restart {
-          limit = 3
-          grace = "90s"
-          ignore_warnings = false
-        }
-      }
+      tags = []
     }
 
     service {
@@ -50,33 +41,48 @@ job "{{ domain }}" {
       provider = "nomad"
       tags = [
         "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "host:{{ inventory_hostname }}"
       ]
     }
 
-    task "{{ domain }}-mongodb" {
+    service {
+      name = "{{ service_name }}-rocketchat"
+      port = "rocketchat"
+      provider = "nomad"
+      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    }
 
+    task "{{ domain }}-mongodb" {
       driver = "docker"
 
       config {
-        image = "mongodb/mongodb-community-server:5.0.28-ubi8"
+        image = "docker.io/bitnami/mongodb:7.0.15"
 
         volumes = [
-            "{{ software_path }}/etc/mongodb:/etc/mongodb",
-            "{{ software_path }}/var/lib/mongo:/var/lib/mongo",
-            "{{ software_path }}/var/log/mongodb:/var/log/mongodb",
-            "{{ software_path }}/var/run/mongod:/var/run/mongod",
-            "{{ software_path }}/usr/local/bin:/usr/local/bin",
+          "{{ software_path }}/data/bitnami/mongodb:/bitnami/mongodb"
         ]
-
-        entrypoint = ["/usr/local/bin/entrypoint.mongodb.sh"]
         ports = ["mongodb"]
+      }
+
+      template {
+        data = <<EOH
+MONGODB_SYSTEM_LOG_VERBOSITY=0
+MONGODB_REPLICA_SET_MODE=primary
+MONGODB_REPLICA_SET_NAME=rs0
+MONGODB_INITIAL_PRIMARY_HOST=127.0.0.1
+MONGODB_ADVERTISED_HOSTNAME=127.0.0.1
+MONGODB_ENABLE_JOURNAL=true
+ALLOW_EMPTY_PASSWORD=yes
+EOH
+        destination = "secrets/mongo.file.env"
+        env         = true
+        change_mode   = "restart"
       }
 
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
         memory = {{ size[software_vars.size].memory }}
-        # memory_max = {{ size[software_vars.size].memory | default(64) | int * 4 }}
+        memory_max = {{ size[software_vars.size].memory | default(64) | int * 4 }}
       }
     }
 
@@ -86,7 +92,7 @@ job "{{ domain }}" {
       config {
         image   = "alpine:latest"
         volumes = [
-          "/usr/local/bin:/usr/local/bin:ro"
+          "/usr/local/bin/mongodb_exporter:/usr/local/bin/mongodb_exporter:ro"
         ]
         ports   = ["exporter"]
         command = "/usr/local/bin/mongodb_exporter"
@@ -100,57 +106,27 @@ job "{{ domain }}" {
         memory = 32
       }
     }
-  }
-
-  group "{{ domain }}-rocketchat" {
-    count = 1
-
-    network {
-      port "rocketchat" {
-        to = 3000
-      }
-    }
-
-    service {
-      name = "{{ service_name }}-rocketchat"
-      port = "rocketchat"
-      provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}"{% if not loop.last %},{% endif %}{% endfor %}]
-      check {
-        name     = "rocketchat"
-        type     = "http"
-        path     = "/"
-        interval = "60s"
-        timeout  = "30s"
-        check_restart {
-          limit = 3
-          grace = "90s"
-          ignore_warnings = false
-        }
-      }
-    }
 
     task "{{ domain }}-rocketchat" {
       driver = "docker"
 
       env {
         ROOT_URL = "https://{{ domain }}"
-        MONGO_URL = "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true"
-        MONGO_OPLOG_URL = "mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/local?directConnection=true"
+        MONGO_URL = "mongodb://${NOMAD_HOST_ADDR_mongodb}/parties?replicaSet=rs0&directConnection=true"
+        MONGO_OPLOG_URL = "mongodb://${NOMAD_HOST_ADDR_mongodb}/local?replicaSet=rs0&directConnection=true"
+        PORT = "3000"
+        DEPLOY_METHOD = "docker"
+        HTTP_FORWARDED_COUNT = "1"
       }
 
       config {
         image   = "rocketchat/rocket.chat:{{ ansible_local.software_version[software] }}"
-        volumes = [
-          "{{ software_path }}/opt/rocketchat-stockage:/opt/rocketchat-stockage",
-          "{{ software_path }}/var/run/mongod:/var/run/mongod"
-        ]
         ports = ["rocketchat"]
       }
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
         memory = {{ size[software_vars.size].memory | int * 2 }}
-        # memory_max = {{ size[software_vars.size].memory | default(64) | int * 2 }}
+        memory_max = {{ size[software_vars.size].memory | int * 4 }}
       }
     }
   }
