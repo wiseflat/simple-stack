@@ -7,35 +7,21 @@
     group: "{{ item.group | default('root') }}"
     mode: '0755'
   loop:
-    - path: "{{ software_path }}/opt"
-    - path: "{{ software_path }}/opt/rocketchat-stockage"
-      owner: 65533
-      group: 65533
-    - path: "{{ software_path }}/etc/mongodb"
-    - path: "{{ software_path }}/var/lib/mongo"
-      owner: 998
-      group: 996
-    - path: "{{ software_path }}/var/run/mongod"
-      owner: 998
-      group: 996
-    - path: "{{ software_path }}/usr/local/bin"
+    - path: "{{ software_path }}/data/bitnami/mongodb"
+      owner: 1001
+      group: 1001
     - path: "{{ software_path }}/var/backup"
-      owner: 998
-      group: 996
 
-- name: Copy config files
+- name: Copy script to operate software
   ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: "{{ item }}"
+    dest: "/usr/local/bin/rocketchat-{{ item }}"
     owner: root
     group: root
-    mode: "{{ item.mode | default('0644') }}"
+    mode: '0755'
   loop:
-    - src: mongod.conf
-      dest: "{{ software_path }}/etc/mongodb/mongod.conf"
-    - src: entrypoint.mongodb.sh
-      dest: "{{ software_path }}/usr/local/bin/entrypoint.mongodb.sh"
-      mode: '0755'
+    - backup
+    - restore
 
 - name: Copy nomad job
   ansible.builtin.template:
@@ -50,22 +36,15 @@
     name: nomad
     tasks_from: job_run.yml
 
-- name: Copy periodic nomad job
-  ansible.builtin.template:
-    src: nomad.periodic.hcl
-    dest: "/var/tmp/{{ domain }}-periodic.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: backup
-    command: /usr/bin/mongodump
-    args: --out /var/backup
-    chdir: /var/backup
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
-- name: Run nomad job
+- name: Run nomad job periodic
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_action.yml
   vars:
+    operation: backup
     job_name: "{{ domain }}-periodic"
+    periodic: true
+    actions: "{{ rocketchat_actions }}"

@@ -1,0 +1,10 @@
+#!/bin/bash
+set +eu
+
+apt-get -qq update && apt-get install -qq dnsutils -y
+
+echo "Get dynmic port and service address..."
+read -r _ _ PORT ADDR <<< "$(dig SRV ${1}-mongodb.default.service.nomad +short)"
+
+echo "Restore database..."
+/opt/bitnami/mongodb/bin/mongorestore --host="${ADDR}:${PORT}" /var/backup

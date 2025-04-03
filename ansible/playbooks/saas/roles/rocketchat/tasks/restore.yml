@@ -1,20 +1,13 @@
 ---
-- name: Copy restore nomad job
-  ansible.builtin.template:
-    src: nomad.operation.hcl
-    dest: "/var/tmp/{{ domain }}-{{ operation }}.nomad"
-    owner: root
-    group: root
-    mode: '0600'
-  vars:
-    operation: restore
-    command: /usr/bin/mongorestore
-    args: --uri=mongodb://%2Fvar%2Frun%2Fmongod%2Fmongodb-27017.sock/parties?directConnection=true /var/backup
-    chdir: /var/backup
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
 
-- name: Run nomad job
+- name: Run nomad restore job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_action.yml
   vars:
+    operation: restore
     job_name: "{{ domain }}-restore"
+    periodic: false
+    actions: "{{ rocketchat_actions }}"
