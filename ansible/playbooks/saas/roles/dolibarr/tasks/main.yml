@@ -1,0 +1,46 @@
+---
+- name: Test if config file exists
+  ansible.builtin.stat:
+    path: "{{ software_path }}/var/www/html/documents"
+  register: stat_result
+
+- name: Install dolibarr
+  ansible.builtin.include_tasks: install.yml
+  when: not stat_result.stat.exists
+
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/dolibarr-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
+
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
+
+- name: Run nomad job periodic
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_action.yml
+  vars:
+    operation: backup
+    job_name: "{{ domain }}-periodic"
+    periodic: true
+    actions: "{{ dolibarr_actions }}"

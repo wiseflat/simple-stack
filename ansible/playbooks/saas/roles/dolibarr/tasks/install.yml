@@ -1,0 +1,40 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 33
+    group: 33
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/var/www/html/documents"
+    - "{{ software_path }}/var/www/html/custom"
+
+- name: Query SRV records
+  dig:
+    service: "{{ software_vars.dbhost | replace('-', '') | replace('.', '') }}.default.service.nomad"
+  register: service
+
+- name: Create mysql database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ service_name[:32] }}"
+    encoding: utf8
+    collation: utf8_general_ci
+    state: present
+
+- name: Create mysql user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
+    login_host: 172.17.0.1
+    login_port: "{{ service.records[0].port }}"
+    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain + '/user', missing='create', nosymbols=true, length=8) }}"
+    host: '%'
+    column_case_sensitive: false
+    password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain + '/passwd', missing='create', length=12) }}"
+    priv: "{{ service_name[:32] }}.*:ALL"
+    state: present
