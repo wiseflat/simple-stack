@@ -1,0 +1,58 @@
+---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode:  "{{ item.mode | default('0755') }}"
+  loop:
+    - path: "{{ software_path }}/bitnami/postgresql"
+    - path: "{{ software_path }}/bitnami/postgresql/data"
+      owner: 1001
+      group: root
+    - path: "{{ software_path }}/var/backup"
+      owner: nobody
+      group: nogroup
+      mode: '777'
+    - path: "{{ software_path }}/tmp"
+      owner: root
+      group: root
+      mode: '1777'
+
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/postgresql-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
+
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
+- name: Include actions variables
+  ansible.builtin.include_vars: actions.yml
+
+- name: Run nomad job periodic
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_action.yml
+  vars:
+    operation: backup
+    job_name: "{{ domain }}-periodic"
+    periodic: true
+    actions: "{{ postgresql_actions }}"

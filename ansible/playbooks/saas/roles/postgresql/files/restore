@@ -1,0 +1,5 @@
+#!/bin/sh
+set +eu
+
+echo "Import database..."
+PGPASSWORD="${POSTGRESQL_PASSWORD}" /opt/bitnami/postgresql/bin/psql -U postgres -f /var/backup/dump.sql

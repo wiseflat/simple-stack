@@ -1,0 +1,14 @@
+---
+- name: Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
+
+- name: End playbook if no new version
+  ansible.builtin.meta: end_host
+  when: >
+    ansible_local.software_version is defined and
+    image_name in ansible_local.software_version and
+    ansible_local.software_version[image_name] == image_version

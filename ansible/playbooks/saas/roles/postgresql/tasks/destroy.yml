@@ -1,0 +1,15 @@
+---
+- name: Stop nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_stop.yml
+  vars:
+    job_name: "{{ item }}"
+  loop:
+    - "{{ domain }}"
+    - "{{ domain }}-periodic"
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent
