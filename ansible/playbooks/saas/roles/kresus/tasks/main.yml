@@ -1,0 +1,56 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/opt/kresus"
+    - "{{ software_path }}/opt/kresus/data"
+    - "{{ software_path }}/opt/kresus/woob"
+
+- name: Create postgresql database
+  community.postgresql.postgresql_db:
+    login_password: "{{ lookup('community.general.passwordstore', 'postgresql/' + software_vars.dbhost, subkey='passwd') }}"
+    login_unix_socket: "/data/{{ software_vars.dbhost }}/tmp"
+    login_user: postgres
+    name: "{{ service_name }}"
+    encoding: UTF8
+    state: present
+
+- name: Create postgresql user
+  community.postgresql.postgresql_user:
+    login_password: "{{ lookup('community.general.passwordstore', 'postgresql/' + software_vars.dbhost, subkey='passwd') }}"
+    login_unix_socket: "/data/{{ software_vars.dbhost }}/tmp"
+    login_user: postgres
+    login_db: "{{ service_name }}"
+    name: "{{ service_name }}"
+    password: "{{ lookup('community.general.passwordstore', 'postgresql/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.dbpass | default(none)) }}"
+    state: present
+
+- name: Create postgresql priviledges
+  community.postgresql.postgresql_privs:
+    login_password: "{{ lookup('community.general.passwordstore', 'postgresql/' + software_vars.dbhost, subkey='passwd') }}"
+    login_unix_socket: "/data/{{ software_vars.dbhost }}/tmp"
+    login_user: postgres
+    db: "{{ service_name }}"
+    roles: "{{ service_name }}"
+    type: schema
+    objs: public
+    privs: CREATE
+    state: present
+    
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
