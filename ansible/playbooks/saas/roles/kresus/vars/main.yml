@@ -1,0 +1,20 @@
+---
+image:
+  build: true
+  upstream:
+    source: framagit
+    user: kresusapp
+    repo: kresus
+    type: archive
+    format: tar.gz
+    file: kresus-VERSION.FORMAT
+    os: linux
+  labels: {}
+  name: kresus
+  origin: alpine:latest
+  dependances:
+    - gpg
+    - nodejs
+    - npm
+    - python3
+    - py3-pip

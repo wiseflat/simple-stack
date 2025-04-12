@@ -1,0 +1,4 @@
+---
+latest_version: "0.22.1"
+upstream_file_name: "{{ image.upstream.file | replace('REPO', image.upstream.repo) | replace('VERSION', latest_version) | replace('OS', image.upstream.os) | replace('ARCH', upstream_default_arch) | replace('FORMAT', image.upstream.format) }}"
+upstream_file_url: "https://framagit.org/{{ image.upstream.user }}/{{ image.upstream.repo }}-/archive/{{ latest_version }}/{{ upstream_file_name }}"

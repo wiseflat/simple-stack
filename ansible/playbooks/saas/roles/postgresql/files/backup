@@ -1,0 +1,5 @@
+#!/bin/sh
+set +eu
+
+echo "Backup database..."
+PGPASSWORD="${POSTGRESQL_PASSWORD}" /opt/bitnami/postgresql/bin/pg_dumpall -U postgres -f /var/backup/dump.sql

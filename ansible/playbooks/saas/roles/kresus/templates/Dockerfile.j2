@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+ARG TARGETARCH
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
+
+RUN addgroup --gid 1000 kresus \
+    && adduser --uid 1000 --system --ingroup "kresus" --disabled-password --shell /usr/sbin/nologin kresus && \
+    mkdir /etc/kresus
+
+RUN npm install --production -g kresus
+
+COPY config.ini /etc/kresus/config.ini
+
+USER kresus
+
+RUN pip install --break-system-packages woob
+
+CMD ["kresus", "--config", "/etc/kresus/config.ini"]

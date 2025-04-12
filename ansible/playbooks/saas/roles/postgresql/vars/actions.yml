@@ -1,0 +1,12 @@
+---
+postgresql_actions:
+  environment: |
+    POSTGRESQL_PASSWORD = "{{ lookup('community.general.passwordstore', 'postgresql/' + domain, subkey='passwd') }}"
+  volumes:
+    - "{{ software_path }}/bitnami/postgresql:/bitnami/postgresql:ro"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "{{ software_path }}/tmp:/tmp:rw"
+    - "/usr/local/bin/postgresql-backup:/usr/local/bin/postgresql-backup:ro"
+    - "/usr/local/bin/postgresql-restore:/usr/local/bin/postgresql-restore:ro"
+  image: "bitnami/postgresql:{{ ansible_local.software_version['postgresql'] }}"
+  user: postgres

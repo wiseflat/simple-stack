@@ -1,0 +1,15 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: postgres
+    repo: posrgres
+    type: archive
+    format: tar.gz
+    file: VERSION.FORMAT
+    os: linux
+  labels: {}
+  name: postgresql
+
+latest_version: "17.4.0"

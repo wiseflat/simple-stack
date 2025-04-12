@@ -81,7 +81,7 @@ EOH
 
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        memory = {{ size[software_vars.size].memory * 3 }}
         memory_max = {{ size[software_vars.size].memory | default(64) | int * 4 }}
       }
     }

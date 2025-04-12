@@ -6,3 +6,5 @@ collections:
     version: 10.2.0
   - name: community.docker
     version: 4.0.0
+  - name: community.postgresql
+    version: 3.12.0
