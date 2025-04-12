@@ -40,3 +40,4 @@ image:
     - php-pdo_mysql
     - php-phar
     - mariadb-client
+    - rsync

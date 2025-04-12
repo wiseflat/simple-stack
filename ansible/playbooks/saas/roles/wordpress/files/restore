@@ -1,6 +1,8 @@
 #!/bin/sh
 set +eu
 
+apk update && apk add rsync
+
 cd /var/backup
 
 echo "Unarchive backup..."
