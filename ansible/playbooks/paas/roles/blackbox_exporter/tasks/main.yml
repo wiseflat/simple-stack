@@ -33,7 +33,7 @@
     - src: default.j2
       dest: /etc/default/blackbox_exporter
     - src: config.j2
-      dest: /etc/blackbox_exporter/config.yml
+      dest: /etc/blackbox_exporter/config.yaml
     - src: service.j2
       dest: /etc/systemd/system/blackbox_exporter.service
   notify: Restart blackbox_exporter
