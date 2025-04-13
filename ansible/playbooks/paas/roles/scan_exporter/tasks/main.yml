@@ -1,19 +1,27 @@
 ---
-- name: Build and install debian package
-  block:
-    - name: Build debian package
-      ansible.builtin.include_tasks: build.yml
+- name: Scan_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
 
-    - name: Install debian package
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
-      notify: Restart scan_exporter
-  rescue:
-    - name: Let's continue the playbook anyway
-      debug:
-        msg: Rescue debug task
+- name: Scan_exporter | Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
 
-- name: Override config file
+- name: Scan_exporter | Get binary
+  include_tasks: build.yml
+  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+
+- name: Scan_exporter | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/scan_exporter
+
+- name: Scan_exporter | Copy templates
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -25,4 +33,9 @@
       dest: /etc/default/scan_exporter
     - src: config.yml.j2
       dest: /etc/scan_exporter/config.yml
+    - src: service.j2
+      dest: /etc/systemd/system/scan_exporter.service
   notify: Restart scan_exporter
+
+- name: Scan_exporter | Flush handlers
+  ansible.builtin.meta: flush_handlers
