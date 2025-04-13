@@ -1,26 +1,32 @@
 ---
-- name: Build and install debian package
-  block:
-    - name: Build debian package
-      ansible.builtin.include_tasks: build.yml
+- name: Node_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
 
-    - name: Install debian package
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
-      notify: Restart node_exporter
-  rescue:
-    - name: Let's continue the playbook anyway
-      debug:
-        msg: Rescue debug task
+- name: Node_exporter | Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
+    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
 
-- name: Override config files
+- name: Node_exporter | Get binary
+  include_tasks: build.yml
+  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+
+- name: Node_exporter | Copy templates
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: 0600
+    mode: 0644
     owner: prometheus
     group: prometheus
   loop:
     - src: default.j2
       dest: /etc/default/node_exporter
+    - src: service.j2
+      dest: /etc/systemd/system/node_exporter.service
   notify: Restart node_exporter
+
+- name: Node_exporter | Flush handlers
+  ansible.builtin.meta: flush_handlers
