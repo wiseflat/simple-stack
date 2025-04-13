@@ -71,17 +71,17 @@
     - ansible-unattendedUpgrades
     - restic
 
-- name: Install docker
-  ansible.builtin.import_playbook: docker.yml
-
 - name: Install ufw firewall
   ansible.builtin.import_playbook: firewall.yml
 
-- name: Install nomad
+- name: Install docker
   ansible.builtin.import_playbook: docker.yml
+
+- name: Install nomad
+  ansible.builtin.import_playbook: nomad.yml
 
 - name: Install coredns
   ansible.builtin.import_playbook: coredns.yml
 
 - name: Install metrology
-  ansible.builtin.import_playbook: metroloy.yml
+  ansible.builtin.import_playbook: metrology.yml
