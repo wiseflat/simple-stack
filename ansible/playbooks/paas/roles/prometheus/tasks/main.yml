@@ -1,23 +1,44 @@
 ---
-- name: Build and install debian package
-  block:
-    - name: Build node_exporter debian package
-      ansible.builtin.include_tasks: build.yml
+- name: Prometheus | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
 
-    - name: Install debian package
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
-      notify: Restart prometheus
-  rescue:
-    - name: Let's continue the playbook anyway
-      debug:
-        msg: Rescue debug task
+- name: Prometheus | Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
+    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
 
-- name: Override config file
+- name: Prometheus | Get binary
+  include_tasks: build.yml
+  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+
+- name: Prometheus | Create prometheus group
+  ansible.builtin.group:
+    name: prometheus
+    system: true
+
+- name: Prometheus | Create prometheus user
+  ansible.builtin.user:
+    name: prometheus
+    create_home: false
+    system: true
+
+- name: Prometheus | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/prometheus
+    - /var/lib/prometheus
+
+- name: Prometheus | Copy templates
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: 0600
+    mode: 0644
     owner: prometheus
     group: prometheus
   loop:
@@ -25,4 +46,9 @@
       dest: /etc/default/prometheus
     - src: config.j2
       dest: /etc/prometheus/prometheus.yml
+    - src: service.j2
+      dest: /etc/systemd/system/prometheus.service
   notify: Restart prometheus
+
+- name: Prometheus | Flush handlers
+  ansible.builtin.meta: flush_handlers

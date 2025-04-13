@@ -1,0 +1,32 @@
+---
+- name: Install prometheus
+  any_errors_fatal: true
+  hosts: metrology
+  gather_facts: true
+  become: true
+  serial: 2
+  roles:
+    - prometheus
+
+- name: Install Grafana loki
+  any_errors_fatal: true
+  hosts: metrology
+  gather_facts: true
+  become: true
+  roles:
+    - loki
+
+- name: Install prometheus exporters
+  any_errors_fatal: true
+  hosts: metrology
+  gather_facts: true
+  become: true
+  roles:
+    - phpfpm_exporter
+    - node_exporter
+    - mysqld_exporter
+    - systemd_exporter
+    - mongodb_exporter
+    - blackbox_exporter
+    - nginx_exporter
+    - scan_exporter

@@ -4,28 +4,24 @@
   hosts: infrastructure
   gather_facts: true
   become: true
-  vars:
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
-    ansible_pull_url: https://github.com/wiseflat/simple-stack.git
   vars_prompt:
     - name: confirmation
       prompt: You are going to configure {{ play_hosts | length }} servers.
               Answer "yes" to confirm, something else to abort.
       private: false
       default: "yes"
-
-  pre_tasks:
+  tasks:
     - name: Fail if you didn't confirm
       ansible.builtin.fail:
         msg: You didn't answered "yes". Aborting.
       when: confirmation != "yes"
 
+- name: Configure the platform
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  pre_tasks:
     - name: Create ansible facts.d directory
       become: yes
       file:
@@ -74,91 +70,18 @@
   roles:
     - ansible-unattendedUpgrades
     - restic
-    # - ansible-pull
-
-- name: Install metrology
-  any_errors_fatal: true
-  hosts: metrology
-  gather_facts: true
-  become: true
-  vars:
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
-  roles:
-    - prometheus
-    - phpfpm_exporter
-    - node_exporter
-    - mysqld_exporter
-    - systemd_exporter
-    - mongodb_exporter
-    - blackbox_exporter
-    - nginx_exporter
-    - loki
-
-- name: Install ufw firewall
-  any_errors_fatal: true
-  hosts: firewall
-  gather_facts: true
-  become: true
-  roles:
-    - ansible-ufw
 
 - name: Install docker
-  any_errors_fatal: true
-  hosts: docker
-  gather_facts: true
-  become: true
-  vars:
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
-  roles:
-    - ansible-docker
+  ansible.builtin.import_playbook: docker.yml
 
-- name: Create CA TLS
-  any_errors_fatal: true
-  hosts: infrastructure
-  gather_facts: true
-  strategy: linear
-  become: true
-  tasks:
-    - name: "Create TLS CA"
-      ansible.builtin.include_role:
-        name: certificate
-        tasks_from: ca
-      run_once: true
+- name: Install ufw firewall
+  ansible.builtin.import_playbook: firewall.yml
 
 - name: Install nomad
-  any_errors_fatal: true
-  hosts: nomad
-  gather_facts: true
-  become: true
-  roles:
-    - nomad
+  ansible.builtin.import_playbook: docker.yml
 
 - name: Install coredns
-  any_errors_fatal: true
-  hosts: infrastructure
-  gather_facts: true
-  become: true
-  vars:
-    golang_version: '1.23.7'
-    architecture_map:
-      amd64: amd64
-      x86_64: amd64
-      armv7l: arm
-      aarch64: arm64
-      arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
-  roles:
-    - golang
-    - coredns
+  ansible.builtin.import_playbook: coredns.yml
+
+- name: Install metrology
+  ansible.builtin.import_playbook: metroloy.yml

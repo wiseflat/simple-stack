@@ -1,19 +1,28 @@
 ---
-- name: Build and install debian package
-  block:
-    - name: Build debian package
-      ansible.builtin.include_tasks: build.yml
+- name: Blackbox_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
 
-    - name: Install debian package
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
-      notify: Restart blackbox_exporter
-  rescue:
-    - name: Let's continue the playbook anyway
-      debug:
-        msg: Rescue debug task
+- name: Blackbox_exporter | Set custom variables
+  ansible.builtin.set_fact:
+    image_version: "{{ latest_version }}"
+    image_name: "{{ image.name }}"
+    image_labels: "{{ image.labels }}"
+    image_build: "{{ image.build }}"
+    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
 
-- name: Override config file
+- name: Blackbox_exporter | Get binary
+  include_tasks: build.yml
+  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+
+- name: Blackbox_exporter | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/blackbox_exporter
+
+- name: Blackbox_exporter | Copy templates
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -23,4 +32,11 @@
   loop:
     - src: default.j2
       dest: /etc/default/blackbox_exporter
+    - src: config.j2
+      dest: /etc/blackbox_exporter/config.yml
+    - src: service.j2
+      dest: /etc/systemd/system/blackbox_exporter.service
   notify: Restart blackbox_exporter
+
+- name: Blackbox_exporter | Flush handlers
+  ansible.builtin.meta: flush_handlers

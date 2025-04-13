@@ -1,5 +1,11 @@
 ---
+- name: Daemon reload
+  listen: Restart scan_exporter
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: Restart scan_exporter
+  listen: Restart scan_exporter
   ansible.builtin.service:
     name: scan_exporter
     state: restarted

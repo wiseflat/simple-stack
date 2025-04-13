@@ -1,0 +1,652 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 11314,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "description": "",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "[Cardinality management - overview](/d/H4-q90kVk?var-arsenal=${arsenal}&var-user=${user})",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.1.5",
+      "title": "\u23ea Back",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "marcusolsson-json-datasource",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 11,
+        "x": 4,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.5",
+      "targets": [
+        {
+          "cacheDurationSeconds": 300,
+          "datasource": {
+            "type": "marcusolsson-json-datasource",
+            "uid": "${datasource}"
+          },
+          "fields": [
+            {
+              "jsonPath": "labels.series_count",
+              "language": "jsonata"
+            }
+          ],
+          "method": "GET",
+          "params": [
+            [
+              "selector",
+              "$metric"
+            ],
+            [
+              "label_names[]",
+              "__name__"
+            ]
+          ],
+          "queryParams": "",
+          "refId": "A",
+          "urlPath": "/v1/mimir/tenant/$user/cardinality/label_values"
+        }
+      ],
+      "title": "# of series",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "marcusolsson-json-datasource",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 9,
+        "x": 15,
+        "y": 0
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.5",
+      "targets": [
+        {
+          "cacheDurationSeconds": 300,
+          "datasource": {
+            "type": "marcusolsson-json-datasource",
+            "uid": "${datasource}"
+          },
+          "fields": [
+            {
+              "jsonPath": "labels.series_count * 100 / series_count_total",
+              "language": "jsonata",
+              "type": "number"
+            }
+          ],
+          "method": "GET",
+          "params": [
+            [
+              "selector",
+              "$metric"
+            ],
+            [
+              "label_names[]",
+              "__name__"
+            ]
+          ],
+          "queryParams": "",
+          "refId": "A",
+          "urlPath": "/v1/mimir/tenant/$user/cardinality/label_values"
+        }
+      ],
+      "title": "% of total series",
+      "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 16,
+        "w": 4,
+        "x": 0,
+        "y": 3
+      },
+      "id": 8,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "This dashboard helps you understand the cardinality of a single metric. It shous you the count of series with this metric name and how that count relates  to the total number of time series in your data source.\nThen it helps you understand which labels associated with that metric have the greatest impact on its cardinality.\n\nEach time series is a unique combination of the key-value label pairs. Therefore a label key with a lot of values can create a lot of time series for a particular metric. If you're trying to decrease the cardinality of a  metric, start by looking at the labels with the highest number of values.\n\nUse the selector at the top of the page to pick which metric you'd like to inspect.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.1.5",
+      "title": "\ud83d\udca1 Tips",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 1,
+        "w": 20,
+        "x": 4,
+        "y": 3
+      },
+      "id": 13,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.1.5",
+      "title": "Labels attached to metric $metric",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "marcusolsson-json-datasource",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 11,
+        "x": 4,
+        "y": 4
+      },
+      "id": 11,
+      "options": {
+        "tiling": "treemapSquarify"
+      },
+      "pluginVersion": "8.5.9",
+      "targets": [
+        {
+          "cacheDurationSeconds": 300,
+          "datasource": {
+            "type": "marcusolsson-json-datasource",
+            "uid": "${datasource}"
+          },
+          "fields": [
+            {
+              "jsonPath": "cardinality.label_name",
+              "language": "jsonata",
+              "name": "Label"
+            },
+            {
+              "jsonPath": "cardinality.label_values_count",
+              "language": "jsonata",
+              "name": "# of values"
+            }
+          ],
+          "method": "GET",
+          "params": [
+            [
+              "selector",
+              "$metric"
+            ]
+          ],
+          "queryParams": "",
+          "refId": "A",
+          "urlPath": "/v1/mimir/tenant/$user/cardinality/label_names"
+        }
+      ],
+      "type": "marcusolsson-treemap-panel"
+    },
+    {
+      "datasource": {
+        "type": "marcusolsson-json-datasource",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Label"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Cardinality analysis for label ${__data.fields.0}",
+                    "url": "/d/IwnsL1kVk?${arsenal:queryparam}&${user:queryparam}&var-label=${__data.fields.Label}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 9,
+        "x": 15,
+        "y": 4
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.1.5",
+      "targets": [
+        {
+          "cacheDurationSeconds": 300,
+          "datasource": {
+            "type": "marcusolsson-json-datasource",
+            "uid": "${datasource}"
+          },
+          "fields": [
+            {
+              "jsonPath": "cardinality.label_name",
+              "language": "jsonata",
+              "name": "Label"
+            },
+            {
+              "jsonPath": "cardinality.label_values_count",
+              "language": "jsonata",
+              "name": "# of values"
+            }
+          ],
+          "method": "GET",
+          "params": [
+            [
+              "selector",
+              "$metric"
+            ]
+          ],
+          "queryParams": "",
+          "refId": "A",
+          "urlPath": "/v1/mimir/tenant/$user/cardinality/label_names"
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "eu",
+          "value": "eu"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "arsenal",
+        "multi": false,
+        "name": "arsenal",
+        "options": [
+          {
+            "selected": true,
+            "text": "eu",
+            "value": "eu"
+          },
+          {
+            "selected": false,
+            "text": "eu-ext",
+            "value": "eu-ext"
+          },
+          {
+            "selected": false,
+            "text": "ca",
+            "value": "ca"
+          },
+          {
+            "selected": false,
+            "text": "ca-ext",
+            "value": "ca-ext"
+          },
+          {
+            "selected": false,
+            "text": "labeu",
+            "value": "labeu"
+          }
+        ],
+        "query": "eu,eu-ext,ca,ca-ext,labeu",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "digital-core-observability-mimirtool-api-eu",
+          "value": "7378634105f28ecb56a4a2de21bb5784"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "marcusolsson-json-datasource",
+        "refresh": 1,
+        "regex": "/.*mimirtool-api-$arsenal$/",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "clouddb.prod-clouddb-eu.eu",
+          "value": "clouddb.prod-clouddb-eu.eu"
+        },
+        "datasource": {
+          "type": "marcusolsson-json-datasource",
+          "uid": "${datasource}"
+        },
+        "definition": "$",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "user",
+        "options": [],
+        "query": {
+          "cacheDurationSeconds": 300,
+          "fields": [
+            {
+              "jsonPath": "$",
+              "language": "jsonata"
+            }
+          ],
+          "method": "GET",
+          "queryParams": "",
+          "urlPath": "/v1/mimir/tenant"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 3,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "container_memory_numa_pages",
+          "value": "container_memory_numa_pages"
+        },
+        "datasource": {
+          "type": "marcusolsson-json-datasource",
+          "uid": "${datasource}"
+        },
+        "definition": "labels.cardinality.label_value",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
+        "name": "metric",
+        "options": [],
+        "query": {
+          "cacheDurationSeconds": 300,
+          "fields": [
+            {
+              "jsonPath": "labels.cardinality.label_value",
+              "language": "jsonata"
+            }
+          ],
+          "method": "GET",
+          "params": [
+            [
+              "label_names[]",
+              "__name__"
+            ],
+            [
+              "limit",
+              "$limit"
+            ]
+          ],
+          "queryParams": "",
+          "urlPath": "/v1/mimir/tenant/$user/cardinality/label_values"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "200",
+          "value": "200"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "limit",
+        "multi": false,
+        "name": "limit",
+        "options": [
+          {
+            "selected": false,
+            "text": "1",
+            "value": "1"
+          },
+          {
+            "selected": false,
+            "text": "2",
+            "value": "2"
+          },
+          {
+            "selected": false,
+            "text": "5",
+            "value": "5"
+          },
+          {
+            "selected": false,
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "selected": false,
+            "text": "20",
+            "value": "20"
+          },
+          {
+            "selected": false,
+            "text": "50",
+            "value": "50"
+          },
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": true,
+            "text": "200",
+            "value": "200"
+          },
+          {
+            "selected": false,
+            "text": "500",
+            "value": "500"
+          }
+        ],
+        "query": "1,2,5,10,20,50,100,200,500",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true
+  },
+  "timezone": "",
+  "title": "Cardinality management - metrics",
+  "uid": "yNaD-1k4z",
+  "version": 6,
+  "weekStart": ""
+}
