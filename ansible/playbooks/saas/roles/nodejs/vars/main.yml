@@ -1,14 +1,13 @@
 ---
 image:
-  build: false
+  build: true
   upstream:
-    source: github
-    user: nodejs
-    repo: node
-    type: release
-    format: tar.gz
-    file: vVERSION.FORMAT
-    os: linux
-    binary: node
+    source: apk
+    repository: main
+    package: nodejs
   labels: {}
   name: nodejs
+  origin: alpine:latest
+  dependances:
+    - nodejs
+    - npm

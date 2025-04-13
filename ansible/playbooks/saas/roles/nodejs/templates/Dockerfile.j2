@@ -1,0 +1,8 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+RUN addgroup --gid 1000 nodejs \
+    && adduser --uid 1000 --system --home /var/lib/nodejs --ingroup "nodejs" --disabled-password --shell /usr/sbin/nologin nodejs
+
+RUN apk add --no-cache {{ image.dependances | join (' ') }}
