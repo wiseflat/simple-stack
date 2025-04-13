@@ -1,0 +1,42 @@
+apiVersion: 1
+
+datasources:
+  - name: Mimir
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: "{{ prometheus_remote_write.url }}/prometheus"
+    version: 1
+    basicAuth: true
+    basicAuthUser: "{{ prometheus_remote_write.login }}"
+    isDefault: true
+    editable: false
+    jsonData:
+      httpHeaderName1: "X-Scope-OrgID"
+      alertmanagerUid: "alertmanager"
+    secureJsonData:
+      httpHeaderValue1: "demo"
+      basicAuthPassword: "{{ prometheus_remote_write.password }}"
+  - name: Mimir Alertmanager
+    uid: alertmanager
+    type: alertmanager
+    access: proxy
+    orgId: 1
+    url: "{{ prometheus_remote_write.url }}"
+    version: 1
+    editable: true
+    basicAuthUser: "{{ prometheus_remote_write.login }}"
+    jsonData:
+      httpHeaderName1: "X-Scope-OrgID"
+      implementation: "cortex"
+    secureJsonData:
+      httpHeaderValue1: "demo"
+      basicAuthPassword: "{{ prometheus_remote_write.password }}"
+  - name: "Loki"
+    type: "loki"
+    access: "proxy"
+    url: "http://loki.service.default.nomad:3100"
+    basicAuth: false
+    isDefault: false
+    editable: false

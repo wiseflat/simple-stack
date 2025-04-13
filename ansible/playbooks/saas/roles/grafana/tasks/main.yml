@@ -1,10 +1,25 @@
 ---
-- name: Download content to auto configure grafana
-  ansible.builtin.git:
-    repo: https://github.com/wiseflat/grafana-content.git
-    dest: "{{ software_path }}/grafana-content"
-    version: prometheus-datasource
-    force: true
+- name: Copy Grafana content files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ software_path }}/"
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+    - dashboards
+    - provisioning
+
+- name: Copy Grafana content templates
+  ansible.builtin.template:
+    src: "provisioning/datasources/{{ item }}"
+    dest: "{{ software_path }}/provisioning/datasources/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - influxdb.yaml
+    - prometheus.yaml
 
 - name: Copy nomad job
   ansible.builtin.template:
