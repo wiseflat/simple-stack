@@ -1,0 +1,15 @@
+---
+- name: Clean nomad errors
+  hosts: infrastructure
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Nomad system reconcile summaries
+      ansible.builtin.shell: nomad system reconcile summaries -address=https://127.0.0.1:4646 -tls-skip-verify
+      environment:
+        NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+
+    - name: Nomad system gc
+      ansible.builtin.shell: nomad system gc -address=https://127.0.0.1:4646 -tls-skip-verify
+      environment:
+        NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
