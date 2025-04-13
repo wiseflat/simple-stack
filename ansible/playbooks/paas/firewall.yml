@@ -1,0 +1,8 @@
+---
+- name: Install ufw firewall
+  any_errors_fatal: true
+  hosts: firewall
+  gather_facts: true
+  become: true
+  roles:
+    - ansible-ufw
