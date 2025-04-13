@@ -41,7 +41,7 @@
     objs: public
     privs: CREATE
     state: present
-    
+
 - name: Copy nomad job to destination
   ansible.builtin.template:
     src: nomad.hcl
