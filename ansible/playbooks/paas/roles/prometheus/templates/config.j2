@@ -96,10 +96,34 @@ scrape_configs:
           project: "{{ prometheus_project }}"
           projectid: "{{ prometheus_project }}"
 
+  - job_name: "nomad_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    scheme: https
+    bearer_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+    params:
+      format: ['prometheus']
+    metrics_path: /v1/metrics
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+      - targets: ['127.0.0.1:4646']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+          projectid: "{{ prometheus_project }}"
+
+
   - job_name: 'mimir_exporter'
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
     relabel_configs:
       - source_labels: ['__meta_nomad_service']
         regex: 'mimir-exporter'
@@ -163,8 +187,12 @@ scrape_configs:
 
   - job_name: 'caddy'
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -192,8 +220,12 @@ scrape_configs:
 
   - job_name: 'mysql_exporter'
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -221,8 +253,12 @@ scrape_configs:
 
   - job_name: 'nginx_exporter'
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -250,8 +286,12 @@ scrape_configs:
 
   - job_name: 'phpfpm_exporter'
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -282,8 +322,13 @@ scrape_configs:
     metrics_path: /api/prometheus
     scheme: http
     nomad_sd_configs:
-      - server: "http://127.0.0.1:4646"
+      - server: "https://127.0.0.1:4646"
         region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"

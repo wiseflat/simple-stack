@@ -4,4 +4,4 @@ prometheus_remote_url:
 prometheus_remote_login:
 prometheus_remote_password:
 
-prometheus_project: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+prometheus_project: "{{ fact_instance.project }}"
