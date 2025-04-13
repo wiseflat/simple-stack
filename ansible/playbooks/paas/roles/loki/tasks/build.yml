@@ -1,24 +1,5 @@
 ---
-- name: Include upstream variables
-  ansible.builtin.include_vars: upstream.yml
-
-- name: Set custom variables
-  ansible.builtin.set_fact:
-    image_version: "{{ latest_version }}"
-    image_name: "{{ image.name }}"
-    image_labels: "{{ image.labels }}"
-    image_build: "{{ image.build }}"
-    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
-
-- name: No new version
-  ansible.builtin.fail:
-    msg: There is no new version yet
-  when: >
-    ansible_local.software_version is defined and
-    image.name in ansible_local.software_version and
-    ansible_local.software_version[image.name] == image_version
-
-- name: Create temporary directories
+- name: Loki | Create temporary directories
   ansible.builtin.file:
     path: "{{ item }}"
     recurse: true
@@ -28,97 +9,44 @@
     - "{{ build_work_dir }}/download"
     - "{{ build_work_dir }}/{{ upstream_default_arch }}"
 
-- name: Get binary
-  block:
-    - name: Download Github release
-      ansible.builtin.get_url:
-        url: "{{ upstream_file_url }}"
-        dest: "{{ build_work_dir }}/download/"
-        mode: '0644'
-        force: no
-      register: download_result
+- name: Loki | Download Github release
+  ansible.builtin.get_url:
+    url: "{{ upstream_file_url }}"
+    dest: "{{ build_work_dir }}/download/"
+    mode: '0644'
+    force: no
+  register: download_result
 
-    - name: Unarchive GitHub release
-      ansible.builtin.unarchive:
-        src: "{{ build_work_dir }}/download/{{ upstream_file_name }}"
-        dest: "{{ build_work_dir }}/download"
-        remote_src: true
-      when: download_result.changed
+- name: Loki | Unarchive GitHub release
+  ansible.builtin.unarchive:
+    src: "{{ build_work_dir }}/download/{{ upstream_file_name }}"
+    dest: "{{ build_work_dir }}/download"
+    remote_src: true
+  when: download_result.changed
 
-    - name: Find binary
-      ansible.builtin.include_role:
-        name: upstream
-        tasks_from: find-binary
-      loop:
-        - "{{ image.upstream.binary }}-linux-{{ upstream_default_arch }}"
+- name: Loki | Find binary
+  ansible.builtin.include_role:
+    name: upstream
+    tasks_from: find-binary
+  loop:
+    - "{{ image.upstream.binary }}-linux-{{ upstream_default_arch }}"
 
-- name: Create deb file
-  block:
-    - name: Create custom directories
-      ansible.builtin.file:
-        dest: "{{ item }}"
-        state: directory
-        recurse: true
-      with_items:
-        - "{{ build_work_dir }}/build/etc/default"
-        - "{{ build_work_dir }}/build/etc/loki"
-        - "{{ build_work_dir }}/build/etc/systemd/system"
-        - "{{ build_work_dir }}/build/var/lib/loki"
-        - "{{ build_work_dir }}/build/usr/bin"
+- name: Loki | Copy binary
+  ansible.builtin.copy:
+    src: "{{ build_work_dir }}/{{ upstream_default_arch }}/{{ image.upstream.binary }}-linux-{{ upstream_default_arch }}"
+    dest: /usr/local/bin/loki
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
 
-    - name: Copy config files
-      ansible.builtin.template:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        mode: "{{ item.mode | default('0644') }}"
-      loop:
-        - src: default.j2
-          dest: "{{ build_work_dir }}/build/etc/default/{{ image.name }}"
-        - src: config.j2
-          dest: "{{ build_work_dir }}/build/etc/loki/config.yaml"
-        - src: service.j2
-          dest: "{{ build_work_dir }}/build/etc/systemd/system/{{ image.name }}.service"
-        - src: postinst.j2
-          dest: "{{ build_work_dir }}/build/postinst"
-          mode: '0755'
-        - src: prerm.j2
-          dest: "{{ build_work_dir }}/build/prerm"
-          mode: '0755'
-
-    - name: Copy binary
-      ansible.builtin.copy:
-        src: "{{ build_work_dir }}/{{ upstream_default_arch }}/{{ image.upstream.binary }}-linux-{{ upstream_default_arch }}"
-        dest: "{{ build_work_dir }}/build/usr/bin/{{ image.upstream.binary }}"
-        owner: root
-        group: root
-        mode: '0755'
-        remote_src: true
-
-    - name: Create deb package
-      ansible.builtin.command:
-        cmd: |
-          fpm -s dir -t deb
-          --after-install ./postinst
-          --before-remove ./prerm
-          --package {{ deb_file }}.deb
-          --name {{ image.name }}
-          --version {{ latest_version }}
-          ./etc ./usr ./var
-        chdir: "{{ build_work_dir }}/build"
-
-    - name: Backup deb file
-      ansible.builtin.copy:
-        src: "{{ build_work_dir }}/build/{{ deb_file }}.deb"
-        dest: "/var/cache/apt/archives/{{ deb_file }}.deb"
-        remote_src: yes
-
-- name: Clean up
-  ansible.builtin.file:
-    path: "{{ build_work_dir }}"
-    state: absent
-
-- name: Update software version
+- name: Loki | Update software version
   software_version:
     software: "{{ image_name }}"
     version: "{{ image_version }}"
     file_path: /etc/ansible/facts.d/software_version.fact
+
+- name: Loki | Clean up
+  ansible.builtin.file:
+    path: "{{ build_work_dir }}"
+    state: absent
