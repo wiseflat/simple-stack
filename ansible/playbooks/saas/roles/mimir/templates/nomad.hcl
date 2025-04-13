@@ -50,7 +50,8 @@ job "{{ domain }}" {
 
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        memory = {{ size[software_vars.size].memory * 2 }}
+        memory_max = {{ size[software_vars.size].memory * 2 }}
       }
     }
   }
@@ -109,7 +110,7 @@ job "{{ domain }}" {
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
         memory = {{ size[software_vars.size].memory | int }}
-        # memory_max = {{ size[software_vars.size].memory * 2 }}
+        memory_max = {{ size[software_vars.size].memory * 2 }}
       }
     }
   }
