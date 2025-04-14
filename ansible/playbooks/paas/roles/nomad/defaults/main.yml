@@ -11,8 +11,6 @@ nomad_timezone: "Europe/Paris"
 
 nomad_group: "simplestack"
 
-nomad_ansible_venv_on_target_dir: "/root/nomad_venv"
-
 # Configuration
 nomad_dc_name: "dc1"
 

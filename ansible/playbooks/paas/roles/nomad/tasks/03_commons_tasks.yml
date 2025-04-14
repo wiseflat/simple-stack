@@ -3,13 +3,11 @@
     name: "{{ nomad_group }}"
     state: present
 
-- name: "Nomad | Commons tasks | Install requiered OS packages"
+- name: "Nomad | Commons tasks | Install required OS packages"
   ansible.builtin.apt:
     update_cache: true
     pkg:
       - python3-pip
-      - python3-venv
-      - pipx
       - jq
 
 - name: "Nomad | Commons tasks | Create Nomad job files directory"
@@ -20,22 +18,7 @@
     owner: "root"
     group: "root"
 
-- name: "Nomad | Commons tasks | Create venv for Nomad installation"
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "{{ nomad_ansible_venv_on_target_dir }}"
-    virtualenv_command: "/usr/bin/python3 -m venv"
-  loop:
-    - python-debian
-    - python-nomad
-    - passlib
-    - cryptography
-
-- name: "Nomad | Commons tasks | Set Ansible Python Interpreter for Nomad installation"
-  ansible.builtin.set_fact:
-    ansible_python_interpreter: "{{ nomad_ansible_venv_on_target_dir }}/bin/python"
-
-- name: "Consul | Commons tasks | Add Hashicorp Stable APT repository"
+- name: "Nomad | Commons tasks | Add Hashicorp Stable APT repository"
   ansible.builtin.deb822_repository:
     name: hashicorp
     types: [deb]
