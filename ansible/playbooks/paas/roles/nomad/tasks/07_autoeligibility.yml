@@ -42,6 +42,7 @@
 - name: "Nomad Policy | Warning policy already created"
   ansible.builtin.debug:
     msg: "Policy already created"
+    verbosity: 1
   when: '"autoeligibility" in nomad_policies_list'
 
 - name: "Nomad Token | Get tokens list"
@@ -88,6 +89,7 @@
 - name: "Nomad Token | Warning already created"
   ansible.builtin.debug:
     msg: "Token already created"
+    verbosity: 1
   when: '"autoeligibility" in nomad_tokens_list'
 
 - name: "Nomad Install | Set Nomad Autoeligibility token and insert in PasswordStore"

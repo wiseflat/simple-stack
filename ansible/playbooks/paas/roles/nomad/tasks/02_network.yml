@@ -32,6 +32,7 @@
 - name: "Nomad | CNI | Display version"
   ansible.builtin.debug:
     msg: "CNI: version {{ cni_version }}"
+    verbosity: 1
   when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Unarchive plugin CNI for {{ architecture | upper }}"

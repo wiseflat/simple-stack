@@ -1,11 +1,13 @@
 - name: Check number of host in play
   ansible.builtin.debug:
     msg: "Nomad will be deployed on {{ (ansible_play_hosts | length) }} host{% if (ansible_play_hosts | length) > 1 %}s{% endif %}"
+    verbosity: 1
   run_once: true
 
 - name: "Nomad | Server Quorum"
   ansible.builtin.debug:
     msg: "Server quorum: {{ nomad_servers_quorum }}"
+    verbosity: 1
   run_once: true
   when:
     - nomad_mode == 'cluster'
@@ -14,6 +16,7 @@
 - name: "Nomad | Clients available"
   ansible.builtin.debug:
     msg: "Clients available: {{ nomad_clients_available }}"
+    verbosity: 1
   run_once: true
   when:
     - nomad_mode == 'cluster'
@@ -59,6 +62,7 @@
   ansible.builtin.debug:
     msg: |
       {{ inventory_hostname }} - Nomad role: {{ nomad_node_role }}
+    verbosity: 1
 
 - name: "Nomad | Commons tasks | Set-Timezone"
   community.general.timezone:

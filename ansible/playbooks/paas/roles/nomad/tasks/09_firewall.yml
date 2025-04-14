@@ -1,4 +1,4 @@
-- name: "Nomad | Commons tasks | Install requiered OS packages"
+- name: "Nomad | Commons tasks | Install required OS packages"
   ansible.builtin.apt:
     update_cache: true
     pkg: ufw
@@ -10,6 +10,7 @@
     direction: "{{ item.direction }}"
     proto: "{{ item.proto }}"
     port: "{{ item.port }}"
+  no_log: true
   loop:
     - { proto: "tcp", port: "4646", direction: "in" }
     - { proto: "tcp", port: "4646", direction: "out" }
@@ -28,6 +29,7 @@
     direction: "{{ item.direction }}"
     proto: "{{ item.proto }}"
     port: "{{ item.port }}"
+  no_log: true
   loop:
     - { proto: "tcp", port: "4646", direction: "in" }
     - { proto: "tcp", port: "4646", direction: "out" }
@@ -44,6 +46,7 @@
     rule: allow
     interface: docker0
     direction: "{{ item }}"
+  no_log: true
   loop:
     - in
     - out
@@ -54,6 +57,7 @@
     rule: allow
     interface: nomad
     direction: "{{ item }}"
+  no_log: true
   loop:
     - in
     - out
