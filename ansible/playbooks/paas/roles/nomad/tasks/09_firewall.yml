@@ -1,4 +1,4 @@
-- name: "Nomad | Commons tasks | Install requiered OS packages"
+- name: "Nomad | Commons tasks | Install required OS packages"
   ansible.builtin.apt:
     update_cache: true
     pkg: ufw
