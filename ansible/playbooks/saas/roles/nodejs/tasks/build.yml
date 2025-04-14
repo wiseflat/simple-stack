@@ -1,10 +1,25 @@
 ---
-- name: Include upstream variables
-  ansible.builtin.include_vars: upstream.yml
+- name: Get upstream version
+  ansible.builtin.include_role:
+    name: upstream
+    tasks_from: "{{ image.upstream.source }}"
 
 - name: Set custom variables
   ansible.builtin.set_fact:
-    image_version: "{{ latest_version }}"
+    image_version: "{{ (latest_version | split('-'))[0] }}"
     image_name: "{{ image.name }}"
     image_labels: "{{ image.labels }}"
     image_build: "{{ image.build }}"
+
+- name: End playbook if no new version
+  ansible.builtin.meta: end_host
+  when: >
+    ansible_local.software_version is defined and
+    software in ansible_local.software_version and
+    ansible_local.software_version[software] == image_version
+
+- name: Copy dockerfile
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ path }}/Dockerfile"
+    mode: '0644'
