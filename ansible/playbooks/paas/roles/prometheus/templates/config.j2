@@ -102,7 +102,7 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     scheme: https
-    bearer_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+    bearer_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     params:
       format: ['prometheus']
     metrics_path: /v1/metrics
@@ -123,7 +123,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     relabel_configs:
       - source_labels: ['__meta_nomad_service']
         regex: 'mimir-exporter'
@@ -192,7 +192,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -225,7 +225,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -258,7 +258,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -291,7 +291,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -327,7 +327,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
 
     relabel_configs:
       - target_label: instance

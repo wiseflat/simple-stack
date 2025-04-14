@@ -34,7 +34,7 @@
 - name: Systemd_exporter | Copy binary
   ansible.builtin.copy:
     src: "{{ build_work_dir }}/{{ upstream_default_arch }}/{{ image.upstream.binary }}"
-    dest: /usr/local/bin/prometheus
+    dest: /usr/local/bin/systemd_exporter
     owner: root
     group: root
     mode: '0755'
