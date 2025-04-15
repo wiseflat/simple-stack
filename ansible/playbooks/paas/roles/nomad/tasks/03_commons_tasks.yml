@@ -26,10 +26,6 @@
 - name: "Nomad | Commons tasks | Flush handlers"
   ansible.builtin.meta: flush_handlers
 
-- name: "Nomad | Set role to nodes"
-  ansible.builtin.set_fact:
-    nomad_node_role: "{{ nomad_node_role }}"
-
 - name: "Nomad | Commons tasks | Check if TLS cert exists for Servers"
   ansible.builtin.stat:
     path: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
