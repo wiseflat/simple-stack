@@ -3,13 +3,6 @@
     name: "{{ nomad_group }}"
     state: present
 
-- name: "Nomad | Commons tasks | Install required OS packages"
-  ansible.builtin.apt:
-    update_cache: true
-    pkg:
-      - python3-pip
-      - jq
-
 - name: "Nomad | Commons tasks | Create Nomad job files directory"
   ansible.builtin.file:
     path: "{{ nomad_job_files_dir }}"
