@@ -1,8 +1,4 @@
-- name: "Nomad | CNI | Check existing installation"
-  ansible.builtin.stat:
-    path: /opt/cni/bin/bridge
-  register: cni_install
-
+---
 - name: "Nomad | CNI | Create directory for bin"
   ansible.builtin.file:
     path: "{{ item }}"
@@ -14,7 +10,6 @@
   loop:
     - /opt/cni/bin
     - /opt/cni/config
-  when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Retreive GitHub latest version"
   ansible.builtin.uri:
@@ -22,25 +17,21 @@
     body_format: json
     return_content: true
   register: tag
-  when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Set fact for CNI version"
   ansible.builtin.set_fact:
     cni_version: "{{ tag.json.tag_name | replace('v', '') }}"
-  when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Display version"
   ansible.builtin.debug:
     msg: "CNI: version {{ cni_version }}"
     verbosity: 1
-  when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Unarchive plugin CNI for {{ architecture | upper }}"
   ansible.builtin.unarchive:
     src: https://github.com/containernetworking/plugins/releases/download/{{ tag.json.tag_name }}/cni-plugins-linux-{{ architecture }}-{{ tag.json.tag_name }}.tgz
     dest: /opt/cni/bin
     remote_src: true
-  when: not cni_install.stat.exists
 
 - name: "Nomad | CNI | Ensure br_netfilter is enabled"
   community.general.modprobe:
