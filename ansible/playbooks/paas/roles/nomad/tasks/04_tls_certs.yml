@@ -43,7 +43,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: "Nomad | Copy cert server on nodes - {{ nomad_tls_cert_server }} "
+- name: "Nomad | Copy cert server on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_server }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
@@ -51,7 +51,7 @@
     group: "{{ nomad_group }}"
     mode: "0640"
 
-- name: "Nomad | Copy cert private server key on nodes - {{ nomad_tls_privatekey_server }}"
+- name: "Nomad | Copy cert private server key on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_server }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
@@ -60,14 +60,14 @@
     mode: "0640"
   when: nomad_node_role == 'server' or nomad_node_role == 'both'
 
-- name: "Nomad | Copy cert client key on nodes - {{ nomad_tls_cert_client }}"
+- name: "Nomad | Copy cert client key on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_client }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
     mode: "0640"
   when: nomad_node_role == 'client'
 
-- name: "Nomad | Copy cert private client key on nodes - {{ nomad_tls_privatekey_client }}"
+- name: "Nomad | Copy cert private client key on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_client }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_client }}"
@@ -76,14 +76,14 @@
     mode: "0640"
   when: nomad_node_role == 'client'
 
-- name: "Nomad | Copy Vault certs on nodes - {{ nomad_tls_cert_client }}"
+- name: "Nomad | Copy Vault certs on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_client }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
     mode: "0640"
   when: nomad_node_role == 'client'
 
-- name: "Nomad | Copy Vault private key on nodes - {{ nomad_vault_tls_privatekey }}"
+- name: "Nomad | Copy Vault private key on nodes"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_vault_tls_privatekey }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_vault_tls_privatekey }}"
