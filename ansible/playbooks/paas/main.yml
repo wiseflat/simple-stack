@@ -56,6 +56,7 @@
           - unzip
           - make
           - python3-pymysql
+          - jq
 
         state: present
         install_recommends: false

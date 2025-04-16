@@ -3,13 +3,6 @@
     name: "{{ nomad_group }}"
     state: present
 
-- name: "Nomad | Commons tasks | Install required OS packages"
-  ansible.builtin.apt:
-    update_cache: true
-    pkg:
-      - python3-pip
-      - jq
-
 - name: "Nomad | Commons tasks | Create Nomad job files directory"
   ansible.builtin.file:
     path: "{{ nomad_job_files_dir }}"
@@ -32,10 +25,6 @@
 
 - name: "Nomad | Commons tasks | Flush handlers"
   ansible.builtin.meta: flush_handlers
-
-- name: "Nomad | Set role to nodes"
-  ansible.builtin.set_fact:
-    nomad_node_role: "{{ nomad_node_role }}"
 
 - name: "Nomad | Commons tasks | Check if TLS cert exists for Servers"
   ansible.builtin.stat:
