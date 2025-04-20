@@ -2,7 +2,7 @@
 # defaults file for certificate
 
 certificate_ca_host: localhost
-certificate_ca_host_dir: ~/.simple-stack/tls
+certificate_ca_host_dir: "~/.simple-stack/tls/{{ inventory_hostname }}"
 certificate_ca_pubkey: simplestack-ca.pem
 certificate_ca_privatekey: simplestack-ca-key.pem
 certificate_host_certificate_dir: /etc/ssl/simplestack

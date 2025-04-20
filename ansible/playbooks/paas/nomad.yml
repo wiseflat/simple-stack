@@ -2,7 +2,7 @@
 - name: Create CA TLS
   any_errors_fatal: true
   hosts: infrastructure
-  gather_facts: true
+  gather_facts: false
   strategy: linear
   become: true
   tasks:
@@ -10,7 +10,6 @@
       ansible.builtin.include_role:
         name: certificate
         tasks_from: ca
-      run_once: true
 
 - name: Install nomad
   any_errors_fatal: true
