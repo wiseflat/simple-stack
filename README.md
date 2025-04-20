@@ -1,14 +1,12 @@
 # Simple Stack
 
-Welcome to the Simple Stack project! This project demonstrates just how easy it can be to self-host web applications without unnecessary complexity or hassle.
+Welcome to the Simple Stack project! This project demonstrates just how easy it can be to self-host web applications without complexity.
 
 ## Project Goals
 
-Cloud application hosting has become increasingly complex, with container orchestrators often seen as essential for deploying containerized applications. However, this project aims to show that orchestrators are not always necessary. You don’t need Kubernetes, Nomad, or any other container orchestrator to deploy monolithic applications like WordPress, Ghost, or similar platforms.
-
-The essential mechanisms for deploying containers can be achieved with minimal setup. Here, we use **Ansible** to orchestrate deployments simply and effectively.
-
-Once in production, a cloud instance can maintain itself independently, updating both the server and applications without regular maintenance. This self-sufficiency is the core objective of the Simple Stack project.
+- Deploy cloud infrastructure with Terraform (or add onpremise servers)
+- Manage your servers with Ansible
+- Orchestrate your docker containers workload with Nomad
 
 ---
 
