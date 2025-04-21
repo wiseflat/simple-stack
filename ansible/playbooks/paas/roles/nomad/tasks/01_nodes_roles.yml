@@ -1,3 +1,4 @@
+---
 - name: Check number of host in play
   ansible.builtin.debug:
     msg: "Nomad will be deployed on {{ (ansible_play_hosts | length) }} host{% if (ansible_play_hosts | length) > 1 %}s{% endif %}"

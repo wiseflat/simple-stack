@@ -1,10 +1,4 @@
-- name: Certificate | Create TLS directories
-  ansible.builtin.file:
-    path: "{{ certificate_host_certificate_dir }}"
-    state: directory
-    mode: '0755'
-    recurse: true
-
+---
 - name: Certificate | Create private key
   community.crypto.openssl_privatekey:
     path: "{{ certificate_ca_host_dir }}/{{ certificate_client_privatekey }}"
@@ -42,11 +36,15 @@
 - name: Certificate | Write certificate file on server
   ansible.builtin.copy:
     content: "{{ certificate.certificate }}"
-    dest: "{{ certificate_host_certificate_dir }}/{{ certificate_cert }}"
+    dest: "{{ certificate_ca_host_dir }}/{{ certificate_cert }}"
     mode: "0640"
+  delegate_to: "{{ certificate_ca_host }}"
+  become: false
 
 - name: Certificate | Copy privatekey on server
   ansible.builtin.copy:
     src: "{{ certificate_ca_host_dir }}/{{ certificate_client_privatekey }}"
-    dest: "{{ certificate_host_certificate_dir }}/{{ certificate_client_privatekey }}"
+    dest: "{{ certificate_ca_host_dir }}/{{ certificate_client_privatekey }}"
     mode: "0640"
+  delegate_to: "{{ certificate_ca_host }}"
+  become: false

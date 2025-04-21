@@ -78,9 +78,9 @@ nomad_bridge_list:
   - { name: "metrics", interface: "br-metrics", ip_range: "172.19.0.1/16" }
 
 # Log
-nomad_debug: "true"
+nomad_debug: "false"
 nomad_log_file: "/var/log/nomad/nomad.log"
-nomad_log_level: "INFO"
+nomad_log_level: "WARN"
 nomad_log_rotate_bytes: 0
 nomad_log_rotate_duration: "24h"
 nomad_log_rotate_max_files: 0
@@ -173,7 +173,7 @@ nomad_client_reserved_disk: 0
 
 # TLS
 nomad_tls_ca_host: localhost
-nomad_tls_ca_host_dir: "~/.simple-stack/tls"
+nomad_tls_ca_host_dir: "~/.simple-stack/tls/{{ inventory_hostname }}"
 nomad_tls_ca_pubkey: "simplestack-ca.pem"
 nomad_tls_ca_privatekey: "simplestack-ca-key.pem"
 nomad_tls_ca_provider: "ownca"

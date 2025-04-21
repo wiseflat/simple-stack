@@ -2,10 +2,9 @@
   ansible.builtin.file:
     path: "{{ certificate_ca_host_dir }}"
     state: directory
-    recurse: true
     mode: '0755'
-    access_time: "preserve"
-    modification_time: "preserve"
+    access_time: preserve
+    modification_time: preserve
   delegate_to: localhost
   become: false
 
@@ -16,22 +15,7 @@
   become: false
   register: cert_ca_tls_priv_present
 
-- name: "Certificate | Check stats of CA pubkey file"
-  ansible.builtin.stat:
-    path: "{{ certificate_host_certificate_dir }}/{{ certificate_ca_pubkey }}"
-  register: ca_pubkey_present
-
-- name: "Certificate | Create TLS directory on ansible controller to generate TLS"
-  ansible.builtin.file:
-    path: "{{ certificate_ca_host_dir }}"
-    state: directory
-    mode: '0755'
-    recurse: true
-  delegate_to: "{{ certificate_ca_host }}"
-  become: false
-  when: not cert_ca_tls_priv_present.stat.exists
-
-- name: "Certificate | Create private key for CA"
+- name: "Certificate | Create private key for CA (simplestack-ca-key.pem)"
   community.crypto.openssl_privatekey:
     path: "{{ certificate_ca_host_dir }}/{{ certificate_ca_privatekey }}"
   delegate_to: "{{ certificate_ca_host }}"
@@ -55,7 +39,12 @@
   become: false
   when: not cert_ca_tls_priv_present.stat.exists
 
-- name: "Certificate | Create self-signed CA certificate from CSR for CA"
+- name: "Certificate | Check stats of CA pubkey file"
+  ansible.builtin.stat:
+    path: "{{ certificate_host_certificate_dir }}/{{ certificate_ca_pubkey }}"
+  register: ca_pubkey_present
+
+- name: "Certificate | Create self-signed CA certificate from CSR for CA (simplestack-ca.pem)"
   community.crypto.x509_certificate:
     csr_content: "{{ csr.csr }}"
     path: "{{ certificate_ca_host_dir }}/{{ certificate_ca_pubkey }}"
