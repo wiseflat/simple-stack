@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1.4
+
+FROM {{ image.origin }}
+
+ARG TARGETARCH
+
+COPY {{ image.upstream.binary }} /usr/local/bin/{{ image.upstream.binary }}
+
+USER root
+
+CMD ["/usr/local/bin/AdGuardHome", "-c", "/etc/adguard/config.yml"]
