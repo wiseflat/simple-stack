@@ -1,17 +1,9 @@
 ---
-# tasks file for install
-
 - name: "Nomad | Commons tasks"
   ansible.builtin.include_tasks: "01_nodes_roles.yml"
 
-- name: "Check existing network configuration"
-  ansible.builtin.stat:
-    path: /opt/cni/bin/bridge
-  register: cni_install
-
 - name: "Nomad | Install CNI"
   ansible.builtin.include_tasks: "02_network.yml"
-  when: not cni_install.stat.exists
 
 - name: "Nomad | Commons tasks"
   ansible.builtin.include_tasks: "03_commons_tasks.yml"
