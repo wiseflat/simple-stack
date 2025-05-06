@@ -1,12 +1,12 @@
 ---
 - name: Daemon reload
-  listen: Restart loki
+  listen: Restart promtail
   ansible.builtin.systemd_service:
     daemon_reload: true
 
-- name: Restart loki
-  listen: Restart loki
+- name: Restart promtail
+  listen: Restart promtail
   ansible.builtin.service:
-    name: loki
+    name: promtail
     state: restarted
     enabled: true

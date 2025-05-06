@@ -8,10 +8,10 @@ image:
     repo: loki
     type: release
     format: zip
-    file: loki-OS-ARCH.FORMAT
+    file: promtail-OS-ARCH.FORMAT
     os: linux
-    binary: loki
+    binary: promtail
   labels: {}
-  name: loki
+  name: promtail
 
-build_work_dir: /tmp/loki
+build_work_dir: /tmp/promtail
