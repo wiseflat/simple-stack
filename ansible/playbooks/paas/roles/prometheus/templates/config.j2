@@ -144,26 +144,6 @@ scrape_configs:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
           projectid: "{{ prometheus_project }}"
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ inventory_hostname }}"
-      - target_label: project
-        replacement: "{{ prometheus_project }}"
-      - target_label: projectid
-        replacement: "{{ prometheus_project }}"
-
-      - source_labels: [__meta_nomad_tags]
-        regex: .*,fqdn:([^,]+),.*
-        target_label: __tmp_fqdn
-        replacement: $1
-        action: replace
-
-      - source_labels: [__tmp_fqdn]
-        target_label: fqdn
-
-      - source_labels: ['__meta_nomad_node']
-        replacement: '$1'
-        target_label: instance
 
   - job_name: 'caddy'
     nomad_sd_configs:
