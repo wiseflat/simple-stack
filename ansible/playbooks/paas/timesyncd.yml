@@ -1,0 +1,36 @@
+---
+- name: Configure timesyncd
+  any_errors_fatal: true
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: Create ansible facts.d directory
+      become: yes
+      file:
+        path: /etc/systemd/timesyncd.conf.d
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+
+    - name: Update timesyncd.conf
+      ansible.builtin.copy:
+        content: |
+          [Time]
+          NTP=0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
+        dest: /etc/systemd/timesyncd.conf.d/ntp.conf
+        mode: '0644'
+        owner: root
+        group: root
+      notify: Restart timesyncd
+
+    - name: Use RTC in UTC
+      ansible.builtin.command: timedatectl set-local-rtc 0
+
+  handlers:
+    - name: Restart timesyncd
+      ansible.builtin.systemd:
+        state: restarted
+        name: systemd-timesyncd
+        enabled: true

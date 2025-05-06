@@ -61,6 +61,7 @@ job "{{ domain }}" {
       resources {
         cpu    = {{ size[software_vars.size].cpu }}
         memory = {{ size[software_vars.size].memory }}
+        memory_max = {{ size[software_vars.size].memory * 2 }}
       }
     }
   }

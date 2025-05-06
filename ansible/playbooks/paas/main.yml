@@ -72,6 +72,9 @@
     - ansible-unattendedUpgrades
     - restic
 
+- name: Configure timesyncd
+  ansible.builtin.import_playbook: timesyncd.yml
+
 - name: Install ufw firewall
   ansible.builtin.import_playbook: firewall.yml
 

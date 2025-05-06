@@ -17,7 +17,7 @@ targets:
     tcp:
       period: "12h"
       range: "all"
-      expected: "80,443"
+      expected: "{{ scan_exporter_tcp_expected | default('80,443') }}"
     # icmp:
     #   period: "1m"
 
