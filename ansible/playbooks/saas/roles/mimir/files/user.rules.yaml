@@ -1042,11 +1042,11 @@ groups:
       summary: "{{ $labels.ip }}\n name: {{ $labels.name }}\nValue: {{ $value }}"
       description: "Unexpected open ports"
 
-  - alert: UnexpectedClosedPorts
-    expr: scanexporter_unexpected_closed_ports_total > 0
-    for: 1m
-    labels:
-      severity: warning
-    annotations:
-      summary: "{{ $labels.ip }}\n name: {{ $labels.name }}\nValue: {{ $value }}"
-      description: "Unexpected closed ports"
+  # - alert: UnexpectedClosedPorts
+  #   expr: scanexporter_unexpected_closed_ports_total > 0
+  #   for: 1m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: "{{ $labels.ip }}\n name: {{ $labels.name }}\nValue: {{ $value }}"
+  #     description: "Unexpected closed ports"
