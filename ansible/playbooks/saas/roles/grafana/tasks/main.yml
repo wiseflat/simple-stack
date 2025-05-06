@@ -12,13 +12,12 @@
 
 - name: Copy Grafana content templates
   ansible.builtin.template:
-    src: "provisioning/datasources/{{ item }}"
+    src: "provisioning/datasources/{{ item }}.j2"
     dest: "{{ software_path }}/provisioning/datasources/{{ item }}"
     owner: root
     group: root
     mode: '0644'
   loop:
-    - influxdb.yaml
     - prometheus.yaml
 
 - name: Copy nomad job
