@@ -54,6 +54,12 @@
         ipfilter: "{{ software_vars.ipfilter | default([]) }}"
       register: traefik_labels_result
 
+    - name: Add custom passwordstore secrets
+      debug:
+        msg: "{{ lookup('community.general.passwordstore', software + '/' + domain, missing='create', subkey=item.key,  userpass=item.value | default(none)) }}"
+      loop: "{{ software_vars.passwordstore }}"
+      when: software_vars.passwordstore is defined
+
   tasks:
     - name: Deploy service
       ansible.builtin.include_role:
