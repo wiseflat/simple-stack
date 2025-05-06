@@ -1,29 +1,30 @@
 ---
-- name: Loki | Include upstream variables
+- name: "Promtail | Service disabled! click here https://github.com/wiseflat/simple-stack/tree/main/ansible/playbooks/paas/roles/promtail"
+  ansible.builtin.meta: end_play
+  when: loki_remote_write is not defined
+
+- name: Promtail | Include upstream variables
   ansible.builtin.include_vars: upstream.yml
 
-- name: Loki | Set custom variables
+- name: Promtail | Set custom variables
   ansible.builtin.set_fact:
     image_version: "{{ latest_version }}"
     image_name: "{{ image.name }}"
-    image_labels: "{{ image.labels }}"
-    image_build: "{{ image.build }}"
-    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
 
-- name: Loki | Get binary
+- name: Promtail | Get binary
   include_tasks: build.yml
   when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
 
-- name: Loki | Create custom directories
+- name: Promtail | Create custom directories
   ansible.builtin.file:
     dest: "{{ item }}"
     state: directory
     recurse: true
   with_items:
-    - /etc/loki
-    - /var/lib/loki
+    - /etc/promtail
+    - /var/lib/promtail
 
-- name: Loki | Copy templates
+- name: Promtail | Copy templates
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -32,12 +33,12 @@
     group: root
   loop:
     - src: default.j2
-      dest: /etc/default/loki
-    - src: config.j2
-      dest: /etc/loki/config.yaml
+      dest: /etc/default/promtail
+    - src: config.yaml.j2
+      dest: /etc/promtail/config.yaml
     - src: service.j2
-      dest: /etc/systemd/system/loki.service
-  notify: Restart loki
+      dest: /etc/systemd/system/promtail.service
+  notify: Restart promtail
 
-- name: Loki | Flush handlers
+- name: Promtail | Flush handlers
   ansible.builtin.meta: flush_handlers

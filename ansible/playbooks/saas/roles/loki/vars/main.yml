@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: grafana
+    repo: loki
+    type: release
+    format: zip
+    file: loki-OS-ARCH.FORMAT
+    os: linux
+  labels: {}
+  name: loki

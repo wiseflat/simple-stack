@@ -1,0 +1,64 @@
+server:
+  http_listen_address: 127.0.0.1
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: warn
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: {{ loki_remote_write.url }}/api/prom/push
+    basic_auth:
+      username: {{ loki_remote_write.login }}
+      password: {{ loki_remote_write.password }}
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          __path__: /data/*/var/log/nginx/*.log
+      - targets:
+          - localhost
+        labels:
+          job: caddy
+          __path__: /data/*/var/log/caddy/*.log
+      - targets:
+          - localhost
+        labels:
+          job: mongodb
+          __path__: /data/*/var/log/mongodb/*.log
+      - targets:
+          - localhost
+        labels:
+          job: phpfpm
+          __path__: /data/*/var/log/php-fpm/*.log
+
+# scrape_configs:
+
+#   - job_name: grafana-loki-promtail
+#     static_configs:
+#     - targets:
+#         - localhost
+#       labels:
+#         job: grafana-loki-promtail
+#         host: hostname
+#         __path__: /var/log/loki/grafana-loki-promtail.log
+#     pipeline_stages:
+#       - match:
+#           selector: '{job="grafana-loki-promtail"}'
+#           stages:
+#           - json:
+#               expressions:
+#                 request: request
+#                 remote_addr: remote_addr
+#                 response_status: response_status
+#           - labels:
+#               request:
+#               remote_addr:
+#               response_status:
+
+#   #scrape_configs

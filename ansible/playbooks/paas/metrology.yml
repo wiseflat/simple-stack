@@ -8,13 +8,13 @@
   roles:
     - prometheus
 
-- name: Install Grafana loki
+- name: Install Loki promtail
   any_errors_fatal: true
   hosts: metrology
   gather_facts: true
   become: true
   roles:
-    - loki
+    - promtail
 
 - name: Install prometheus exporters
   any_errors_fatal: true

@@ -1,0 +1,33 @@
+---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 10001
+    group: 10001
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/var/lib/loki"
+    - "{{ software_path }}/etc/loki"
+
+- name: Copy config file
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ software_path }}/etc/loki/local-config.yaml"
+    owner: 10001
+    group: 10001
+    mode: '0644'
+
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml

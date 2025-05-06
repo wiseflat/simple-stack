@@ -33,10 +33,17 @@ datasources:
     secureJsonData:
       httpHeaderValue1: "demo"
       basicAuthPassword: "{{ prometheus_remote_write.password }}"
-  - name: "Loki"
-    type: "loki"
-    access: "proxy"
-    url: "http://loki.service.default.nomad:3100"
-    basicAuth: false
+{% if loki_remote_write is defined %}
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    url: "{{ loki_remote_write.url }}"
+    version: 1
+    editable: true
+    basicAuth: true
+    basicAuthUser: "{{ loki_remote_write.login }}"
+    secureJsonData:
+      basicAuthPassword: "{{ loki_remote_write.password }}"
     isDefault: false
-    editable: false
+{% endif %}
