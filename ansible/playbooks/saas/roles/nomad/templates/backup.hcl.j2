@@ -66,6 +66,11 @@ job "{{ nomad_job_name }}" {
           "/var/backup"
         ]
       }
+      resources {
+        cpu = 512
+        memory = 128
+        memory_max = 1024
+      }
     }
 
     task "snapshot-retention" {
