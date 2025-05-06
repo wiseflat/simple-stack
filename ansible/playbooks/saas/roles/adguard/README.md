@@ -14,7 +14,7 @@ www.domain.com:
       - name: test
         password: "your password"
     dns:
-      bind_hosts: 
+      bind_hosts:
         - 192.168.1.1
     http:
       pprof:
