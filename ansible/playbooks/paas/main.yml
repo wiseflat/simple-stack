@@ -89,3 +89,6 @@
 
 - name: Install metrology
   ansible.builtin.import_playbook: metrology.yml
+
+- name: Install ssh hardening
+  ansible.builtin.import_playbook: sshd.yml
