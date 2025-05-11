@@ -1,0 +1,39 @@
+---
+unattended_allowed_origins:
+  - '"${distro_id}:${distro_codename}";'
+  - '"${distro_id}:${distro_codename}-security";'
+  - '"${distro_id}:${distro_codename}-updates";'
+  - //'"${distro_id}:${distro_codename}-proposed";'
+  - //'"${distro_id}:${distro_codename}-backports";'
+
+unattended_package_blacklist:
+  - //  "linux-";
+  - //  "libc6$";
+  - //  "libc6-dev$";
+  - //  "libc6-i686$"
+  - //  '"docker-";'
+
+unattended_dev_releases: "false"
+unattended_auto_fix_interrupted_dpkg: "true"
+
+unattended_minimal_steps: "false"
+unattended_install_on_shutdown: "false"
+
+unattended_mail: "root"
+unattended_mail_only_on_error: "false"
+
+unattended_remove_unused_kernel_packages: "true"
+
+unattended_remove_unused_dependencies: "true"
+
+unattended_automatic_reboot: "true"
+unattended_reboot_time: "05:00"
+
+unattended_syslog_enable: "true"
+unattended_syslog_facility: daemon
+
+unattended_auto_upgrades: |
+  APT::Periodic::Update-Package-Lists "1";
+  APT::Periodic::Unattended-Upgrade "1";
+  APT::Periodic::Unattended-Upgrade-Time "4";
+  APT::Periodic::RandomSleep "60";

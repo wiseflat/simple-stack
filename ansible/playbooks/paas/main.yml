@@ -69,7 +69,7 @@
       ansible.builtin.shell: gem install fpm
 
   roles:
-    - ansible-unattendedUpgrades
+    - unattended-upgrades
     - restic
 
 - name: Configure timesyncd
