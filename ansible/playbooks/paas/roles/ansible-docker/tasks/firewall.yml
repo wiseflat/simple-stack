@@ -4,6 +4,7 @@
     rule: allow
     interface: docker0
     direction: "{{ item }}"
+  no_log: true
   loop:
     - in
     - out
