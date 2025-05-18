@@ -341,6 +341,7 @@
         "y": 3
       },
       "id": 14,
+      "interval": "120s",
       "options": {
         "legend": {
           "displayMode": "list",
