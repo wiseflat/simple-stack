@@ -1,0 +1,5 @@
+#!/bin/sh
+set +eu
+
+echo "Download snapshot..."
+/usr/local/bin/restic --host ${RESTIC_HOST} -r s3:${RESTIC_SERVER}/${RESTIC_REPOSITORY} --verbose --verify --no-lock restore latest --target /

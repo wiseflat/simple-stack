@@ -26,7 +26,9 @@ job "{{ domain }}" {
       name = "minio"
       port = "minio"
       provider = "nomad"
-      tags = []
+      tags = [
+        "fqdn:{{ domain }}"
+      ]
     }
 
     service {
@@ -43,6 +45,7 @@ job "{{ domain }}" {
       env {
         MINIO_ROOT_USER = "{{ lookup('community.general.passwordstore', 'minio/' + domain, create=true, subkey='user', nosymbols=true, userpass=software_vars.username | default(none), length=8) }}"
         MINIO_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + domain, create=true, subkey='passwd', userpass=software_vars.userpass | default(none), length=12) }}"
+        MINIO_PROMETHEUS_AUTH_TYPE = "public"
       }
 
       config {

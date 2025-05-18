@@ -41,3 +41,14 @@
         software: "{{ image.name }}"
         version: "{{ latest_version }}"
         file_path: /etc/ansible/facts.d/software_version.fact
+
+- name: Copy script to operate software
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/restic-{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - backup
+    - restore
