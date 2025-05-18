@@ -5,4 +5,4 @@
     state: present
     key: "{{ ssh_custom_users }}"
     exclusive: true
-  when: ssh_user_public_keys is defined
+  when: ssh_custom_users is defined

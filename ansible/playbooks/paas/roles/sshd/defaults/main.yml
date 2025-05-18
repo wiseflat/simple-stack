@@ -220,4 +220,4 @@ sshd_log_level: INFO
 sshd_strict_modes: true
 
 ssh_user: ansible
-# ssh_user_public_keys: |
+# ssh_custom_users: |
