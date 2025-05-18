@@ -62,7 +62,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
   - job_name: "docker_exporter"
     metric_relabel_configs:
@@ -74,7 +73,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
   - job_name: "scan_exporter"
     metric_relabel_configs:
@@ -86,7 +84,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
   - job_name: "systemd_exporter"
     static_configs:
@@ -94,7 +91,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
   - job_name: "nomad_exporter"
     metric_relabel_configs:
@@ -113,7 +109,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
 
   - job_name: 'mimir_exporter'
@@ -135,7 +130,6 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
 
   - job_name: 'blackbox'
     static_configs:
@@ -143,7 +137,62 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
-          projectid: "{{ prometheus_project }}"
+
+  - job_name: 'traefik'
+    nomad_sd_configs:
+      - server: "https://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'traefik'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+  - job_name: 'minio'
+    metrics_path: /minio/v2/metrics/cluster
+    scheme: http
+    nomad_sd_configs:
+      - server: "https://127.0.0.1:4646"
+        region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'minio'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
 
   - job_name: 'caddy'
     nomad_sd_configs:
@@ -157,8 +206,6 @@ scrape_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
       - target_label: project
-        replacement: "{{ prometheus_project }}"
-      - target_label: projectid
         replacement: "{{ prometheus_project }}"
 
       - source_labels: ['__meta_nomad_service']
@@ -191,8 +238,6 @@ scrape_configs:
         replacement: "{{ inventory_hostname }}"
       - target_label: project
         replacement: "{{ prometheus_project }}"
-      - target_label: projectid
-        replacement: "{{ prometheus_project }}"
 
       - source_labels: ['__meta_nomad_service']
         regex: 'mysqld-exporter'
@@ -224,8 +269,6 @@ scrape_configs:
         replacement: "{{ inventory_hostname }}"
       - target_label: project
         replacement: "{{ prometheus_project }}"
-      - target_label: projectid
-        replacement: "{{ prometheus_project }}"
 
       - source_labels: ['__meta_nomad_service']
         regex: 'nginx-exporter'
@@ -256,8 +299,6 @@ scrape_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
       - target_label: project
-        replacement: "{{ prometheus_project }}"
-      - target_label: projectid
         replacement: "{{ prometheus_project }}"
 
       - source_labels: ['__meta_nomad_service']
@@ -293,8 +334,6 @@ scrape_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
       - target_label: project
-        replacement: "{{ prometheus_project }}"
-      - target_label: projectid
         replacement: "{{ prometheus_project }}"
 
       - source_labels: ['__meta_nomad_service']

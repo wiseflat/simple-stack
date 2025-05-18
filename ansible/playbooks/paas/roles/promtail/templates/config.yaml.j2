@@ -19,6 +19,11 @@ scrape_configs:
       - targets:
           - localhost
         labels:
+          job: traefik
+          __path__: /var/log/traefik/traefik-access.log
+      - targets:
+          - localhost
+        labels:
           job: nginx
           __path__: /data/*/var/log/nginx/*.log
       - targets:
