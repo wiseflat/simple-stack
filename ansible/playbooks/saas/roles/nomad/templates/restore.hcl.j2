@@ -17,12 +17,14 @@ job "{{ nomad_job_name }}" {
     count = 1
 
 {% if restic_backup is defined and restic_backup %}
-    task "import" {
+    task "{{ domain }}-restic-restore" {
       lifecycle {
         hook = "prestart"
       }
       driver = "docker"
       env {
+        RESTIC_SERVER = "{{ restic_server }}"
+        RESTIC_HOST = "{{ restic_host }}"
         RESTIC_REPOSITORY = "{{ domain }}"
         RESTIC_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
         AWS_ACCESS_KEY_ID = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
@@ -30,26 +32,13 @@ job "{{ nomad_job_name }}" {
       }
       config {
         image = "alpine:latest"
-        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
-
-        command = "/usr/local/bin/restic"
-        args = [
-          "--host",
-          "{{ restic_host }}",
-          "-r",
-          "s3:{{ restic_server }}/{{ domain }}",
-          "--verbose",
-          "--verify",
-          "--no-lock",
-          "restore",
-          "latest",
-          "--target",
-          "/"
-        ]
+        volumes = ["/usr/local/bin/restic-restore:/usr/local/bin/restic-restore:ro","/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        command = "sh"
+        args    = ["-c", "/usr/local/bin/restic-restore"]
       }
     }
 
-    task "clean" {
+    task "{{ domain }}-clean" {
       lifecycle {
         hook = "poststop"
       }
@@ -65,7 +54,7 @@ job "{{ nomad_job_name }}" {
     }
 {% endif %}
 
-    task "{{ operation }}" {
+    task "{{ domain }}-software-restore" {
       driver = "docker"
       env {
         {{ actions.environment | default(omit) }}

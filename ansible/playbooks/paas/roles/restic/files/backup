@@ -1,0 +1,14 @@
+#!/bin/sh
+set +eu
+
+echo "Init bucket..."
+/usr/local/bin/restic -r s3:https://${RESTIC_SERVER}/${RESTIC_REPOSITORY} init
+
+echo "Export backup..."
+/usr/local/bin/restic --host ${RESTIC_HOST} -r s3:${RESTIC_SERVER}/${RESTIC_REPOSITORY} --verbose backup /var/backup
+
+echo "Unlock bucket..."
+/usr/local/bin/restic -r s3:${RESTIC_SERVER}/${RESTIC_REPOSITORY} unlock
+
+echo "Remove old snapshots..."
+/usr/local/bin/restic -r s3:${RESTIC_SERVER}/${RESTIC_REPOSITORY} forget --keep-last ${RESTIC_SNAPSHOTS} --prune
