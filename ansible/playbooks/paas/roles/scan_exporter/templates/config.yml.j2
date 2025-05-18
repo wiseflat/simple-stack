@@ -15,7 +15,7 @@ targets:
     ip: "{{ hostvars[host].ansible_local.ipinfo.ip }}"
     queries_per_sec: 500
     tcp:
-      period: "12h"
+      period: "2h"
       range: "all"
       expected: "{{ scan_exporter_tcp_expected | default('80,443') }}"
     # icmp:
