@@ -25,7 +25,7 @@ job "{{ nomad_job_name }}" {
   group "backup" {
     count = 1
 
-    task "backup" {
+    task "{{ domain }}-backup" {
       lifecycle {
         hook = "prestart"
       }
@@ -43,9 +43,12 @@ job "{{ nomad_job_name }}" {
     }
 
 {% if restic_backup is defined and restic_backup %}
-    task "export" {
+    task "{{ domain }}-export" {
       driver = "docker"
       env {
+        RESTIC_SERVER = "{{ restic_server }}"
+        RESTIC_HOST = "{{ restic_host }}"
+        RESTIC_SNAPSHOTS = "{{ restic_snapshots }}"
         RESTIC_REPOSITORY = "{{ domain }}"
         RESTIC_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
         AWS_ACCESS_KEY_ID = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
@@ -53,18 +56,9 @@ job "{{ nomad_job_name }}" {
       }
       config {
         image = "alpine:latest"
-        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
-
-        command = "/usr/local/bin/restic"
-        args = [
-          "--host",
-          "{{ restic_host }}",
-          "-r",
-          "s3:{{ restic_server }}/{{ domain }}",
-          "--verbose",
-          "backup",
-          "/var/backup"
-        ]
+        volumes = ["/usr/local/bin/restic-backup:/usr/local/bin/restic-backup:ro","/usr/local/bin/restic:/usr/local/bin/restic:ro",{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        command = "sh"
+        args    = ["-c", "/usr/local/bin/restic-backup"]
       }
       resources {
         cpu = 512
@@ -72,35 +66,9 @@ job "{{ nomad_job_name }}" {
         memory_max = 1024
       }
     }
-
-    task "snapshot-retention" {
-      lifecycle {
-        hook = "poststop"
-      }
-      driver = "docker"
-      env {
-        RESTIC_REPOSITORY = "{{ domain }}"
-        RESTIC_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
-        AWS_ACCESS_KEY_ID = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
-        AWS_SECRET_ACCESS_KEY = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
-      }
-      config {
-        image = "alpine:latest"
-        volumes = ["/usr/local/bin/restic:/usr/local/bin/restic:ro"]
-        command = "/usr/local/bin/restic"
-        args = [
-          "-r",
-          "s3:{{ restic_server }}/{{ domain }}",
-          "forget",
-          "--keep-last",
-          "{{ restic_snapshots }}",
-          "--prune"
-        ]
-      }
-    }
 {% endif %}
 
-    task "clean" {
+    task "{{ domain }}-clean" {
       lifecycle {
         hook = "poststop"
       }
