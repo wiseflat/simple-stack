@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: semaphoreui
+    repo: semaphore
+    type: release
+    format: tar.gz
+    file: semaphore_VERSION_OS_ARCH.FORMAT
+    os: linux
+    # binary: semaphore
+  labels: {}
+  name: semaphoreui
+  # origin: alpine:latest
+

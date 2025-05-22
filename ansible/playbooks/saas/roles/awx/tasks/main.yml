@@ -1,0 +1,32 @@
+---
+# - name: Create default directory
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: "0755"
+#   loop:
+#     - "{{ software_path }}/etc/caddy"
+
+# - name: Copy default config file
+#   ansible.builtin.template:
+#     src: Caddyfile
+#     dest: "{{ software_path }}/etc/caddy/Caddyfile"
+#     owner: root
+#     group: root
+#     mode: "0644"
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
