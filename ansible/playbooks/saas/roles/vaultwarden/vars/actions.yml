@@ -1,0 +1,11 @@
+---
+vaultwarden_actions:
+  environment:
+  volumes:
+    - "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
+    - "/data/{{ software_vars.dbhost }}/root:/root:ro"
+    - "{{ software_path }}/data:/data:rw"
+    - "{{ software_path }}/var/backup:/var/backup:rw"
+    - "/usr/local/bin/vaultwarden-backup:/usr/local/bin/vaultwarden-backup:ro"
+    - "/usr/local/bin/vaultwarden-restore:/usr/local/bin/vaultwarden-restore:ro"
+  image: "mariadb:{{ ansible_local.software_version['mariadb'] }}"

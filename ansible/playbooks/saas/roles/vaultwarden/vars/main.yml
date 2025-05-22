@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: dani-garcia
+    repo: vaultwarden
+    type: archive
+    format: tar.gz
+    file: VERSION.FORMAT
+    os: linux
+  labels: {}
+  name: vaultwarden
