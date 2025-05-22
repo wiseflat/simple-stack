@@ -27,12 +27,16 @@
 
 - name: Prometheus | Create custom directories
   ansible.builtin.file:
-    dest: "{{ item }}"
+    dest: "{{ item.dest }}"
     state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
     recurse: true
-  with_items:
-    - /etc/prometheus
-    - /var/lib/prometheus
+  loop:
+    - dest: /etc/prometheus
+    - dest: /var/lib/prometheus
+      owner: prometheus
+      group: prometheus
 
 - name: Prometheus | Copy templates
   ansible.builtin.template:
