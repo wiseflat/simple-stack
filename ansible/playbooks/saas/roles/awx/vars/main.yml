@@ -13,4 +13,3 @@ image:
   labels: {}
   name: semaphoreui
   # origin: alpine:latest
-

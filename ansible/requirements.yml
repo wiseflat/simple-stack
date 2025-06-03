@@ -8,3 +8,5 @@ collections:
     version: 4.0.0
   - name: community.postgresql
     version: 3.12.0
+  - name: ansible.eda
+    version: 2.8.0

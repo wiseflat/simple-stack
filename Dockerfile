@@ -1,0 +1,34 @@
+FROM ubuntu:25.04
+
+ARG JAVA_VERSION=21
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    bash \
+    git \
+    curl \
+    unzip \
+    wget \
+    openjdk-${JAVA_VERSION}-jdk \
+    openssh-client \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /tmp/terraform && \
+    cd /tmp/terraform && \
+    wget https://releases.hashicorp.com/terraform/1.12.1/terraform_1.12.1_linux_arm64.zip && \
+    unzip terraform_1.12.1_linux_arm64.zip && \
+    mv terraform /usr/local/bin/
+
+COPY . /simple-stack
+
+# COPY ~/.ssh/id_ed25519_simplestack /root/.ssh
+
+WORKDIR /simple-stack
+
+RUN pip install --break-system-packages -r requirements.txt
+
+WORKDIR /simple-stack/ansible
+
+RUN ansible-galaxy collection install -r requirements.yml -p ./collections
+
+CMD ["ansible-rulebook", "-r", "rulebook.yml", "-i", "/simple-stack/ansible/inventory.yml", "-v"]

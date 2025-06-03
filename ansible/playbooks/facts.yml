@@ -1,0 +1,11 @@
+---
+- name: Gather facts
+  any_errors_fatal: true
+  gather_facts: true
+  become: true
+  hosts: "{{ dynamic_host | default('all') }}"
+  tasks:
+    - name: Collect only facts returned by facter
+      ansible.builtin.setup:
+        gather_subset:
+          - 'all'

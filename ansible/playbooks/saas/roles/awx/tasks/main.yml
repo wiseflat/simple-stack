@@ -1,21 +1,45 @@
 ---
-# - name: Create default directory
-#   ansible.builtin.file:
-#     path: "{{ item }}"
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: "0755"
-#   loop:
-#     - "{{ software_path }}/etc/caddy"
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.mode | default('0755') }}"
+  loop:
+    - path: "{{ software_path }}/awx-task-projects"
+    - path: "{{ software_path }}/awx-static-files"
+    - path: "{{ software_path }}/awx-postgres"
+    - path: "{{ software_path }}/etc/tower"
+    - path: "{{ software_path }}/etc/redis"
+    - path: "{{ software_path }}/etc/nginx/conf.d"
+    - path: "{{ software_path }}/run"
+    - path: "{{ software_path }}/var"
+    - path: "{{ software_path }}/run/supervisor"
+    - path: "{{ software_path }}/var/run/redis"
+    - path: "{{ software_path }}/var/run/supervisor"
+      mode: '0777'
 
-# - name: Copy default config file
-#   ansible.builtin.template:
-#     src: Caddyfile
-#     dest: "{{ software_path }}/etc/caddy/Caddyfile"
-#     owner: root
-#     group: root
-#     mode: "0644"
+
+- name: Copy config files
+  ansible.builtin.template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ software_path }}/{{ item.path }}/{{ item.src }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - src: settings.py
+      path: etc/tower
+    - src: uwsgi.ini
+      path: etc/tower
+    - src: nginx.conf
+      path: etc/nginx
+    - src: supervisord_web.conf
+      path: etc
+    - src: redis.conf
+      path: etc/redis
+  # become: true
 
 - name: Copy nomad job to destination
   ansible.builtin.template:
@@ -24,7 +48,7 @@
     owner: root
     group: root
     mode: '0600'
-  become: true
+  # become: true
 
 - name: Run nomad job
   ansible.builtin.include_role:
