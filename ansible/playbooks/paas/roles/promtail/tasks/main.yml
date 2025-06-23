@@ -1,44 +1,43 @@
 ---
-- name: "Promtail | Service disabled! click here https://github.com/wiseflat/simple-stack/tree/main/ansible/playbooks/paas/roles/promtail"
-  ansible.builtin.meta: end_play
+- name: Promtail | Service is enabled
   when: loki_remote_write is not defined
+  block:
+    - name: Promtail | Include upstream variables
+      ansible.builtin.include_vars: upstream.yml
 
-- name: Promtail | Include upstream variables
-  ansible.builtin.include_vars: upstream.yml
+    - name: Promtail | Set custom variables
+      ansible.builtin.set_fact:
+        image_version: "{{ latest_version }}"
+        image_name: "{{ image.name }}"
 
-- name: Promtail | Set custom variables
-  ansible.builtin.set_fact:
-    image_version: "{{ latest_version }}"
-    image_name: "{{ image.name }}"
+    - name: Promtail | Get binary
+      include_tasks: build.yml
+      when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
 
-- name: Promtail | Get binary
-  include_tasks: build.yml
-  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+    - name: Promtail | Create custom directories
+      ansible.builtin.file:
+        dest: "{{ item }}"
+        state: directory
+        recurse: true
+      with_items:
+        - /etc/promtail
+        - /var/lib/promtail
 
-- name: Promtail | Create custom directories
-  ansible.builtin.file:
-    dest: "{{ item }}"
-    state: directory
-    recurse: true
-  with_items:
-    - /etc/promtail
-    - /var/lib/promtail
+    - name: Promtail | Copy templates
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: 0644
+        owner: root
+        group: root
+      loop:
+        - src: default.j2
+          dest: /etc/default/promtail
+        - src: config.yaml.j2
+          dest: /etc/promtail/config.yaml
+        - src: service.j2
+          dest: /etc/systemd/system/promtail.service
+      notify: Restart promtail
 
-- name: Promtail | Copy templates
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    mode: 0644
-    owner: root
-    group: root
-  loop:
-    - src: default.j2
-      dest: /etc/default/promtail
-    - src: config.yaml.j2
-      dest: /etc/promtail/config.yaml
-    - src: service.j2
-      dest: /etc/systemd/system/promtail.service
-  notify: Restart promtail
-
-- name: Promtail | Flush handlers
-  ansible.builtin.meta: flush_handlers
+    - name: Promtail | Flush handlers
+      ansible.builtin.meta: flush_handlers
