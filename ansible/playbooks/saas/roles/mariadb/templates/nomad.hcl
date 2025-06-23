@@ -107,6 +107,7 @@ job "{{ domain }}" {
       env {
         MARIADB_ROOT_HOST = "%"
         MARIADB_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain) }}"
+        MARIADB_AUTO_UPGRADE = "true"
       }
 
       config {
