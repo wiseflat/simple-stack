@@ -1,7 +1,7 @@
 ---
 - name: Install coredns
   any_errors_fatal: true
-  hosts: infrastructure
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
   roles:

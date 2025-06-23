@@ -1,24 +1,7 @@
 ---
 - name: Configure the platform
   any_errors_fatal: true
-  hosts: infrastructure
-  gather_facts: true
-  become: true
-  vars_prompt:
-    - name: confirmation
-      prompt: You are going to configure {{ play_hosts | length }} servers.
-              Answer "yes" to confirm, something else to abort.
-      private: false
-      default: "yes"
-  tasks:
-    - name: Fail if you didn't confirm
-      ansible.builtin.fail:
-        msg: You didn't answered "yes". Aborting.
-      when: confirmation != "yes"
-
-- name: Configure the platform
-  any_errors_fatal: true
-  hosts: infrastructure
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
   pre_tasks:
@@ -67,24 +50,3 @@
   roles:
     - unattended-upgrades
     - restic
-
-- name: Configure timesyncd
-  ansible.builtin.import_playbook: timesyncd.yml
-
-- name: Install ufw firewall
-  ansible.builtin.import_playbook: firewall.yml
-
-- name: Install docker
-  ansible.builtin.import_playbook: docker.yml
-
-- name: Install nomad
-  ansible.builtin.import_playbook: nomad.yml
-
-- name: Install coredns
-  ansible.builtin.import_playbook: coredns.yml
-
-- name: Install metrology
-  ansible.builtin.import_playbook: metrology.yml
-
-- name: Install ssh hardening
-  ansible.builtin.import_playbook: sshd.yml
