@@ -49,7 +49,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.arangodb }}"
 
         volumes = [
             "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw",

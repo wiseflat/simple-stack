@@ -33,7 +33,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}/{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}/{{ software }}:{{ hostvars[inventory_hostname].softwares.valkey }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/etc/valkey:/etc/valkey:ro",

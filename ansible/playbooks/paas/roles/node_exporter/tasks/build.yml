@@ -1,5 +1,5 @@
 ---
-- name: Create temporary directories
+- name: Node_exporter | Create temporary directories
   ansible.builtin.file:
     path: "{{ item }}"
     recurse: true
@@ -9,7 +9,7 @@
     - "{{ build_work_dir }}/download"
     - "{{ build_work_dir }}/{{ upstream_default_arch }}"
 
-- name: Download Github release
+- name: Node_exporter | Download Github release
   ansible.builtin.get_url:
     url: "{{ upstream_file_url }}"
     dest: "{{ build_work_dir }}/download/"
@@ -17,21 +17,21 @@
     force: no
   register: download_result
 
-- name: Unarchive GitHub release
+- name: Node_exporter | Unarchive GitHub release
   ansible.builtin.unarchive:
     src: "{{ build_work_dir }}/download/{{ upstream_file_name }}"
     dest: "{{ build_work_dir }}/download"
     remote_src: true
   when: download_result.changed
 
-- name: Find binary
+- name: Node_exporter | Find binary
   ansible.builtin.include_role:
     name: upstream
     tasks_from: find-binary
   loop:
     - "{{ image.upstream.binary }}"
 
-- name: Copy binary
+- name: Node_exporter | Copy binary
   ansible.builtin.copy:
     src: "{{ build_work_dir }}/{{ upstream_default_arch }}/{{ image.upstream.binary }}"
     dest: /usr/local/bin/node_exporter
@@ -40,13 +40,19 @@
     mode: '0755'
     remote_src: true
 
-- name: Update software version
-  software_version:
-    software: "{{ image_name }}"
-    version: "{{ image_version }}"
-    file_path: /etc/ansible/facts.d/software_version.fact
-
-- name: Clean up
+- name: Node_exporter | Clean up
   ansible.builtin.file:
     path: "{{ build_work_dir }}"
     state: absent
+
+- name: Node_exporter | Backup software version
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cat << EOF
+      "{{ latest_version }}"
+      EOF
+    dest: "/etc/ansible/facts.d/{{ image.name }}.fact"
+    owner: root
+    group: root
+    mode: '0755'

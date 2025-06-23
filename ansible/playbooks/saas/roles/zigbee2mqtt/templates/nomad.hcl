@@ -45,7 +45,7 @@ job "{{ domain }}" {
       user = "1001:1001"
 
       config {
-        image = "koenkk/zigbee2mqtt:{{ ansible_local.software_version[software] }}"
+        image = "koenkk/zigbee2mqtt:{{ hostvars[inventory_hostname].softwares.zigbee2mqtt }}"
 
         volumes = [
           "{{ software_path }}/app/data:/app/data:rw",

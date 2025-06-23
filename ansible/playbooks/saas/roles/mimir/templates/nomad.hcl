@@ -39,7 +39,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "minio/minio:{{ ansible_local.software_version['minio'] }}"
+        image = "minio/minio:{{ hostvars[inventory_hostname].softwares.minio }}"
         volumes = [
           "{{ software_path }}/data/minio:/data:rw"
         ]
@@ -95,7 +95,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "grafana/mimir:{{ ansible_local.software_version['mimir'] }}"
+        image = "grafana/mimir:{{ hostvars[inventory_hostname].softwares.mimir }}"
         volumes = [
           "{{ software_path }}/config:/config",
           "{{ software_path }}/mimir-${NOMAD_ALLOC_INDEX}:/data",

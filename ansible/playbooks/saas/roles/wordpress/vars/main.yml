@@ -8,7 +8,7 @@ image:
   labels:
     version: 83
     conf: /etc/php83
-  name: phpfpm-wordpress
+  name: wordpress
   origin: alpine:latest
   dependances:
     - sudo

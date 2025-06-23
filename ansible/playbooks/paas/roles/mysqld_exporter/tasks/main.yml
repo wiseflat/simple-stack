@@ -11,4 +11,4 @@
 
 - name: Mysqld_exporter | Get binary
   include_tasks: build.yml
-  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version

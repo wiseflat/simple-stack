@@ -34,7 +34,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "grafana/loki:{{ ansible_local.software_version[software] }}"
+        image = "grafana/loki:{{ hostvars[inventory_hostname].softwares.loki }}"
         volumes = [
           "{{ software_path }}/var/lib/loki:/var/lib/loki:rw",
           "{{ software_path }}/etc/loki:/etc/loki:ro"

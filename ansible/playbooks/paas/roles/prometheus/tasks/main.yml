@@ -2,17 +2,9 @@
 - name: Prometheus | Include upstream variables
   ansible.builtin.include_vars: upstream.yml
 
-- name: Prometheus | Set custom variables
-  ansible.builtin.set_fact:
-    image_version: "{{ latest_version }}"
-    image_name: "{{ image.name }}"
-    image_labels: "{{ image.labels }}"
-    image_build: "{{ image.build }}"
-    deb_file: "{{ image.name }}_{{ latest_version }}_{{ image.upstream.os }}_{{ upstream_default_arch }}"
-
 - name: Prometheus | Get binary
   include_tasks: build.yml
-  when: ansible_local.software_version is not defined or image.name not in ansible_local.software_version or ansible_local.software_version[image.name] != image_version
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
 
 - name: Prometheus | Create prometheus group
   ansible.builtin.group:
@@ -27,12 +19,15 @@
 
 - name: Prometheus | Create custom directories
   ansible.builtin.file:
-    dest: "{{ item }}"
+    dest: "{{ item.dest }}"
     state: directory
-    recurse: true
-  with_items:
-    - /etc/prometheus
-    - /var/lib/prometheus
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  loop:
+    - dest: /etc/prometheus
+    - dest: /var/lib/prometheus
+      owner: prometheus
+      group: prometheus
 
 - name: Prometheus | Copy templates
   ansible.builtin.template:

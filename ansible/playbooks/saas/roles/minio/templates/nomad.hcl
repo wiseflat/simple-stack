@@ -49,7 +49,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.minio }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/var/backup:/var/backup:rw"

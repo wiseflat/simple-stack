@@ -9,4 +9,4 @@ arangodb_actions:
     - "{{ software_path }}/run:/run:rw"
     - "/usr/local/bin/arangodb-backup:/usr/local/bin/arangodb-backup:ro"
     - "/usr/local/bin/arangodb-restore:/usr/local/bin/arangodb-restore:ro"
-  image: "{{ software }}:{{ ansible_local.software_version[software] }}"
+  image: "{{ software }}:{{ hostvars[inventory_hostname].softwares.arangodb }}"

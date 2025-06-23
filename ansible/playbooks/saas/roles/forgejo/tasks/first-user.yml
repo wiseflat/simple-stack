@@ -5,7 +5,7 @@
 - name: Create first user
   community.docker.docker_container:
     name: "{{ domain }}-firstuser"
-    image: "{{ software }}:{{ ansible_local.software_version[software] }}"
+    image: "{{ software }}:{{ hostvars[inventory_hostname].softwares.forgejo }}"
     detach: false
     cleanup: true
     env:

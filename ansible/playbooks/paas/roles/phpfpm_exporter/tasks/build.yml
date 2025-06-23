@@ -26,13 +26,19 @@
     mode: '0755'
     remote_src: true
 
-- name: Phpfpm_exporter | Update software version
-  software_version:
-    software: "{{ image_name }}"
-    version: "{{ image_version }}"
-    file_path: /etc/ansible/facts.d/software_version.fact
-
 - name: Phpfpm_exporter | Clean up
   ansible.builtin.file:
     path: "{{ build_work_dir }}"
     state: absent
+
+- name: Phpfpm_exporter | Backup software version
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cat << EOF
+      "{{ latest_version }}"
+      EOF
+    dest: "/etc/ansible/facts.d/{{ image.name }}.fact"
+    owner: root
+    group: root
+    mode: '0755'

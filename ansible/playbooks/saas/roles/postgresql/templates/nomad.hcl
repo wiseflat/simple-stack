@@ -38,7 +38,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "bitnami/postgresql:{{ ansible_local.software_version['postgresql'] }}"
+        image = "bitnami/postgresql:{{ hostvars[inventory_hostname].softwares.postgresql }}"
         volumes = [
           "{{ software_path }}/bitnami/postgresql:/bitnami/postgresql:rw",
           "{{ software_path }}/tmp:/tmp:rw"

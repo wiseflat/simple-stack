@@ -42,7 +42,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "kresus:{{ ansible_local.software_version[software] }}"
+        image = "kresus:{{ hostvars[inventory_hostname].softwares.kresus }}"
 
         volumes = [
           "{{ software_path }}/opt/kresus/data:/home/user/data:rw",

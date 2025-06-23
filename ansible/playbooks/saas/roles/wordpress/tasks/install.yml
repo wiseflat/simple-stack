@@ -40,7 +40,7 @@
 - name: Install wordpress
   community.docker.docker_container:
     name: "{{ domain }}-install"
-    image: "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
+    image: "phpfpm-wordpress:{{ hostvars[inventory_hostname].softwares['wordpress'] }}"
     detach: false
     cleanup: true
     command: "{{ item }}"

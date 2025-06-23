@@ -120,7 +120,7 @@ EOH
       }
 
       config {
-        image   = "rocketchat/rocket.chat:{{ ansible_local.software_version[software] }}"
+        image = "rocketchat/rocket.chat:{{hostvars[inventory_hostname].softwares.rocketchat }}"
         ports = ["rocketchat"]
       }
       resources {

@@ -45,7 +45,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.nextcloud }}"
 
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:rw",

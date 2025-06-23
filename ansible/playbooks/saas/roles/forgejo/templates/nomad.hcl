@@ -37,7 +37,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.forgejo }}"
         volumes =  [
           "/etc/timezone:/etc/timezone:ro",
           "/etc/localtime:/etc/localtime:ro",

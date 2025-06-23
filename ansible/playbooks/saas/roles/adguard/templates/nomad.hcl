@@ -43,7 +43,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.adguard }}"
         network_mode = "host"
         privileged = "true"
         volumes = [
