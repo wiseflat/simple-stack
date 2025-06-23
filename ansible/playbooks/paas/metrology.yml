@@ -1,7 +1,7 @@
 ---
 - name: Install prometheus
   any_errors_fatal: true
-  hosts: metrology
+  hosts: "{{ hosts_limit | default('metrology') }}"
   gather_facts: true
   become: true
   serial: 2
@@ -10,7 +10,7 @@
 
 - name: Install Loki promtail
   any_errors_fatal: true
-  hosts: metrology
+  hosts: "{{ hosts_limit | default('metrology') }}"
   gather_facts: true
   become: true
   roles:
@@ -18,7 +18,7 @@
 
 - name: Install prometheus exporters
   any_errors_fatal: true
-  hosts: metrology
+  hosts: "{{ hosts_limit | default('metrology') }}"
   gather_facts: true
   become: true
   roles:

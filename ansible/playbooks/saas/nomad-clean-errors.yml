@@ -1,6 +1,6 @@
 ---
 - name: Clean nomad errors
-  hosts: infrastructure
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   become: true
   gather_facts: false
   tasks:

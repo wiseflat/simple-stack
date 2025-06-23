@@ -1,7 +1,7 @@
 ---
 - name: Create CA TLS
   any_errors_fatal: true
-  hosts: infrastructure
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: false
   strategy: linear
   become: true
@@ -13,7 +13,7 @@
 
 - name: Install nomad
   any_errors_fatal: true
-  hosts: nomad
+  hosts: "{{ hosts_limit | default('nomad') }}"
   gather_facts: true
   become: true
   roles:

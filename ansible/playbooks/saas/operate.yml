@@ -1,6 +1,6 @@
 ---
 - name: Operate on an application
-  hosts: infrastructure
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   become: true
   gather_facts: true
   vars_prompt:
