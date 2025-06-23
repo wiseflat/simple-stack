@@ -81,7 +81,9 @@ job "{{ domain }}" {
       name = "mimir-http"
       port = "mimir_8080"
       provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}"{% if not loop.last %},{% endif %}{% endfor %}]
+      tags = [
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+      ]
     }
 
     service {

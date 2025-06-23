@@ -49,7 +49,9 @@ job "{{ domain }}" {
       name = "{{ service_name }}-rocketchat"
       port = "rocketchat"
       provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}"{% if not loop.last %},{% endif %}{% endfor %}]
+      tags = [
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+      ]
     }
 
     task "{{ domain }}-mongodb" {
