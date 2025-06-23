@@ -40,6 +40,11 @@ job "{{ nomad_job_name }}" {
         command = "sh"
         args    = ["-c", "/usr/local/bin/{{ software }}-backup {{ service_name }}"]
       }
+      resources {
+        cpu = 512
+        memory = 128
+        memory_max = 1024
+      }
     }
 
 {% if restic_backup is defined and restic_backup %}
