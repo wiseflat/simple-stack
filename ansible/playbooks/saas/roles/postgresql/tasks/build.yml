@@ -8,7 +8,4 @@
 
 - name: End playbook if no new version
   ansible.builtin.meta: end_host
-  when: >
-    ansible_local.software_version is defined and
-    image_name in ansible_local.software_version and
-    ansible_local.software_version[image_name] == image_version
+  when: hostvars[inventory_hostname].softwares[image.name] is defined and hostvars[inventory_hostname].softwares[image.name] == image_version

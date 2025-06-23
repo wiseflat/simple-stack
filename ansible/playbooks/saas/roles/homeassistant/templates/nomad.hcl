@@ -61,7 +61,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}/home-assistant:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}/home-assistant:{{ hostvars[inventory_hostname].softwares.homeassistant }}"
 
         volumes = [
           "/data/{{ domain }}/config:/config:rw"

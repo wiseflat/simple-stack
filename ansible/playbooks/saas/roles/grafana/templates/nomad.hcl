@@ -44,7 +44,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "grafana/grafana:{{ ansible_local.software_version[software] }}"
+        image = "grafana/grafana:{{ hostvars[inventory_hostname].softwares.grafana }}"
         volumes = [
           "{{ software_path }}/provisioning:/etc/grafana/provisioning:ro",
           "{{ software_path }}/dashboards:/local/dashboards:ro"

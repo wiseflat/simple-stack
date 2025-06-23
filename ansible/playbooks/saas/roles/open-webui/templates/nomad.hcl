@@ -44,7 +44,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "ghcr.io/open-webui/open-webui:{{ ansible_local.software_version[software] }}"
+        image = "ghcr.io/open-webui/open-webui:{{ hostvars[inventory_hostname].softwares.open-webui }}"
 
         mount {
           type = "bind"

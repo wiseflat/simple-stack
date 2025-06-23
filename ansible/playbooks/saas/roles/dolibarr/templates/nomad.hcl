@@ -53,7 +53,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "dolibarr/dolibarr:{{ ansible_local.software_version[software] }}"
+        image = "dolibarr/dolibarr:{{ hostvars[inventory_hostname].softwares.dolibarr }}"
 
         volumes = [
           "{{ software_path }}/var/www/html/documents:/var/www/html/documents:rw",

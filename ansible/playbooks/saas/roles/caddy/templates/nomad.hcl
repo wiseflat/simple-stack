@@ -46,7 +46,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.caddy] }}"
         volumes = [
           "{{ software_path }}/etc/caddy:/etc/caddy:ro"
         ]

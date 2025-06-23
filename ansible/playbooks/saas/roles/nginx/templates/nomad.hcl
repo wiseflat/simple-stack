@@ -59,7 +59,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "nginx:{{ ansible_local.software_version['nginx'] }}"
+        image = "nginx:{{ hostvars[inventory_hostname].softwares.nginx }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/log/nginx:/var/log/nginx:rw",

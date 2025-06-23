@@ -49,7 +49,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "eclipse-mosquitto:{{ ansible_local.software_version[software] }}"
+        image = "eclipse-mosquitto:{{ hostvars[inventory_hostname].softwares.mosquitto }}"
 
         volumes = [
           "{{ software_path }}/mosquitto/config:/mosquitto/config:rw",

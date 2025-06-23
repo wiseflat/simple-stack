@@ -50,7 +50,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}/{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}/{{ software }}:{{ hostvars[inventory_hostname].softwares.freshrss }}"
         volumes = [
           "/data/{{ domain }}/data:/var/www/FreshRSS/data:rw",
           "/data/{{ domain }}/extensions:/var/www/FreshRSS/extensions:rw"

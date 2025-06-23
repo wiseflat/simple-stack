@@ -37,10 +37,10 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "phpfpm-wordpress:{{ ansible_local.software_version['phpfpm-wordpress'] }}"
+        image = "phpfpm-wordpress:{{ hostvars[inventory_hostname].softwares['wordpress'] }}"
 
         volumes = [
-          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ ansible_local.software_version['phpfpm-wordpress'].split('.')[:2] | join('') }}/php-fpm.d:ro",
+          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ hostvars[inventory_hostname].softwares['wordpress'].split('.')[:2] | join('') }}/php-fpm.d:ro",
           "{{ software_path }}/var/www/html:/var/www/html:rw",
           "{{ software_path }}/var/run/php-fpm:/run/php-fpm:rw",
           "{{ software_path }}/var/log/php-fpm:/var/log/php-fpm:rw",
@@ -136,7 +136,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "nginx:{{ ansible_local.software_version['nginx'] }}"
+        image = "nginx:{{ hostvars[inventory_hostname].softwares.nginx }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/run/php-fpm:/var/run/php-fpm:ro",

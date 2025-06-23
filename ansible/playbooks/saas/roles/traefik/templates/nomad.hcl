@@ -61,7 +61,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ ansible_local.software_version[software] }}"
+        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.traefik }}"
         network_mode = "host"
         volumes = [
           "/data/{{ domain }}:/etc/traefik",
