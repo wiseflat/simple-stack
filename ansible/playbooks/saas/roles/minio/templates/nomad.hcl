@@ -35,7 +35,9 @@ job "{{ domain }}" {
       name = "{{ service_name }}"
       port = "minio"
       provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}",{% endfor %}]
+      tags = [
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+      ]
     }
 
     task "{{ domain }}-minio" {

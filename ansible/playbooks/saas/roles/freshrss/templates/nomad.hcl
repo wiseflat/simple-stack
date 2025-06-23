@@ -26,7 +26,9 @@ job "{{ domain }}" {
       name = "{{ service_name }}"
       port = "apache"
       provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}",{% endfor %}]
+      tags = [
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+      ]
       check {
         name     = "{{ service_name }}"
         type     = "http"

@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "phpfpm" {
-    count = {{ software_vars.scale.phpfpm }}
+    count = {{ software_vars.scale.phpfpm | default(1) }}
 
     network {
       port "exporter" {
@@ -79,7 +79,7 @@ job "{{ domain }}" {
   }
 
   group "nginx" {
-    count = {{ software_vars.scale.nginx }}
+    count = {{ software_vars.scale.nginx | default(1) }}
 
     network {
       port "nginx" {
@@ -106,7 +106,9 @@ job "{{ domain }}" {
       name = "{{ service_name }}-nginx"
       port = "nginx"
       provider = "nomad"
-      tags = [{% for label in traefik_labels_result.labels %}"{{ label }}"{% if not loop.last %},{% endif %}{% endfor %}]
+      tags = [
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+      ]
       # check {
       #   name     = "{{ service_name }}"
       #   type     = "http"
