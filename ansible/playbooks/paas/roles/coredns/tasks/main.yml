@@ -1,19 +1,21 @@
 ---
-- name: Build and install debian package
-  block:
-    - name: Build debian package
-      ansible.builtin.include_tasks: build.yml
+- name: Coredns | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
 
-    - name: Install debian package
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ deb_file }}.deb"
-      notify: Restart coredns
-  rescue:
-    - name: Let's continue the playbook anyway
-      debug:
-        msg: Rescue debug task
+- name: Coredns | Get binary
+  include_tasks: build.yml
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
 
-- name: Override config files
+- name: Coredns | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item.dest }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  loop:
+    - dest: /etc/coredns
+
+- name: Coredns | Override config files
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -23,20 +25,17 @@
   loop:
     - src: Corefile.j2
       dest: /etc/coredns/Corefile
+    - src: service.j2
+      dest: /etc/systemd/system/coredns.service
   notify: Restart coredns
 
-- name: Remove invalid file (todo remove)
-  ansible.builtin.file:
-    path: /etc/systemd/resolved.conf.d/consul.conf
-    state: absent
-
-- name: Create resolved directory
+- name: Coredns | Create resolved directory
   ansible.builtin.file:
     path: /etc/systemd/resolved.conf.d
     state: directory
     mode: '0755'
 
-- name: Copy systemd resolved config
+- name: Coredns | Copy systemd resolved config
   ansible.builtin.copy:
     content: |
       [Resolve]

@@ -64,10 +64,6 @@
       until: apt_status is success
       delay: 6
       retries: 10
-
-    - name: Install latest available version of fpm
-      ansible.builtin.shell: gem install fpm
-
   roles:
     - unattended-upgrades
     - restic
