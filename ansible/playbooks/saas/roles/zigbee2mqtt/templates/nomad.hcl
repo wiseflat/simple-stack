@@ -59,8 +59,8 @@ job "{{ domain }}" {
         ]
 
         devices = [{
-          container_path = "{{ software_vars.device }}",
-          host_path = "{{ software_vars.device }}"
+          container_path = "{{ software_vars.config.device }}",
+          host_path = "{{ software_vars.config.device }}"
         }]
 
         ports = ["zigbee2mqtt"]
