@@ -5,3 +5,5 @@ prometheus_remote_login:
 prometheus_remote_password:
 
 prometheus_project: "{{ fact_instance.project }}"
+
+prometheus_nodes_exporter: []
