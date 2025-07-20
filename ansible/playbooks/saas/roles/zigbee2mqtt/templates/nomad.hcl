@@ -17,6 +17,9 @@ job "{{ domain }}" {
     count = 1
 
     network {
+      port "http" {
+        to = 8080
+      }
       port "zigbee2mqtt" {
         to = 1883
       }
@@ -63,7 +66,7 @@ job "{{ domain }}" {
           host_path = "{{ software_vars.config.device }}"
         }]
 
-        ports = ["zigbee2mqtt"]
+        ports = ["http", "zigbee2mqtt"]
       }
 
       resources {
