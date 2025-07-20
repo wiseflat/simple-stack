@@ -1,0 +1,2545 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Dashboard for https://github.com/tykling/dns_exporter",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 42,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Github",
+      "tooltip": "",
+      "type": "link",
+      "url": "https://github.com/tykling/dns_exporter"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Documentation",
+      "tooltip": "",
+      "type": "link",
+      "url": "https://dns-exporter.readthedocs.io/latest/"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 18,
+      "panels": [],
+      "title": "Exporter Info",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 14,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(dnsexp_build_version_info) by (version,monitor)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Exporter Info",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true
+            },
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 9,
+        "x": 6,
+        "y": 1
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "avg(scrape_duration_seconds{job=~\"dns_exporter\"}) by (job)",
+          "instant": false,
+          "key": "Q-55c7e1df-e056-4ad3-893d-e7cefb3ffa93-0",
+          "legendFormat": "{{monitor}} {{ job }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape Duration Average by job",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 9,
+        "x": 15,
+        "y": 1
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "avg(scrape_duration_seconds{job=~\"dns_exporter\"}) by (monitor)",
+          "instant": false,
+          "key": "Q-55c7e1df-e056-4ad3-893d-e7cefb3ffa93-0",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape Duration Average by monitor",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 16,
+      "panels": [],
+      "title": "DNS Response Time",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 0,
+        "y": 13
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (nsid)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by NSID",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 8,
+        "y": 13
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (monitor)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by monitor",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 16,
+        "y": 13
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (server)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by server",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 0,
+        "y": 26
+      },
+      "id": 25,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (protocol)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by protocol",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 8,
+        "y": 26
+      },
+      "id": 26,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (proxy)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by proxy",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 8,
+        "x": 16,
+        "y": 26
+      },
+      "id": 27,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(dnsexp_dns_query_time_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (family)",
+          "format": "heatmap",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Time by family",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 15,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "noValue": "0",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 3,
+            "x": 0,
+            "y": 40
+          },
+          "id": 4,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.3.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range]))",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 4,
+            "x": 3,
+            "y": 40
+          },
+          "id": 11,
+          "options": {
+            "displayLabels": [
+              "name",
+              "percent",
+              "value"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (reason) > 0",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Reason",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 5,
+            "x": 7,
+            "y": 40
+          },
+          "id": 12,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (server) > 0",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Server",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 3,
+            "x": 12,
+            "y": 40
+          },
+          "id": 13,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value",
+              "name"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (protocol) > 0",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Protocol",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 5,
+            "x": 15,
+            "y": 40
+          },
+          "id": 22,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (monitor) > 0",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Monitor",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 4,
+            "x": 20,
+            "y": 40
+          },
+          "id": 28,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value",
+              "name"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (family)",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by IP Family",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 4,
+            "x": 0,
+            "y": 51
+          },
+          "id": 29,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value",
+              "name"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (ip)",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by IP Address",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 4,
+            "x": 4,
+            "y": 51
+          },
+          "id": 30,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value",
+              "name"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (query_name)",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Query Name",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 4,
+            "x": 8,
+            "y": 51
+          },
+          "id": 31,
+          "options": {
+            "displayLabels": [
+              "percent",
+              "value",
+              "name"
+            ],
+            "legend": {
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(dnsexp_scrape_failures_total{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\", reason=~\"$reason\"}[$__range])) by (query_type)",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors by Query Type",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "percentunit",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 12,
+            "x": 12,
+            "y": 51
+          },
+          "id": 32,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "9.5.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "avg_over_time(dnsexp_dns_query_success{instance=~\"$instance\", job=~\"$job\", monitor=~\"$monitor\"}[$__range])",
+              "instant": false,
+              "legendFormat": "{{ monitor }} / {{job}} / {{ instance }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Success Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "noValue": "0",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 62
+          },
+          "id": 8,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(dnsexp_scrape_failures_total{instance=~\"$instance\", job=~\"$job\", proxy=~\"$proxy\", reason=~\"$reason\", server=~\"$server\", protocol=~\"$protocol\", monitor=~\"$monitor\"}[$__rate_interval])) by (server,reason)",
+              "legendFormat": "{{server}} {{ reason }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Query Errors / sec by server and reason",
+          "type": "timeseries"
+        }
+      ],
+      "title": "DNS Query Errors",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 17,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": true
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unitScale": true
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "TTL"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 60
+          },
+          "id": 19,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "pluginVersion": "10.3.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "dnsexp_dns_response_rr_ttl_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Monitored Names",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "additional": true,
+                  "answer": true,
+                  "authority": true,
+                  "family": true,
+                  "instance": true,
+                  "job": true,
+                  "opcode": true,
+                  "port": true,
+                  "protocol": true,
+                  "proxy": true,
+                  "rcode": true,
+                  "transport": true
+                },
+                "indexByName": {
+                  "Time": 7,
+                  "Value": 25,
+                  "__name__": 8,
+                  "additional": 9,
+                  "answer": 10,
+                  "authority": 11,
+                  "family": 12,
+                  "flags": 13,
+                  "instance": 14,
+                  "ip": 4,
+                  "job": 15,
+                  "monitor": 0,
+                  "nsid": 16,
+                  "opcode": 17,
+                  "port": 18,
+                  "protocol": 3,
+                  "proxy": 5,
+                  "query_name": 1,
+                  "query_type": 19,
+                  "rcode": 20,
+                  "rr_name": 21,
+                  "rr_section": 22,
+                  "rr_type": 23,
+                  "rr_value": 24,
+                  "server": 2,
+                  "transport": 6
+                },
+                "renameByName": {
+                  "Value": "TTL"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 13,
+            "w": 24,
+            "x": 0,
+            "y": 70
+          },
+          "id": 7,
+          "maxDataPoints": 3000,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "9.4.7",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "avg(dnsexp_dns_response_rr_ttl_seconds{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}) by (nsid,query_name,query_type)",
+              "format": "heatmap",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{ server }} {{query_name}} {{ query_type }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "DNS Response RR TTL",
+          "type": "timeseries"
+        }
+      ],
+      "title": "DNS Response TTL",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 34,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "scaleDistribution": {
+                  "type": "linear"
+                }
+              },
+              "unitScale": true
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 42
+          },
+          "id": 33,
+          "options": {
+            "calculate": false,
+            "cellGap": 1,
+            "color": {
+              "exponent": 0.5,
+              "fill": "dark-orange",
+              "mode": "scheme",
+              "reverse": false,
+              "scale": "exponential",
+              "scheme": "Oranges",
+              "steps": 64
+            },
+            "exemplars": {
+              "color": "rgba(255,0,255,0.7)"
+            },
+            "filterValues": {
+              "le": 1e-09
+            },
+            "legend": {
+              "show": true
+            },
+            "rowsFrame": {
+              "layout": "auto"
+            },
+            "tooltip": {
+              "mode": "single",
+              "showColorScale": false,
+              "yHistogram": false
+            },
+            "yAxis": {
+              "axisPlacement": "left",
+              "reverse": false,
+              "unit": "s"
+            }
+          },
+          "pluginVersion": "10.3.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(dnsexp_dns_responsetime_seconds_bucket{instance=~\"$instance\", protocol=~\"$protocol\", ip=~\"$ip\", job=~\"$job\", nsid=~\"$nsid\", opcode=~\"$opcode\", query_name=~\"$query_name\", query_type=~\"$query_type\", rcode=~\"$rcode\", server=~\"$server\", family=~\"$family\", monitor=~\"$monitor\"}[$__rate_interval])) by (le)",
+              "format": "heatmap",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Query Time Heatmap",
+          "type": "heatmap"
+        }
+      ],
+      "title": "WIP",
+      "type": "row"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, ip)",
+        "includeAll": true,
+        "multi": true,
+        "name": "ip",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, ip)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds,job)",
+        "includeAll": true,
+        "multi": true,
+        "name": "job",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds,job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(instance)",
+        "includeAll": true,
+        "multi": true,
+        "name": "instance",
+        "options": [],
+        "query": {
+          "query": "label_values(instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, nsid)",
+        "includeAll": true,
+        "multi": true,
+        "name": "nsid",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, nsid)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, opcode)",
+        "includeAll": true,
+        "multi": true,
+        "name": "opcode",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, opcode)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, query_name)",
+        "includeAll": true,
+        "multi": true,
+        "name": "query_name",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, query_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, query_type)",
+        "includeAll": true,
+        "multi": true,
+        "name": "query_type",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, query_type)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, rcode)",
+        "includeAll": true,
+        "multi": true,
+        "name": "rcode",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, rcode)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, server)",
+        "includeAll": true,
+        "multi": true,
+        "name": "server",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, server)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds, family)",
+        "includeAll": true,
+        "multi": true,
+        "name": "family",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds, family)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_scrape_failures_total,reason)",
+        "includeAll": true,
+        "label": "Failure reason",
+        "multi": true,
+        "name": "reason",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_scrape_failures_total,reason)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_dns_query_time_seconds,proxy)",
+        "includeAll": true,
+        "multi": true,
+        "name": "proxy",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_dns_query_time_seconds,proxy)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(protocol)",
+        "includeAll": true,
+        "multi": true,
+        "name": "protocol",
+        "options": [],
+        "query": {
+          "query": "label_values(protocol)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(dnsexp_scrape_failures_total,monitor)",
+        "includeAll": true,
+        "multi": true,
+        "name": "monitor",
+        "options": [],
+        "query": {
+          "query": "label_values(dnsexp_scrape_failures_total,monitor)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "DNS Exporter",
+  "uid": "UnXfnkh4z",
+  "version": 2
+}
