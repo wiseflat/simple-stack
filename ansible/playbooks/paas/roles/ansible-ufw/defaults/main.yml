@@ -10,7 +10,7 @@ ufw_default_application_policy: SKIP
 ufw_logging: "off"
 
 ufw_state: enabled
-ufw_reset: false
+ufw_reset: true
 
 ufw_rules:
   - port: 22
