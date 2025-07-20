@@ -50,6 +50,12 @@ scrape_configs:
         source_labels: [__name__, fstype]
         target_label: __tmp_keep_me
 
+      - action: replace
+        regex: "^node_uname_info|node_openwrt_info|wifi_network_*$"
+        replacement: true
+        source_labels: [__name__, openwrt]
+        target_label: __tmp_keep_me
+
       - action: keep
         regex: true
         source_labels: [__tmp_keep_me]
@@ -62,6 +68,71 @@ scrape_configs:
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
+{% for item in prometheus_nodes_exporter | default([]) %}
+      - targets: ['{{ item.target }}:9100']
+        labels:
+          instance: "{{ item.instance }}"
+          project: "{{ prometheus_project }}"
+{% endfor %}
+    scrape_timeout: 90s
+
+  - job_name: "speedtest"
+    metrics_path: /probe
+    params:
+      script: [speedtest]
+    static_configs:
+      - targets: ['127.0.0.1:9469']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+    scrape_interval: 60m
+    scrape_timeout: 90s
+
+  - job_name: "script_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    static_configs:
+      - targets: ['127.0.0.1:9469']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+
+  - job_name: "dns_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    static_configs:
+      - targets: ['127.0.0.1:15353']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+
+  - job_name: "dns_query"
+    scrape_interval: "10s"
+    metrics_path: "/query"
+    params:
+      module:
+        - "sfr_dns1"
+        - "sfr_dns2"
+        - "cloudflare_dns1"
+        - "quad9_dns1"
+    relabel_configs:
+      - source_labels: ["__address__"]
+        target_label: "__param_query_name"
+      - source_labels: ["__address__"]
+        target_label: "instance"
+      - target_label: "__address__"
+        replacement: "127.0.0.1:15353"
+      - target_label: "monitor"
+        replacement: "{{ inventory_hostname }}"
+    static_configs:
+      - targets:
+          - "gmail.com"
+          - "outlook.com"
+          - "google.com"
 
   - job_name: "docker_exporter"
     metric_relabel_configs:
