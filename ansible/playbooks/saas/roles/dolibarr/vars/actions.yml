@@ -2,10 +2,10 @@
 dolibarr_actions:
   environment:
   volumes:
-    - "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
-    - "/data/{{ software_vars.dbhost }}/root:/root:ro"
+    - "/data/{{ software.dbhost }}/run/mysqld:/run/mysqld:ro"
+    - "/data/{{ software.dbhost }}/root:/root:ro"
     - "{{ software_path }}/var/www/html:/var/www/html:rw"
     - "{{ software_path }}/var/backup:/var/backup:rw"
     - "/usr/local/bin/dolibarr-backup:/usr/local/bin/dolibarr-backup:ro"
     - "/usr/local/bin/dolibarr-restore:/usr/local/bin/dolibarr-restore:ro"
-  image: "mariadb:{{ hostvars[inventory_hostname].softwares['mariadb'] }}"
+  image: "mariadb:{{ softwares.mariadb.version }}"

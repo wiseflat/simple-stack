@@ -15,7 +15,7 @@ job "{{ domain }}" {
 
   group "dolibarr" {
 
-    count = {{ software_vars.scale }}
+    count = {{ software.scale }}
 
     update {
       max_parallel      = 1
@@ -55,7 +55,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "dolibarr/dolibarr:{{ hostvars[inventory_hostname].softwares.dolibarr }}"
+        image = "dolibarr/dolibarr:{{ softwares.dolibarr.version }}"
 
         volumes = [
           "{{ software_path }}/var/www/html/documents:/var/www/html/documents:rw",
@@ -111,7 +111,7 @@ DOLI_PROD=1
 
 DOLI_DB_TYPE=mysqli
 
-{% raw %}{{ range nomadService "{% endraw %}{{ software_vars.dbhost | replace('-', '') | replace('.', '') }}{% raw %}" }}
+{% raw %}{{ range nomadService "{% endraw %}{{ software.dbhost | replace('-', '') | replace('.', '') }}{% raw %}" }}
 DOLI_DB_HOST="{{ .Address }}"
 
 DOLI_DB_HOST_PORT="{{ .Port }}"
@@ -160,11 +160,11 @@ DOLI_LDAP_DEBUG="False"
 
 DOLI_CRON=0
 
-DOLI_CRON_KEY="{{ lookup('community.general.passwordstore', 'dolibarr/' + domain + '/doli_cron_key', missing='create', nosymbols=true, length=32) }}"
+DOLI_CRON_KEY="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='doli_cron_key', missing='create', nosymbols=true, length=32) }}"
 
 DOLI_CRON_USER="{{ doli_admin_login | default('admin' + domain | replace('.', '') | replace('-', '')) }}"
 
-DOLI_INSTANCE_UNIQUE_ID={{ lookup('community.general.passwordstore', 'dolibarr/' + domain + '/doli_salt_key', missing='create', nosymbols=true, length=65) }}
+DOLI_INSTANCE_UNIQUE_ID="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='doli_salt_key', missing='create', nosymbols=true, length=65) }}"
 
 EOH
         destination = "secrets/env"
