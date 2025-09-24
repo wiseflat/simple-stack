@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "nginx" {
-    count = {{ software_vars.scale | default(1) }}
+    count = {{ software.scale | default(1) }}
 
     network {
       port "nginx" {
@@ -61,7 +61,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "nginx:{{ hostvars[inventory_hostname].softwares.nginx }}"
+        image = "{{ docker_private_registry.url }}/nginx:{{ softwares.nginx.version }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/log/nginx:/var/log/nginx:rw",
@@ -71,9 +71,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int }}
-        # memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int }}
+        # memory_max = {{ size[software.size].memory * 2 }}
       }
     }
 
