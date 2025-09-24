@@ -7,4 +7,4 @@ mariadb_actions:
     - "{{ software_path }}/var/backup:/var/backup:rw"
     - "/usr/local/bin/mariadb-backup:/usr/local/bin/mariadb-backup:ro"
     - "/usr/local/bin/mariadb-restore:/usr/local/bin/mariadb-restore:ro"
-  image: "mariadb:{{ hostvars[inventory_hostname].softwares['mariadb'] }}"
+  image: "mariadb:{{ softwares.mariadb.version }}"
