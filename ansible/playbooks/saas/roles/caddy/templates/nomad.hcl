@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "{{ domain }}" {
-    count = {{ software_vars.scale | default(1) }}
+    count = {{ software.scale | default(1) }}
 
     network {
       port "caddy" {
@@ -48,7 +48,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.caddy] }}"
+        image = "{{ docker_private_registry.url }}/caddy:{{ softwares.caddy.version }}"
         volumes = [
           "{{ software_path }}/etc/caddy:/etc/caddy:ro"
         ]
@@ -56,8 +56,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
