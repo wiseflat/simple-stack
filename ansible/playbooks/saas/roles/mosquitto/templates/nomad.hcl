@@ -51,7 +51,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "eclipse-mosquitto:{{ hostvars[inventory_hostname].softwares.mosquitto }}"
+        image = "eclipse-mosquitto:{{ softwares.mosquitto.version }}"
 
         volumes = [
           "{{ software_path }}/mosquitto/config:/mosquitto/config:rw",
@@ -62,8 +62,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
