@@ -38,7 +38,7 @@ job "{{ nomad_job_name }}" {
         image = "{{ actions.image }}"
         volumes = [{% for volume in actions.volumes %}"{{ volume }}"{% if not loop.last %},{% endif %}{% endfor %}]
         command = "sh"
-        args    = ["-c", "/usr/local/bin/{{ software }}-backup {{ service_name }}"]
+        args    = ["-c", "/usr/local/bin/{{ catalog }}-backup {{ service_name }}"]
       }
       resources {
         cpu = 512
@@ -54,10 +54,10 @@ job "{{ nomad_job_name }}" {
         RESTIC_SERVER = "{{ restic_server }}"
         RESTIC_HOST = "{{ restic_host }}"
         RESTIC_SNAPSHOTS = "{{ restic_snapshots }}"
-        RESTIC_REPOSITORY = "{{ domain }}"
-        RESTIC_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
-        AWS_ACCESS_KEY_ID = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
-        AWS_SECRET_ACCESS_KEY = "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
+        RESTIC_REPOSITORY = "{{ domain | lower }}"
+        RESTIC_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='passwd', missing='error') }}"
+        AWS_ACCESS_KEY_ID = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='user', missing='error') }}"
+        AWS_SECRET_ACCESS_KEY = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='passwd', missing='error') }}"
       }
       config {
         image = "alpine:latest"
