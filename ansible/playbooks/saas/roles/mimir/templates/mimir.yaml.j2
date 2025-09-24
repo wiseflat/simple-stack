@@ -8,8 +8,8 @@ blocks_storage:
   backend: s3
   s3:
     endpoint: 172.17.0.1:9000
-    access_key_id: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='access_key_id', length=12) }}"
-    secret_access_key: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='secret_access_key', length=12) }}"
+    access_key_id: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='access_key_id', missing='create', length=12) }}"
+    secret_access_key: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='secret_access_key', missing='create', length=12) }}"
     insecure: true
     bucket_name: mimir-blocks
 
@@ -23,8 +23,8 @@ ruler_storage:
   backend: s3
   s3:
     endpoint: 172.17.0.1:9000
-    access_key_id: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='access_key_id', length=12) }}"
-    secret_access_key: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='secret_access_key', length=12) }}"
+    access_key_id: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='access_key_id', missing='error') }}"
+    secret_access_key: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='secret_access_key', missing='error') }}"
     insecure: true
     bucket_name: ruler
 
@@ -32,8 +32,8 @@ alertmanager_storage:
   backend: s3
   s3:
     endpoint: 172.17.0.1:9000
-    access_key_id: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='access_key_id', length=12) }}"
-    secret_access_key: "{{ lookup('community.general.passwordstore', 'minio/' + domain, missing='create', subkey='secret_access_key', length=12) }}"
+    access_key_id: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='access_key_id', missing='error') }}"
+    secret_access_key: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='secret_access_key', missing='error') }}"
     insecure: true
     bucket_name: mimir
 
