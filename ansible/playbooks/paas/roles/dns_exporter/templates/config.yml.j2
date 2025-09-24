@@ -1,0 +1,144 @@
+---
+snippets:  # this name is not important
+  ipv4_2s: &template_v4_2s
+    timeout: "2"
+    family: "ipv4"
+
+more_reusable_stuff:  # the name of this dict is also not important
+  mytemplate: &mytemplate
+    timeout: "2"  # query timeout in seconds
+    protocol: "udp"  # one of udp, tcp, dot, doh, doq; all these can also be set in scrape request
+    valid_rcodes:
+      - "NOERROR"  # all RCODEs in the list will be considered valid
+    query_name: "example.com"  # can also be set in scrape request
+    query_type: "A"  # can also be set in scrape request
+    query_class: "IN"  # can also be set in scrape request
+    recursion_desired: true  # set False e.g. to test caching on recursors
+
+  slowtemplate: &othertemplate
+    <<: *mytemplate
+    timeout: "10s"
+
+  v4_example:
+    <<: *mytemplate
+    family: "ipv4"  # when scrape server is a hostname use ipv4/A instead of AAAA
+
+  validation_kitchensink_example: &kitchensink
+    <<: *mytemplate
+    validate_response_flags:  # do validation of the response flags
+      fail_if_any_present:  # consider request failed if any of these flags are present in the response
+        - "AA"
+      fail_if_all_present:  # consider request failed if all these flags are present in the response
+        - "QR"
+        - "AA"
+        - "RD"
+        - "RA"
+      fail_if_any_absent:  # consider request failed if any of these flags are absent from the response
+        - "AD"
+      fail_if_all_absent:  # consider request failed if any of these flags are absent from the response
+        - "AD"
+        - "AA"
+    validate_answer_rrs:  # do validation of response ANSWER rr
+      fail_if_matches_regexp:  # consider request failed if any answer rr matches one of these regexes
+        - ".*127.0.0.1"
+      fail_if_all_match_regexp:  # consider request failed if all answer rrs match one of these regexes
+        - ".*127.0.0.1"
+      fail_if_not_matches_regexp:  # consider request failed if any answer rr does not match one of these regexes
+        - "www.prometheus.io.\t300\tIN\tA\t127.0.0.1"
+      fail_if_none_matches_regexp:  # consider request failed if none of the answer rrs match one of these regexes
+        - ".*127.0.0.1"
+      fail_if_count_eq: 5  # fail if rr count equals 5
+      fail_if_count_ne: 13  # fail if rr count does not equal 13
+      fail_if_count_lt: 2  # fail if rr count is smaller than 2
+      fail_if_count_gt: 3  # fail if rr count is larger than 3
+    validate_authority_rrs:  # do validation of response AUTHORITY rr
+      fail_if_matches_regexp:
+        - ".*127.0.0.1"
+    validate_additional_rrs:  # do validation of response ADDITIONAL rr
+      fail_if_matches_regexp:
+        - ".*127.0.0.1"
+
+
+modules:  # this is the only key currently read from the config
+  udp: *template_v4_2s
+
+  tcp:
+    <<: *template_v4_2s
+    protocol: "tcp"
+
+  ipv4:
+    <<: *template_v4_2s
+    family: "ipv4"
+
+  ipv6:
+    <<: *template_v4_2s
+    family: "ipv6"
+
+  dot:
+    <<: *template_v4_2s
+    protocol: "dot"
+
+  doh:
+    <<: *template_v4_2s
+    protocol: "doh"
+
+  doh3:
+    <<: *template_v4_2s
+    protocol: "doh3"
+
+  doq:
+    <<: *template_v4_2s
+    protocol: "doq"
+
+  soa:
+    <<: *template_v4_2s
+    query_type: "SOA"
+
+  any:
+    <<: *template_v4_2s
+    query_type: "ANY"
+
+  chaos:
+    <<: *template_v4_2s
+    query_class: "CHAOS"
+
+  cache:
+    <<: *template_v4_2s
+    recursion_desired: false
+
+  fast:
+    <<: *template_v4_2s
+    timeout: "0.5"
+
+  forceip:
+    <<: *template_v4_2s
+    ip: "192.0.2.53"
+
+  server:
+    <<: *template_v4_2s
+    server: "doh.example.com"
+
+  noedns:
+    <<: *template_v4_2s
+    edns: false
+
+  dnssecok:
+    <<: *template_v4_2s
+    edns_do: true
+
+  nsid:
+    <<: *template_v4_2s
+    edns_nsid: true
+
+  large:
+    <<: *template_v4_2s
+    edns_bufsize: 4000
+
+  pad:
+    <<: *template_v4_2s
+    edns_pad: 100
+
+  kitchensink:
+    <<: *kitchensink
+    
+  {{ dns_exporter.modules | to_nice_yaml | indent(2) }}

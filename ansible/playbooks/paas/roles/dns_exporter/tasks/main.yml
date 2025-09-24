@@ -1,0 +1,34 @@
+---
+- name: Dns_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
+
+- name: Dns_exporter | Get binary
+  include_tasks: build.yml
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
+
+- name: Dns_exporter | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/dns_exporter
+
+- name: Dns_exporter | Copy templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+    owner: root
+    group: root
+  loop:
+    - src: default.j2
+      dest: /etc/default/dns_exporter
+    - src: config.yml.j2
+      dest: /etc/dns_exporter/config.yml
+    - src: service.j2
+      dest: /etc/systemd/system/dns_exporter.service
+  notify: Restart dns_exporter
+
+- name: Dns_exporter | Flush handlers
+  ansible.builtin.meta: flush_handlers

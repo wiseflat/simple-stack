@@ -1,0 +1,25 @@
+---
+- name: Dns_exporter | Create virtual environment directory
+  file:
+    path: /opt/venv-dns_exporter
+    state: directory
+
+- name: Dns_exporter | Create virtual environment
+  command: python3 -m venv /opt/venv-dns_exporter
+
+- name: Dns_exporter | Install python package
+  ansible.builtin.pip:
+    name: dns_exporter
+    virtualenv: /opt/venv-dns_exporter
+
+- name: Dns_exporter | Backup software version
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cat << EOF
+      "{{ latest_version }}"
+      EOF
+    dest: "/etc/ansible/facts.d/{{ image.name }}.fact"
+    owner: root
+    group: root
+    mode: '0755'
