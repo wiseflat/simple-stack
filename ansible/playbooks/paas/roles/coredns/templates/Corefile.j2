@@ -6,7 +6,7 @@ service.nomad.:1053 {
     nomad {
         zone service.nomad
         address https://127.0.0.1:4646
-        token {{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}
+        token {{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}
         ttl 10
     }
     prometheus 127.0.0.1:9153
