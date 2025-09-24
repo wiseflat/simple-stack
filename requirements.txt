@@ -1,5 +1,7 @@
 ansible
+ansible-rulebook
 jmespath
 passlib
 bcrypt
 pre-commit
+requests

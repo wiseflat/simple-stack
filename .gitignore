@@ -1,6 +1,7 @@
 # ---> divers
 tmp/
 venv/
+*.pyc
 
 # ansible
 ansible/collections
