@@ -82,9 +82,9 @@ EOH
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory * 3 }}
-        memory_max = {{ size[software_vars.size].memory | default(64) | int * 4 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory * 3 }}
+        memory_max = {{ size[software.size].memory | default(64) | int * 4 }}
       }
     }
 
@@ -122,13 +122,13 @@ EOH
       }
 
       config {
-        image = "rocketchat/rocket.chat:{{hostvars[inventory_hostname].softwares.rocketchat }}"
+        image = "rocketchat/rocket.chat:{{ softwares.rocketchat.version }}"
         ports = ["rocketchat"]
       }
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int * 2 }}
-        memory_max = {{ size[software_vars.size].memory | int * 4 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int * 2 }}
+        memory_max = {{ size[software.size].memory | int * 4 }}
       }
     }
   }
