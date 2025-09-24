@@ -50,7 +50,7 @@ job "{{ domain }}" {
       user = "1001:1001"
 
       config {
-        image = "koenkk/zigbee2mqtt:{{ hostvars[inventory_hostname].softwares.zigbee2mqtt }}"
+        image = "koenkk/zigbee2mqtt:{{ softwares.zigbee2mqtt.version }}"
 
         volumes = [
           "{{ software_path }}/app/data:/app/data:rw",
@@ -62,16 +62,16 @@ job "{{ domain }}" {
         ]
 
         devices = [{
-          container_path = "{{ software_vars.config.device }}",
-          host_path = "{{ software_vars.config.device }}"
+          container_path = "{{ software.config.device }}",
+          host_path = "{{ software.config.device }}"
         }]
 
         ports = ["http", "zigbee2mqtt"]
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }

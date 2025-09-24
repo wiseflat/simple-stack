@@ -1,2 +1,2 @@
 ---
-zigbee2mqtt_config: "{{ software_vars.config | default(zigbee2mqtt_config_default) }}"
+zigbee2mqtt_config: "{{ software.config | default(zigbee2mqtt_config_default) }}"
