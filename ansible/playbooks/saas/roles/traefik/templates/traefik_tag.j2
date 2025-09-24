@@ -1,15 +1,16 @@
+{% if software.exposition is defined and software.exposition in ["public", "public-unmanaged"] %}
 "fqdn=https://{{ domain }}",
 "traefik.enable=true",
 "traefik.http.routers.{{ service_name }}.tls=true",
 "traefik.http.routers.{{ service_name }}.tls.certresolver=myresolver",
 "traefik.http.routers.{{ service_name }}.tls.options=mintls12@file",
 "traefik.http.routers.{{ service_name }}.entrypoints=https",
-"traefik.http.routers.{{ service_name }}.rule=Host(`{{ domain }}`){% if software_vars.domain_alias is defined and software_vars.domain_alias != "" %} || Host(`{{ software_vars.domain_alias }}`){% endif %}",
+"traefik.http.routers.{{ service_name }}.rule=Host(`{{ domain }}`){% if software.domain_alias is defined and software.domain_alias != "" %} || Host(`{{ software.domain_alias }}`){% endif %}",
 "traefik.http.middlewares.{{ service_name }}.redirectscheme.scheme=https",
 "traefik.http.middlewares.{{ service_name }}.redirectscheme.permanent=true",
 "traefik.http.middlewares.{{ service_name }}-headers.headers.customResponseHeaders.Strict-Transport-Security=max-age=63072000",
-{% if software_vars.traefik_x_robots_tag is defined %}
-"traefik.http.middlewares.{{ service_name }}-headers.headers.customResponseHeaders.X-Robots-Tag={{ software_vars.traefik_x_robots_tag }}",
+{% if software.traefik_x_robots_tag is defined %}
+"traefik.http.middlewares.{{ service_name }}-headers.headers.customResponseHeaders.X-Robots-Tag={{ software.traefik_x_robots_tag }}",
 {% endif %}
 "traefik.http.middlewares.{{ service_name }}-headers.headers.frameDeny=true",
 "traefik.http.middlewares.{{ service_name }}-headers.headers.browserXssFilter=true",
@@ -20,16 +21,17 @@
 "traefik.http.middlewares.{{ service_name }}-headers.headers.forceSTSHeader=true",
 "traefik.http.middlewares.{{ service_name }}-headers.headers.accessControlMaxAge=15552000",
 "traefik.http.middlewares.{{ service_name }}-headers.headers.customFrameOptionsValue=SAMEORIGIN",
-{% if software_vars.ipfilter is defined %}
-"traefik.http.middlewares.{{ service_name }}-whistelist.IPAllowList.sourcerange={{ software_vars.ipfilter | join(',') }}",
+{% if software.ipfilter is defined %}
+"traefik.http.middlewares.{{ service_name }}-whistelist.IPAllowList.sourcerange={{ software.ipfilter | join(',') }}",
 {% endif %}
-{% if software_vars.basic_auth is defined %}
-"traefik.http.middlewares.{{ service_name }}-basicauth.basicauth.users={{ software_vars.basic_auth }}",
+{% if software.basic_auth is defined %}
+"traefik.http.middlewares.{{ service_name }}-basicauth.basicauth.users={{ software.basic_auth }}",
 {% endif %}
-{% if (software_vars.ipfilter is defined and software_vars.basic_auth is defined) %}
+{% if (software.ipfilter is defined and software.basic_auth is defined) %}
 "traefik.http.routers.{{ service_name }}.middlewares={{ service_name }}-whistelist@nomad,{{ service_name }}-basicauth@nomad",
-{% elif (software_vars.ipfilter is defined) and software_vars.basic_auth is not defined %}
+{% elif (software.ipfilter is defined) and software.basic_auth is not defined %}
 "traefik.http.routers.{{ service_name }}.middlewares={{ service_name }}-whistelist@nomad",
-{% elif (software_vars.ipfilter is not defined and software_vars.basic_auth is defined) %}
+{% elif (software.ipfilter is not defined and software.basic_auth is defined) %}
 "traefik.http.routers.{{ service_name }}.middlewares={{ service_name }}-basicauth@nomad"
+{% endif %}
 {% endif %}

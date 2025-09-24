@@ -7,7 +7,7 @@
     client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
     method: GET
     headers:
-      X-Nomad-Token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+      X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     status_code:
       - 200
       - 404
@@ -22,7 +22,7 @@
     client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
     method: POST
     headers:
-      X-Nomad-Token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+      X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     body: |
       {
         "Name": "traefik",
@@ -45,7 +45,7 @@
     client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
     method: GET
     headers:
-      X-Nomad-Token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+      X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     status_code:
       - 200
       - 404
@@ -60,7 +60,7 @@
     client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
     method: PUT
     headers:
-      X-Nomad-Token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+      X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     body: |
       {
         "Name": "traefik",
@@ -78,7 +78,7 @@
 
 - name: "Traefik | Save token to passwordstore"
   ansible.builtin.set_fact:
-    nomad_traefik_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token', missing='create', userpass=nomad_new_token_name.json.SecretID) }}"
+    nomad_traefik_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='create', userpass=nomad_new_token_name.json.SecretID) }}"
   when: nomad_new_token_name.json is defined
 
 - name: Create default directories
