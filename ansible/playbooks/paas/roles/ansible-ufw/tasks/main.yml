@@ -23,9 +23,3 @@
   community.general.ufw:
     state: "{{ ufw_state }}"
     logging: "{{ ufw_logging }}"
-
-- name: Save custom ufw rules as facts
-  ansible.builtin.copy:
-    content: "{{ ufw_custom_rules }}"
-    dest: /etc/ansible/facts.d/ufw_custom_rules.fact
-  when: ufw_custom_rules is defined

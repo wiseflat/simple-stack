@@ -10,9 +10,12 @@ ufw_default_application_policy: SKIP
 ufw_logging: "off"
 
 ufw_state: enabled
-ufw_reset: true
+ufw_reset: false
 
 ufw_rules:
+  - direction: in
+    interface: docker0
+    rule: allow
   - port: 22
     proto: tcp
     rule: allow
@@ -32,5 +35,7 @@ ufw_rules:
     proto: tcp
     rule: allow
     direction: out
+
+ufw_custom_rules: []
 
 ufw_applications: []
