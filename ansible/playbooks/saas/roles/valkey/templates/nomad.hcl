@@ -33,7 +33,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}/{{ software }}:{{ hostvars[inventory_hostname].softwares.valkey }}"
+        image = "{{ software }}/{{ software }}:{{ softwares.valkey.version }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/etc/valkey:/etc/valkey:ro",
@@ -47,8 +47,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
