@@ -47,19 +47,19 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.nextcloud }}"
+        image = "nextcloud:{{ softwares.nextcloud.version }}"
 
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:rw",
-          "/data/{{ software_vars.dbhost }}/run/mysqld:/var/run/mysqld:ro"
+          "/data/{{ software.dbhost }}/run/mysqld:/var/run/mysqld:ro"
         ]
 
         ports = ["apache"]
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
