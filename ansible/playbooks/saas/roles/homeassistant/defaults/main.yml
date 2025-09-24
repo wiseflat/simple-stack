@@ -5,4 +5,4 @@ homeassistant_configuration_default:
     trusted_proxies:
       - 172.17.0.0/24
 
-homeassistant_configuration: "{{ software_vars.configuration | default(homeassistant_configuration_default) }}"
+homeassistant_configuration: "{{ software.homeassistant_configuration | default(homeassistant_configuration_default) }}"
