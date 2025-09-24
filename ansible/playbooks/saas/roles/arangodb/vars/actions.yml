@@ -1,7 +1,7 @@
 ---
 arangodb_actions:
   environment: |
-    ARANGO_RANDOM_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'arangodb/' + domain) }}"
+    ARANGO_RANDOM_ROOT_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='root_passwd', missing='error') }}"
   volumes:
     - "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw"
     - "{{ software_path }}/var/lib/arangodb3-apps:/var/lib/arangodb3-apps:rw"
@@ -9,4 +9,4 @@ arangodb_actions:
     - "{{ software_path }}/run:/run:rw"
     - "/usr/local/bin/arangodb-backup:/usr/local/bin/arangodb-backup:ro"
     - "/usr/local/bin/arangodb-restore:/usr/local/bin/arangodb-restore:ro"
-  image: "{{ software }}:{{ hostvars[inventory_hostname].softwares.arangodb }}"
+  image: "arangodb:{{ softwares.arangodb.version }}"

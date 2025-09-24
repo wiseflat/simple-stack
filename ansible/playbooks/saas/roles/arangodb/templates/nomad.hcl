@@ -47,11 +47,11 @@ job "{{ domain }}" {
       driver = "docker"
 
       env {
-        ARANGO_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'arangodb/' + domain, missing='create', length=12) }}"
+        ARANGO_ROOT_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='root_passwd', missing='create', length=12) }}"
       }
 
       config {
-        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.arangodb }}"
+        image = "arangodb:{{ softwares.arangodb.version }}"
 
         volumes = [
             "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw",
@@ -73,8 +73,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
