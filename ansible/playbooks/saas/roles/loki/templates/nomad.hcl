@@ -36,7 +36,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "grafana/loki:{{ hostvars[inventory_hostname].softwares.loki }}"
+        image = "grafana/loki:{{ softwares.loki.version }}"
         volumes = [
           "{{ software_path }}/var/lib/loki:/var/lib/loki:rw",
           "{{ software_path }}/etc/loki:/etc/loki:ro"
@@ -45,8 +45,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
