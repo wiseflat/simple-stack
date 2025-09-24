@@ -1,2 +1,2 @@
 ---
-caddy_config: "{{ software_vars.config | default(caddy_config_default) }}"
+caddy_config: "{{ software.caddy_config | default(caddy_config_default) }}"
