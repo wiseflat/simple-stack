@@ -34,12 +34,12 @@ job "{{ domain }}" {
       driver = "docker"
 
       env {
-        MINIO_ROOT_USER = "{{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='access_key_id') }}"
-        MINIO_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'minio/' + domain, subkey='secret_access_key') }}"
+        MINIO_ROOT_USER = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='access_key_id', missing='error') }}"
+        MINIO_ROOT_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='secret_access_key', missing='error') }}"
       }
 
       config {
-        image = "minio/minio:{{ hostvars[inventory_hostname].softwares.minio }}"
+        image = "minio/minio:{{ softwares.minio.version }}"
         volumes = [
           "{{ software_path }}/data/minio:/data:rw"
         ]
@@ -49,9 +49,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory * 2 }}
-        memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
+        memory_max = {{ size[software.size].memory * 2 }}
       }
     }
   }
@@ -97,7 +97,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "grafana/mimir:{{ hostvars[inventory_hostname].softwares.mimir }}"
+        image = "grafana/mimir:{{ softwares.mimir.version }}"
         volumes = [
           "{{ software_path }}/config:/config",
           "{{ software_path }}/mimir-${NOMAD_ALLOC_INDEX}:/data",
@@ -110,9 +110,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int }}
-        memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int }}
+        memory_max = {{ size[software.size].memory * 2 }}
       }
     }
   }
