@@ -7,17 +7,17 @@
 - name: Mysql delete database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
-    login_unix_socket: "/data/{{ software_vars.dbhost }}/run/mysqld/mysqld.sock"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
     name: "{{ service_name[:32] }}"
     state: absent
 
 - name: Mysql delete user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
-    login_unix_socket: "/data/{{ software_vars.dbhost }}/run/mysqld/mysqld.sock"
-    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='user') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
+    name: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_user', missing='error') }}"
     host: '%'
     priv: "{{ service_name[:32] }}.*:ALL"
     state: absent

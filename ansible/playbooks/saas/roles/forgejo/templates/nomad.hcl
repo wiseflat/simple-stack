@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "{{ domain }}" {
-    count = {{ software_vars.scale | default(1) }}
+    count = {{ software.scale | default(1) }}
 
     network {
       port "forgejo" {
@@ -39,21 +39,21 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.forgejo }}"
+        image = "{{ docker_private_registry.url }}/forgejo:{{ softwares.forgejo.version }}"
         volumes =  [
           "/etc/timezone:/etc/timezone:ro",
           "/etc/localtime:/etc/localtime:ro",
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/var/backup:/var/backup:rw",
           "{{ software_path }}/var/log:/var/log:rw",
-          "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
+          "/data/{{ software.dbhost }}/run/mysqld:/run/mysqld:ro"
         ]
         ports = ["forgejo"]
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
