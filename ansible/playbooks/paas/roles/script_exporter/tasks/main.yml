@@ -1,0 +1,38 @@
+---
+- name: Script_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
+
+- name: Script_exporter | Get binary
+  include_tasks: build.yml
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
+
+- name: Script_exporter | Get speedtest script
+  include_tasks: speedtest.yml
+
+- name: Script_exporter | Create custom directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/script_exporter
+    - /etc/script_exporter/scripts
+
+- name: Script_exporter | Copy templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+    owner: prometheus
+    group: prometheus
+  loop:
+    - src: default.j2
+      dest: /etc/default/script_exporter
+    - src: config.yml.j2
+      dest: /etc/script_exporter/config.yml
+    - src: service.j2
+      dest: /etc/systemd/system/script_exporter.service
+  notify: Restart script_exporter
+
+- name: Script_exporter | Flush handlers
+  ansible.builtin.meta: flush_handlers

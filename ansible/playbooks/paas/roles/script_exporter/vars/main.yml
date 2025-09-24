@@ -1,0 +1,24 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    repo: script_exporter
+    user: ricoberger
+    type: binary
+    format: tar.gz
+    file: REPO-OS-ARCH.FORMAT
+    os: linux
+    binary: script_exporter
+  labels: {}
+  name: script_exporter
+
+build_work_dir: /tmp/script_exporter
+
+script_exporter_scripts:
+  speedtest:
+    architecture_map:
+      x86: i386
+      armv7: armhf
+      amd64: amd64
+      x86_64: x86_64

@@ -1,0 +1,50 @@
+---
+- debug: 
+    msg: "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-{{ script_exporter_scripts.speedtest.architecture_map[ansible_facts.architecture] }}.tgz"
+
+- name: Script_exporter | Create temporary build directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    recurse: true
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ build_work_dir }}/download"
+    - "{{ build_work_dir }}/{{ upstream_default_arch }}"
+
+- name: Script_exporter | Download speedtest script
+  ansible.builtin.get_url:
+    url: "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-{{ script_exporter_scripts.speedtest.architecture_map[ansible_facts.architecture] }}.tgz"
+    dest: "{{ build_work_dir }}/download/speedtest.tgz"
+    mode: '0644'
+    force: no
+  register: download_result
+
+- name: Script_exporter | Unarchive speedtest script
+  ansible.builtin.unarchive:
+    src: "{{ build_work_dir }}/download/speedtest.tgz"
+    dest: "{{ build_work_dir }}/download"
+    remote_src: true
+  when: download_result.changed
+
+- name: Script_exporter | Install binary
+  ansible.builtin.copy:
+    src: "{{ build_work_dir }}/download/speedtest"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+
+- name: Script_exporter | Clean up
+  ansible.builtin.file:
+    path: "{{ build_work_dir }}"
+    state: absent
+
+- name: Script_exporter | Install speedtest-exporter
+  ansible.builtin.copy:
+    src: speedtest-exporter
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: '0755'
