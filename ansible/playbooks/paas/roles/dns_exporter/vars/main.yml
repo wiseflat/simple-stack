@@ -1,0 +1,16 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    repo: dns_exporter
+    user: tykling
+    type: binary
+    format: tar.gz
+    file: REPO-OS-ARCH.FORMAT
+    os: linux
+    binary: dns_exporter
+  labels: {}
+  name: dns_exporter
+
+build_work_dir: /tmp/dns_exporter

@@ -1,0 +1,19 @@
+[Unit]
+Description=Prometheus dns exporter
+Documentation=https://github.com/tykling/dns_exporter
+
+[Service]
+Restart=always
+RestartSec=10
+User=prometheus
+Group=prometheus
+RuntimeDirectory={{ image.name }}
+EnvironmentFile=/etc/default/{{ image.name }}
+ExecStart=/bin/sh -c "/opt/venv-dns_exporter/bin/{{ image.upstream.binary }} $ARGS"
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
