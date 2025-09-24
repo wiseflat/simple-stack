@@ -1,0 +1,104 @@
+---
+- name: Listen for events on a webhook
+  hosts: infrastructure
+  sources:
+   - ansible.eda.webhook:
+      host: 0.0.0.0
+      port: 5001
+  rules:
+    - name: Say Hello
+      condition: event.payload.type == "ping"
+      action:
+        run_playbook:
+          name: ansible.eda.hello
+
+    - name: debug
+      condition: event.payload.type == "debug"
+      actions:
+        - run_playbook:
+            name: playbooks/debug.yml
+            extra_vars:
+              event: "{{ event }}"
+
+    - name: facts
+      condition: event.payload.type == "facts"
+      actions:
+        - run_playbook:
+            name: playbooks/facts.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+
+    - name: paas
+      condition: event.payload.type == "paas/main"
+      actions:
+        - run_playbook:
+            name: playbooks/paas/main.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/timesyncd.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/firewall.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/docker.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/nomad.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/coredns.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/metrology.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+        - run_playbook:
+            name: playbooks/paas/sshd.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+
+    - name: saas-deploy
+      condition: event.payload.type == "saas-deploy"
+      actions:
+        - run_playbook:
+            name: playbooks/saas/main.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+              software: "{{ event.payload.software }}"
+              domain: "{{ event.payload.domain }}"
+              confirmation: "{{ event.payload.confirmation }}"
+
+    - name: saas-image
+      condition: event.payload.type == "saas-image"
+      actions:
+        - run_playbook:
+            name: playbooks/saas/image.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+              catalog: "{{ event.payload.catalog }}"
+
+    - name: saas-operate
+      condition: event.payload.type == "saas-operate"
+      actions:
+        - run_playbook:
+            name: playbooks/saas/operate.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+              catalog: "{{ event.payload.catalog }}"
+              domain: "{{ event.payload.domain }}"
+              task: "{{ event.payload.task }}"
+
+    - name: saas-nomad-clean
+      condition: event.payload.type == "saas/nomad/clean"
+      actions:
+        - run_playbook:
+            name: playbooks/saas/nomad-clean-errors.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"

@@ -1,0 +1,10 @@
+---
+- name: Debug payload
+  any_errors_fatal: true
+  gather_facts: false
+  become: false
+  hosts: localhost
+  tasks:
+    - name: Debug payload
+      ansible.builtin.debug:
+        msg: "{{ event }}"

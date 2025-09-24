@@ -4,8 +4,8 @@
   become: true
   gather_facts: true
   vars_prompt:
-    - name: software
-      prompt: Software name
+    - name: catalog
+      prompt: Catalog item
       private: false
     - name: domain
       prompt: Domain name
@@ -16,9 +16,35 @@
   vars:
     software_path: "/data/{{ domain }}"
     service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
-    software_vars: "{{ hostvars[inventory_hostname][domain] }}"
+  pre_tasks:
+    - name: Get software variables
+      ansible.builtin.set_fact:
+        software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') }}"
+
+    - debug:
+        msg: "{{ software }}"
+
   tasks:
     - name: Execute operation
       ansible.builtin.include_role:
-        name: "{{ software }}"
+        name: "{{ catalog }}"
         tasks_from: "{{ task }}"
+
+  post_tasks:
+    - name: Update software version
+      ansible.builtin.uri:
+        url: "{{ simple_stack.ui }}/api"
+        user: mgarcia@wiseflat.com
+        password: azerty123456
+        method: POST
+        body_format: json
+        body:
+          schema: softwares_update_version/{{ software.id }}
+          data:
+            version: "{{ softwares[catalog].version }}"
+        force_basic_auth: true
+        status_code: 200
+      ignore_errors: true
+      delegate_to: localhost
+      become: false
+      when: task == "main"

@@ -1,27 +1,12 @@
 ---
 - name: Install prometheus
   any_errors_fatal: true
-  hosts: "{{ hosts_limit | default('metrology') }}"
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
-  serial: 2
   roles:
     - prometheus
-
-- name: Install Loki promtail
-  any_errors_fatal: true
-  hosts: "{{ hosts_limit | default('metrology') }}"
-  gather_facts: true
-  become: true
-  roles:
     - promtail
-
-- name: Install prometheus exporters
-  any_errors_fatal: true
-  hosts: "{{ hosts_limit | default('metrology') }}"
-  gather_facts: true
-  become: true
-  roles:
     - phpfpm_exporter
     - node_exporter
     - mysqld_exporter
@@ -30,3 +15,5 @@
     - blackbox_exporter
     - nginx_exporter
     - scan_exporter
+    - dns_exporter
+    - script_exporter
