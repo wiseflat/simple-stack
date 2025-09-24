@@ -20,6 +20,7 @@ image:
     - php-fpm
     - php-mbstring
     - php-xml
+    - php-xmlreader
     - php-zip
     - php-curl
     - php-intl
