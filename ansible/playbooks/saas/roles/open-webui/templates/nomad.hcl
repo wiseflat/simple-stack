@@ -46,7 +46,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "ghcr.io/open-webui/open-webui:{{ hostvars[inventory_hostname].softwares.open-webui }}"
+        image = "ghcr.io/open-webui/open-webui:{{ softwares.open-webui.version }}"
 
         mount {
           type = "bind"
@@ -61,8 +61,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
 
