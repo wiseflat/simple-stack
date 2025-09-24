@@ -1,4 +1,4 @@
 ---
-traefik_email: "{{ software_vars.email | default(traefik_email_default) }}"
+traefik_email: "{{ software.email | default(traefik_email_default) }}"
 
 nomad_http_ip: 127.0.0.1

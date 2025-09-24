@@ -61,7 +61,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ hostvars[inventory_hostname].softwares.traefik }}"
+        image = "traefik:{{ softwares.traefik.version }}"
         network_mode = "host"
         volumes = [
           "/data/{{ domain }}:/etc/traefik",
@@ -72,8 +72,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }

@@ -44,7 +44,7 @@
     exposedByDefault = false
   [providers.nomad.endpoint]
     address = "https://172.17.0.1:4646"
-    token = "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_traefik_token') }}"
+    token = "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
   [providers.nomad.endpoint.tls]
     ca = "/etc/ssl/simplestack/simplestack-ca.pem"
     cert = "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
