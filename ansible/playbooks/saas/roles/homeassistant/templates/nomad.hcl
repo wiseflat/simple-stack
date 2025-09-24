@@ -63,7 +63,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}/home-assistant:{{ hostvars[inventory_hostname].softwares.homeassistant }}"
+        image = "homeassistant/home-assistant:{{ softwares.homeassistant.version }}"
 
         volumes = [
           "/data/{{ domain }}/config:/config:rw"
@@ -72,8 +72,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
