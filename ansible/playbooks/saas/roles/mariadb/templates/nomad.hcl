@@ -106,12 +106,12 @@ job "{{ domain }}" {
 
       env {
         MARIADB_ROOT_HOST = "%"
-        MARIADB_ROOT_PASSWORD = "{{ lookup('community.general.passwordstore', 'mariadb/' + domain) }}"
+        MARIADB_ROOT_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='passwd', missing='error') }}"
         MARIADB_AUTO_UPGRADE = "true"
       }
 
       config {
-        image = "mariadb:{{ mariadb_version }}"
+        image = "mariadb:{{ softwares.mariadb.version }}"
         volumes = [
           "{{ software_path }}/var/lib/mysql:/var/lib/mysql:Z",
           "{{ software_path }}/etc/mysql/conf.d:/etc/mysql/conf.d:ro",
@@ -123,8 +123,8 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
       }
     }
   }
