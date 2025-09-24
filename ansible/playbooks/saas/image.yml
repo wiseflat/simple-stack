@@ -4,11 +4,11 @@
   become: true
   gather_facts: true
   vars_prompt:
-    - name: software
-      prompt: software name
+    - name: catalog
+      prompt: catalog item
       private: false
   vars:
-    build_work_dir: /tmp/{{ software }}
+    build_work_dir: /tmp/{{ catalog }}
     architecture_map:
       amd64: amd64
       x86_64: amd64
@@ -16,9 +16,24 @@
       aarch64: arm64
       arm64: arm64
     upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
-    path: "/tmp/{{ software }}"
+    path: "/tmp/{{ catalog }}"
 
   pre_tasks:
+    - name: Copy docker config file
+      ansible.builtin.copy:
+        content: |
+          {
+              "auths": {
+                  "{{ docker_private_registry.url }}": {
+                      "auth": "{{ (docker_private_registry.username + ':' + docker_private_registry.password) | b64encode }}"
+                  }
+              }
+          }
+        dest: /root/.docker/config.json
+        owner: root
+        group: root
+        mode: '0600'
+
     - name: Create temporary build directory
       ansible.builtin.file:
         path: "{{ item }}"
@@ -32,7 +47,7 @@
   tasks:
     - name: Install dependencies
       ansible.builtin.include_role:
-        name: "{{ software }}"
+        name: "{{ catalog }}"
         tasks_from: build
 
     - name: Debug latest version
@@ -45,15 +60,15 @@
       block:
         - name: Build image
           community.docker.docker_image_build:
-            name: "{{ image_name }}:{{ image_version }}"
+            name: "{{ docker_private_registry.url }}/{{ image_name }}:{{ image_version }}"
             tag: latest
-            path: "/tmp/{{ software }}"
+            path: "/tmp/{{ catalog }}"
             dockerfile: Dockerfile
             labels: "{{ image_labels }}"
             rebuild: always
             outputs:
-              - type: docker
-                # push: false
+              - type: image
+                push: true
           register: docker_image_build
 
         - name: Debug
@@ -61,8 +76,20 @@
             msg: "{{ docker_image_build }}"
             verbosity: 1
 
-    - name: Update software version
-      software_version:
-        software: "{{ image_name }}"
-        version: "{{ image_version }}"
-        file_path: /etc/ansible/facts.d/software_version.fact
+    - name: Update catalog item version on UI
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}/api"
+        user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+        method: POST
+        body_format: json
+        body:
+          schema: catalogs_create
+          data:
+            name: "{{ image_name }}"
+            version: "{{ image_version }}"
+        force_basic_auth: true
+        status_code: 200
+      ignore_errors: true
+      delegate_to: localhost
+      become: false

@@ -5,8 +5,8 @@
   gather_facts: true
   become: true
   vars_prompt:
-    - name: software
-      prompt: Software name
+    - name: catalog
+      prompt: Catalog item
       private: false
     - name: domain
       prompt: Domain name
@@ -19,38 +19,39 @@
   vars:
     software_path: "/data/{{ domain }}"
     service_name: "{{ domain | replace('-', '') | replace('.', '') }}"
-    software_vars: "{{ hostvars[inventory_hostname][domain] }}"
-    host_software_vars: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/{{ domain }}.yml"
   pre_tasks:
     - name: Fail if you didn't confirm
       ansible.builtin.fail:
         msg: You didn't answered "yes". Aborting.
       when: confirmation != "yes"
 
-    - name: Add custom passwordstore secrets
+    - name: Get software variables
+      ansible.builtin.set_fact:
+        software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') }}"
+
+    - name: Debug software
       debug:
-        msg: "{{ lookup('community.general.passwordstore', software + '/' + domain, missing='create', subkey=item.key,  userpass=item.value | default(none)) }}"
-      loop: "{{ software_vars.passwordstore }}"
-      when: software_vars.passwordstore is defined
+        msg: "{{ software }}" 
 
   tasks:
     - name: Deploy service
       ansible.builtin.include_role:
-        name: "{{ software }}"
+        name: "{{ catalog }}"
 
   post_tasks:
-    - name: Initialize bucket
-      ansible.builtin.shell:
-        cmd: "/usr/local/bin/restic -r s3:https://{{ restic_server }}/{{ domain }} init"
-      environment:
-        RESTIC_REPOSITORY: "{{ domain }}"
-        RESTIC_PASSWORD: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
-        AWS_ACCESS_KEY_ID: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='user') }}"
-        AWS_SECRET_ACCESS_KEY: "{{ lookup('community.general.passwordstore', 'minio/' + restic_server, subkey='passwd') }}"
-      register: restic_init
-      failed_when:
-        - restic_init.rc >= 1 and "already initialized" not in restic_init.stderr
-      changed_when:
-        - '"already initialized" not in restic_init.stderr'
-      no_log: true
-      when: restic_backup is defined and restic_backup
+    - name: Update software version
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}/api"
+        user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+        method: POST
+        body_format: json
+        body:
+          schema: softwares_update_version/{{ software.id }}
+          data:
+            version: "{{ softwares[catalog].version }}"
+        force_basic_auth: true
+        status_code: 200
+      ignore_errors: true
+      delegate_to: localhost
+      become: false
