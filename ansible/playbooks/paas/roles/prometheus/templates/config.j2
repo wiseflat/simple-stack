@@ -19,13 +19,13 @@ remote_write:
       username: "{{ prometheus_remote_write.login }}"
       password: "{{ prometheus_remote_write.password }}"
     queue_config:
-      capacity: 10000
-      #max_shards: 100
-      min_shards: 1
-      #max_samples_per_send: 3000
-      batch_send_deadline: 120s
-      min_backoff: 120ms
-      max_backoff: 60s
+      capacity: 25000            # Capacité totale de la file d'attente
+      max_shards: 10             # Nombre de shards parallèles (trop haut = surcharge CPU)
+      min_shards: 2              # Minimum, adapté aux petites charges
+      max_samples_per_send: 5000 # Taille de lot max par push
+      batch_send_deadline: 10s   # Ne pas attendre trop longtemps
+      min_backoff: 250ms         # Délai min entre les retry (si erreur 5xx/429)
+      max_backoff: 60s           # Délai max
 {% endif %}
 
 scrape_configs:
@@ -39,7 +39,7 @@ scrape_configs:
         target_label: __tmp_keep_me
 
       - action: replace
-        regex: "^node_network_((receive_(bytes|packets)|transmit_(bytes|packets))_total);eth[01]$"
+        regex: "^node_network_((receive_(bytes|packets)|transmit_(bytes|packets))_total);(eth[01]|lan[1234]|wan)$"
         replacement: true
         source_labels: [__name__, device]
         target_label: __tmp_keep_me
@@ -51,9 +51,9 @@ scrape_configs:
         target_label: __tmp_keep_me
 
       - action: replace
-        regex: "^node_uname_info|node_openwrt_info|wifi_network_*$"
+        regex: "^node_uname_info|node_openwrt_info|wifi_network_(quality|noise_dbm|bitrate|signal_dbm)$"
         replacement: true
-        source_labels: [__name__, openwrt]
+        source_labels: [__name__]
         target_label: __tmp_keep_me
 
       - action: keep
@@ -74,7 +74,19 @@ scrape_configs:
           instance: "{{ item.instance }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
-    scrape_timeout: 90s
+    scrape_interval: 60s
+    scrape_timeout: 59s
+
+  - job_name: "adguard"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    static_configs:
+      - targets: ['127.0.0.1:9618']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
 
   - job_name: "speedtest"
     metrics_path: /probe
@@ -86,7 +98,7 @@ scrape_configs:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
     scrape_interval: 60m
-    scrape_timeout: 90s
+    scrape_timeout: 30s
 
   - job_name: "script_exporter"
     metric_relabel_configs:
@@ -115,8 +127,8 @@ scrape_configs:
     metrics_path: "/query"
     params:
       module:
-        - "sfr_dns1"
-        - "sfr_dns2"
+        - "custom_dns1"
+        - "custom_dns2"
         - "cloudflare_dns1"
         - "quad9_dns1"
     relabel_configs:
@@ -169,7 +181,7 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     scheme: https
-    bearer_token: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+    bearer_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     params:
       format: ['prometheus']
     metrics_path: /v1/metrics
@@ -189,7 +201,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - source_labels: ['__meta_nomad_service']
         regex: 'mimir-exporter'
@@ -216,7 +228,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -245,7 +257,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -272,7 +284,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -303,7 +315,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -334,7 +346,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -365,7 +377,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -399,7 +411,7 @@ scrape_configs:
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
 
     relabel_configs:
       - target_label: instance
