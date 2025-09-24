@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "{{ domain }}" {
-    count = {{ software_vars.scale | default(1) }}
+    count = {{ software.scale | default(1) }}
 
     network {
       port "apache" {
@@ -52,7 +52,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ software }}/{{ software }}:{{ hostvars[inventory_hostname].softwares.freshrss }}"
+        image = "freshrss/freshrss:{{ softwares.freshrss.version }}"
         volumes = [
           "/data/{{ domain }}/data:/var/www/FreshRSS/data:rw",
           "/data/{{ domain }}/extensions:/var/www/FreshRSS/extensions:rw"
@@ -61,9 +61,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory }}
-        memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory }}
+        memory_max = {{ size[software.size].memory * 2 }}
       }
     }
   }
