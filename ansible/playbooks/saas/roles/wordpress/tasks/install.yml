@@ -18,9 +18,9 @@
 - name: Create mysql database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
-    login_unix_socket: "/data/{{ software_vars.dbhost }}/run/mysqld/mysqld.sock"
-    name: "{{ software_vars.dbname | default(service_name[:32]) }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
+    name: "{{ software.dbname | default(service_name[:32]) }}"
     encoding: utf8
     collation: utf8_general_ci
     state: present
@@ -28,19 +28,19 @@
 - name: Create mysql user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ lookup('community.general.passwordstore', 'mariadb/' + software_vars.dbhost) }}"
-    login_unix_socket: "/data/{{ software_vars.dbhost }}/run/mysqld/mysqld.sock"
-    name: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, missing='create', subkey='user', nosymbols=true, length=8, userpass=software_vars.dbuser | default(none)) }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
+    name: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_user', missing='create', nosymbols=true, length=8, userpass=software.dbuser | default(none)) }}"
     host: '%'
     column_case_sensitive: false
-    password: "{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd', missing='create', length=12, userpass=software_vars.dbpass | default(none)) }}"
+    password: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_passwd', missing='create', length=12) }}"
     priv: "{{ service_name[:32] }}.*:ALL"
     state: present
 
 - name: Install wordpress
   community.docker.docker_container:
     name: "{{ domain }}-install"
-    image: "phpfpm-wordpress:{{ hostvars[inventory_hostname].softwares['wordpress'] }}"
+    image: "phpfpm-wordpress:{{ softwares.wordpress.version }}"
     detach: false
     cleanup: true
     command: "{{ item }}"
@@ -53,7 +53,7 @@
     mounts:
       - type: bind
         target: /run/mysqld
-        source: "/data/{{ software_vars.dbhost }}/run/mysqld"
+        source: "/data/{{ software.dbhost }}/run/mysqld"
         read_only: false
     working_dir: /var/www/html
   loop:
@@ -65,14 +65,14 @@
       wp-cli core config
       --allow-root --no-color --path='/var/www/html'
       --dbname='{{ service_name[:32] }}'
-      --dbuser="{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='user') }}"
-      --dbpass="{{ lookup('community.general.passwordstore', 'mariadb/' + domain, subkey='passwd') }}"
+      --dbuser="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_user', missing='error') }}"
+      --dbpass="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_passwd', missing='error') }}"
       --dbhost='localhost:/run/mysqld/mysqld.sock'
       --dbprefix='wp_'
     - >
       wp-cli core install
       --allow-root --no-color --path='/var/www/html'
       --url='{{ domain }}' --title='Wordpress'
-      --admin_name="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, missing='create', subkey='user', nosymbols=true, length=8) }}"
-      --admin_email="{{ lookup('ansible.builtin.env', 'PROJECT_ADMIN_EMAIL') }}"
-      --admin_password="{{ lookup('community.general.passwordstore', 'wordpress/' + domain, missing='create', subkey='passwd', length=12) }}"
+      --admin_name="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='admin_login', missing='create', nosymbols=true, length=8, userpass='admin') }}"
+      --admin_email="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='admin_email', missing='error') }}"
+      --admin_password="{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='admin_passwd', missing='create', length=12) }}"

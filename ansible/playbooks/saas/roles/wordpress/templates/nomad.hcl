@@ -14,7 +14,7 @@ job "{{ domain }}" {
   }
 
   group "phpfpm" {
-    count = {{ software_vars.scale.phpfpm | default(1) }}
+    count = {{ software.scale.phpfpm | default(1) }}
 
     network {
       port "exporter" {
@@ -37,21 +37,21 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "phpfpm-wordpress:{{ hostvars[inventory_hostname].softwares['wordpress'] }}"
+        image = "{{ docker_private_registry.url }}/wordpress:{{ softwares.wordpress.version }}"
 
         volumes = [
-          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ hostvars[inventory_hostname].softwares['wordpress'].split('.')[:2] | join('') }}/php-fpm.d:ro",
+          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ softwares.wordpress.version.split('.')[:2] | join('') }}/php-fpm.d:ro",
           "{{ software_path }}/var/www/html:/var/www/html:rw",
           "{{ software_path }}/var/run/php-fpm:/run/php-fpm:rw",
           "{{ software_path }}/var/log/php-fpm:/var/log/php-fpm:rw",
-          "/data/{{ software_vars.dbhost }}/run/mysqld:/run/mysqld:ro"
+          "/data/{{ software.dbhost }}/run/mysqld:/run/mysqld:ro"
         ]
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int }}
-        # memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int }}
+        # memory_max = {{ size[software.size].memory * 2 }}
       }
     }
 
@@ -79,7 +79,7 @@ job "{{ domain }}" {
   }
 
   group "nginx" {
-    count = {{ software_vars.scale.nginx | default(1) }}
+    count = {{ software.scale.nginx | default(1) }}
 
     network {
       port "nginx" {
@@ -138,7 +138,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "nginx:{{ hostvars[inventory_hostname].softwares.nginx }}"
+        image = "{{ docker_private_registry.url }}/nginx:{{ softwares.nginx.version }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/run/php-fpm:/var/run/php-fpm:ro",
@@ -149,9 +149,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int }}
-        # memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int }}
+        # memory_max = {{ size[software.size].memory * 2 }}
       }
     }
 
