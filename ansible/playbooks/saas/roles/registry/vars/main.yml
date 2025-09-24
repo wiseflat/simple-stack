@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source:
+      type: release
+      format: tar.gz
+      file: REPO_VERSION_OS_ARCH.FORMAT
+      os: linux
+      url: ""
+      version: 3.0.0
+  labels: {}
+  name: registry

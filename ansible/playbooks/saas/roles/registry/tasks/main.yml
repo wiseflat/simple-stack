@@ -1,0 +1,47 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ software_path }}"
+    - "{{ software_path }}/data"
+    - "{{ software_path }}/var/lib/registry"
+
+# - set_fact:
+#     user: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='user', missing='create', length=8, userpass=software.user | default('registry')) }}"
+#     passwd: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='passwd', missing='create', length=12) }}"
+
+# - debug:
+#     msg:
+#       - "{{ user }}"
+#       - "{{ passwd }}"
+
+- name: Add secret directly on container volume
+  ansible.builtin.copy:
+    content: |
+      {{ lookup('simple-stack-ui', type='secret', key=domain, subkey='user', missing='create', length=8, userpass=software.user | default('registry')) }}:{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='passwd', missing='create', length=12) | password_hash('blowfish') }}
+    dest: "{{ software_path }}/data/htpasswd"
+    mode: '0600'
+  become: true
+
+# - debug:
+#     msg:
+#       - "{{ softwares.registry }}"
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
