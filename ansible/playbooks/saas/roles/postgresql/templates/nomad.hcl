@@ -34,11 +34,11 @@ job "{{ domain }}" {
       driver = "docker"
 
       env {
-        POSTGRESQL_PASSWORD = "{{ lookup('community.general.passwordstore', 'postgresql/' + domain, missing='create', subkey='passwd', length=12) }}"
+        POSTGRESQL_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='passwd', missing='create', length=12) }}"
       }
 
       config {
-        image = "bitnami/postgresql:{{ hostvars[inventory_hostname].softwares.postgresql }}"
+        image = "bitnami/postgresql:{{ softwares.postgresql.version }}"
         volumes = [
           "{{ software_path }}/bitnami/postgresql:/bitnami/postgresql:rw",
           "{{ software_path }}/tmp:/tmp:rw"
@@ -46,9 +46,9 @@ job "{{ domain }}" {
       }
 
       resources {
-        cpu    = {{ size[software_vars.size].cpu }}
-        memory = {{ size[software_vars.size].memory | int }}
-        memory_max = {{ size[software_vars.size].memory * 2 }}
+        cpu    = {{ size[software.size].cpu }}
+        memory = {{ size[software.size].memory | int }}
+        memory_max = {{ size[software.size].memory * 2 }}
       }
     }
   }
