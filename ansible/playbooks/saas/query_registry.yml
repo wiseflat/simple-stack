@@ -1,0 +1,44 @@
+---
+- name: Get all images
+  hosts: infrastructure
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Get all images
+      ansible.builtin.uri:
+        url: "https://{{ docker_private_registry.url }}/v2/_catalog"
+        method: GET
+        user: "{{ docker_private_registry.username }}"
+        password: "{{ docker_private_registry.password }}"
+        status_code:
+          - 201
+          - 200
+        body_format: json
+      register: register_uri
+
+    - debug:
+        msg: "{{ register_uri.json.repositories }}"
+
+- name: Get specific image detail
+  hosts: infrastructure
+  become: false
+  gather_facts: false
+  vars_prompt:
+    - name: image
+      prompt: image
+      private: false
+  tasks:
+    - name: Get specific image tags
+      ansible.builtin.uri:
+        url: "https://{{ docker_private_registry.url }}/v2/{{ image }}/tags/list"
+        method: GET
+        user: "{{ docker_private_registry.username }}"
+        password: "{{ docker_private_registry.password }}"
+        status_code:
+          - 201
+          - 200
+        body_format: json
+      register: register_uri
+
+    - debug:
+        msg: "{{ register_uri.json.tags | sort }}"
