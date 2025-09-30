@@ -30,11 +30,6 @@ A set of basic Ansible roles designed to configure and manage your server with m
 - A lightweight control plane for orchestrating deployments
 - Simple service discovery for your containers
 
-**This project does NOT include:**
-- Complex container orchestrators (K3s, K8s, Nomad, Swarm, etc.)
-- Blue/green or canary deployment strategies
-- Distributed storage solutions
-
 ---
 
 ## Prerequisites
