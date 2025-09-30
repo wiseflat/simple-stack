@@ -1,0 +1,15 @@
+---
+image:
+  build: true
+  upstream:
+    source: github
+    user: AdguardTeam
+    repo: AdGuardHome
+    type: release
+    format: tar.gz
+    file: AdGuardHome_OS_ARCH.FORMAT
+    os: linux
+    binary: AdGuardHome
+  labels: {}
+  name: adguard
+  origin: alpine:latest
