@@ -1,0 +1,103 @@
+<style>
+	.CLASS .mobilemenu { display: none; z-index: 25; align-items: center; justify-content: center; width: 100%; height: 40px; position: absolute; left: 0; bottom: 0; background-color: #fff; border-top: 1px solid #e0e0e0; }
+	.CLASS .mobilemenu i { font-size: 20px; }
+	.CLASS main { position: relative; z-index: 1; }
+
+	@media(max-width: 768px)  {
+		.CLASS .mobilemenu { display: flex; height: 50px; background-color: #050505; }
+	}
+</style>
+
+<ui-plugin config="aclass:1">
+
+	<ui-component name="layout" config="parent:auto;width:200;margin:58">
+		<main style="border-left:0px solid #E0E0E0">
+			<div id="3d-graph"></div>
+		</main>
+	</ui-component>
+
+	<div class="mobilemenu exec" data-exec="?/mobilemenu">
+		<i class="ti ti-navicon"></i>
+	</div>
+</ui-plugin>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var projectid = null;
+		var limit = 50;
+		var skip = 0;
+		var prevunread = 0;
+		var data = exports.model;
+		  
+		CACHEPATH('?.type__"pending"', '1 month');
+
+		exports.reload = function() {
+
+			skip = 0;
+
+			var model = exports.model;
+			var uri = model.uri === undefined ? 'graphs' : model.uri;
+
+			DAPI('{0} ERROR'.format(uri), function(response) {
+				const distance = 1000;
+				const Graph = ForceGraph3D()
+				  (document.getElementById('3d-graph'))
+					.enableNodeDrag(true)
+					.backgroundColor('black')
+					.enableNavigationControls(true)
+					.showNavInfo(false)
+					.cameraPosition({ z: distance })
+					.graphData(response)
+					.nodeAutoColorBy('collection')
+					.onNodeClick(exports.edit)
+					.nodeLabel(node => `${node.collection}: ${node.description}`);
+			});
+		};
+
+		exports.edit = function(node) {			
+			if(!node.vid){
+				SET('formvariable @reset @hideloading', { type: node.collection, key: node.key });
+				SET('common.form2', 'formvariable');
+			}
+			else {
+				exports.tapi('variables_read/{0} ERROR'.format(node.vid), { type: node.collection, key: node.key, format: 'yaml' }, function(response) {
+					SET('formvariable @reset @hideloading', response);
+					SET('common.form2', 'formvariable');
+				});
+			}
+		};
+
+		exports.refresh = function(noscroll) {
+			var model = exports.model || {};
+		};
+
+		exports.mobilemenu = function(el) {
+			var opt = {};
+			opt.element = el;
+			opt.align = 'center';
+			opt.fixedwidth = true;
+			opt.items = [];
+
+			exports.tapi('search ERROR', function(response) {
+				opt.items = response;
+				EXEC('-menu/show', opt);
+			});
+
+			opt.callback = function(selected) {
+				switch (selected.id) {
+					case 'graphs':
+						SET('tickets @reset', {uri: selected.form});
+						REDIRECT('/ @showloading @hideloading');
+						break;
+					case 'logout':
+						location.href = '/logout/';
+						break;
+					default:
+						SET('common.form', selected.form);
+						break;
+				}
+			};
+		};
+	});
+</script>

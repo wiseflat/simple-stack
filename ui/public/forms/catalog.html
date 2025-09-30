@@ -1,0 +1,70 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:400;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-folder;zindex:30" plugin="~PATH~" class="hidden">
+	<div class="padding">
+		<ui-bind path="?" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">ID: <b>{{ value.id }}</b></div>
+			</script>
+		</ui-bind>
+		<div>
+			<div class="grid-2">
+				<div class="m">
+					<ui-component name="input" path="?.name" config="disabled:true">@(Name)</ui-component>
+				</div>
+				<div class="m">
+					<ui-component name="input" path="?.alias" config="required:1">@(Alias)</ui-component>
+				</div>
+			</div>
+			<div class="grid-2">
+				<div class="m">
+					<ui-component name="input" path="?.description" config="required:1">@(Description)</ui-component>
+				</div>
+				<div class="m">
+					<ui-component name="input" path="?.version" config="disabled:true">@(Version)</ui-component>
+				</div>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.documentation" config="required:0">@(Documentation)</ui-component>
+			</div>
+		</div>
+	</div>
+	<hr class="nmt nmb" />
+	<div class="padding">
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.cron" config="type:checkbox" class="b">@(Periodic build)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.crontab" config="required:1">@(Crontab)</ui-component>
+			</div>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(header) {
+			var model = exports.model;
+			header.reconfigure({ title: model.id ? '@(Update catalog item)' : '@(Add catalog item)' });
+			caller = exports.caller;
+		};
+
+		exports.submit = function(hide) {
+			var form = exports.form;
+			exports.tapi('catalogs_{0} ERROR'.format(form.id ? ('update/' + form.id) : 'create'), form, function() {
+				hide();
+				CLRELOAD('cl');
+				SETTER('notify/success', '@(Done)');
+				caller.exec('refresh');
+			});
+		};
+	});
+</script>

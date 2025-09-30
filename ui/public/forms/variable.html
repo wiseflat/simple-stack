@@ -1,0 +1,59 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:800;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-folder;zindex:30" plugin="~PATH~" class="hidden">
+	<div class="padding">
+		<ui-bind path="?.id" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">ID: <b>{{ value }}</b></div>
+			</script>
+		</ui-bind>
+		<ui-bind path="?.key" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">Key: <b>{{ value }}</b></div>
+			</script>
+		</ui-bind>
+		<ui-bind path="?.type" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">Type: <b>{{ value }}</b></div>
+			</script>
+		</ui-bind>
+	</div>
+	<div class="padding">
+		<div class="m">
+			<ui-component name="input" path="?.status" config="type:checkbox" class="b">@(Use this key in inventory)</ui-component>
+		</div>
+		<ui-bind path="?" config="track:id;template" class="meta listing">
+			<script type="text/html">
+				<ui-component name="codemirror" path="?.value" config="type:htmlmixed;height:400" class="m">@(Default Yaml variables)</ui-component>
+			</script>
+		</ui-bind>
+	</div>	
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(com) {
+			var model = exports.model;
+			com.reconfigure({ title: model.id ? '@(Update variables set)' : '@(Add variables set)' });
+			caller = exports.caller;
+		};
+
+		exports.submit = function(hide) {
+			var form = exports.form;
+			exports.tapi('variables_{0} ERROR'.format(form.id ? ('update/' + form.id) : 'create'), form, function() {
+				hide();
+				CLRELOAD('cl');
+				SETTER('notify/success', '@(Done)');
+				caller.exec('refresh');
+			});
+		};
+	});
+</script>

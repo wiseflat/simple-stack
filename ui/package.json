@@ -1,0 +1,24 @@
+{
+  "name": "simplestack",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wiseflat/simplestack"
+  },
+  "dependencies": {
+    "total5": "0.0.13",
+    "yaml": "2.8.1"
+  },
+  "scripts": {
+    "start": "node index.js 8000"
+  },
+  "keywords": [
+    "ansible",
+    "terraform",
+    "cloud computing",
+    "platform as a service"
+  ],
+  "author": "Mathieu Garcia / QWS",
+  "license": "MIT"
+}

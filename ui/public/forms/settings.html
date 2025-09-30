@@ -1,0 +1,46 @@
+<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:cog;title:@(User settings);autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:500" class="hidden ~PATH~" plugin="~PATH~">
+	<div>
+		<div class="padding">
+			<div class="grid-2">
+				<div class="m">
+					<ui-component name="input" path="?.first_name" config="required:1">@(First name)</ui-component>
+				</div>
+				<div class="m">
+					<ui-component name="input" path="?.last_name" config="required:1">@(Last name)</ui-component>
+				</div>
+			</div>
+			<div class="grid-2">
+				<div class="m">
+					<ui-component name="input" path="?.language" config="placeholder:en,fr;required:1">@(Language)</ui-component>
+				</div>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.email" config="placeholder:example@email.com;required:1;type:email">@(Email)</ui-component>
+			</div>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+		exports.reload = function() {
+			exports.tapi('settings_read ERROR', function(result) {
+				exports.set(result);
+			});
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.form;
+			exports.tapi('settings_update ERROR', model, function(result) {
+				hide();
+				SETTER('notify/success', '@(Done)');
+			});
+		};
+	});
+</script>

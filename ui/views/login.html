@@ -1,0 +1,147 @@
+@{layout('')}
+@{title(config.name)}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+	<meta name="robots" content="all,follow" />
+	<link rel="stylesheet" href="//cdn.componentator.com/spa.min@19.css" />
+	<script src="//cdn.componentator.com/spa.min@19.js"></script>
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="Simplestack" />
+	<link rel="apple-touch-icon" href="/icon.png" />
+	@{import('meta', 'head', 'favicon.ico')}
+	<style>
+		html, body { padding: 0; margin: 0; background-color: #F0F0F0; }
+		.login.panel { width: 320px; background-color: #000000; margin: 0 auto; text-align: left; border-radius: var(--radius); box-shadow: 0 0 80px rgba(0,0,0,0.1); }
+		.login.panel button { background-color: var(--color); color: #FFF; width: 100%; border: 0; height: 45px; border-radius: var(--radius); font-weight: bold; }
+		.login.panel button i { margin-right: 7px; }
+		.login.panel button[disabled] { background-color: #F0F0F0; color: #A0A0A0; cursor: not-allowed; font-weight: normal; }
+		.login.panel .padding { padding: 30px; }
+		.login h2 { padding: 0 0 5px; margin: 0 0 20px; text-align: center; margin-top: 10px;}
+
+		@media(max-width: 768px) {
+			.login.panel { margin: 20px; left: 0; position: relative; top: 0; width: auto; max-width: 1000px; }
+		}
+
+	</style>
+	<script src="@{REPO.ui}"></script>
+</head>
+<body>
+
+	<ui-component name="autodarkmode"></ui-component>
+	<ui-component name="exec"></ui-component>
+	<ui-component name="LAZY typed"></ui-component>
+	<ui-component name="LAZY message" config="style:2"></ui-component>
+
+	<ui-component name="viewbox" config="height:20;parent:window;centered:1">
+	</ui-component>
+	<ui-component name="viewbox" config="height:80;parent:window">
+		<div class="login panel">
+			<div class="padding">
+				<div id="landing">
+					<button name="landing_login" id="landing_login"><i class="fa fa-lock"></i>@(Login)</button>
+					<br/><br/>
+					<button name="landing_create" id="landing_create"><i class="fa fa-user white"></i>@(Create account)</button>
+					<br/><br/>
+				</div>
+	
+				<div id="landing_login2" hidden id="login">
+					<ui-bind path="common.type" config="show:value === 'login'" class="hidden">
+						<ui-plugin path="formlogin">
+							<ui-component name="autofill">
+								<ui-component name="input" path="?.email" config="required:1;type:email;autofill:1" class="m email">@(E-mail address)</ui-component>
+								<ui-component name="input" path="?.password" config="required:1;type:password;autofill:1" default="''" class="m">@(Password)</ui-component>
+								<ui-component name="validate" path="?" style="margin-top:20px">
+									<button name="submit" class="exec" data-exec="?/submit_login" disabled><i class="ti ti-key orange"></i>@(Sign-in)</button>
+								</ui-component>
+							</ui-component>
+						</ui-plugin>
+					</ui-bind>
+				</div>
+	
+				<div id="landing_create2" hidden id="createAccount">
+					<ui-bind path="common.type" config="show:value === 'login'" class="hidden">
+						<ui-plugin path="formlogin">
+							<ui-component name="autofill">
+								<ui-component name="input" path="?.email" config="required:1;type:email;autofill:1" class="m email">@(E-mail address)</ui-component>
+								<ui-component name="input" path="?.password" config="required:1;type:password;autofill:1" default="''" class="m">@(Password)</ui-component>
+								<ui-component name="validate" path="?" style="margin-top:20px">
+									<button name="submit" class="exec" data-exec="?/submit_create" disabled><i class="ti ti-key orange"></i>@(Create account)</button>
+								</ui-component>
+							</ui-component>
+							
+						</ui-plugin>
+					</ui-bind>
+				</div>
+				<p style="text-align: center; margin-top: 20px;">By continuing, you agree to our <a href="#">legal</a> consumer Terms and acknowledge their Privacy Policy.</p>
+				<p style="text-align: center; margin-top: 20px;">All rights reserved &copy; 2020-@{NOW.getFullYear()}.</p>
+			</div>
+	</ui-component>
+
+	<script>
+
+		var common = {};
+
+		common.type = 'login';
+		DEF.api = '/api/';
+
+		$("#landing_login" ).click(function() {
+			$(this).css('background-color','#4285F4');
+			$(this).css('color','white');
+			$('#landing_create').css('background-color','#F0F0F0');
+			$('#landing_create').css('color','silver');
+			$("#landing_create2").hide();
+			$("#landing_login2").show();
+		});
+
+		$("#landing_create" ).click(function() {
+			$(this).css('background-color','#4285F4');
+			$(this).css('color','white');
+			$('#landing_login').css('background-color','#F0F0F0');
+			$('#landing_login').css('color','silver');
+			$("#landing_login2").hide();
+			$("#landing_create2").show();
+		});
+
+		$(document).on('click', '.CLASS-item', function() {
+			$(this).tclass('CLASS-selected');
+		});
+
+		ON('ERROR', function(err) {
+			var builder = [];
+			if (err instanceof Array) {
+				for (var e of err)
+					builder.push(e.error || e.message || e.name);
+			} else
+				builder.push(err.toString());
+			builder.length && SETTER('message/warning', builder.join('<br>'));
+		});
+
+		PLUGIN('formlogin', function(exports) {
+			exports.submit_login = function() {
+				var form = exports.form;
+				exports.tapi('login ERROR', form, function(response) {
+					location.href = location.href;
+				});
+			};
+
+			exports.submit_create = function() {
+				var form = exports.form;
+				exports.tapi('account_create ERROR', form, function(response) {
+					location.href = location.href;
+				});
+			};
+		});
+
+		ON('ready', function() {
+			setTimeout(() => $('.email input').focus(), 1000);
+		});
+
+	</script>
+
+</body>
+</html>
