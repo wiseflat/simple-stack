@@ -1,0 +1,174 @@
+<style>
+	.CLASS figure { font-size: 12px; }
+	.CLASS .buttons { float: right; padding-left: 10px; }
+	.CLASS .currency { float: right; width: 40px; color: #777; border-right: 1px solid #D0D0D0; margin-right: 5px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: left; }
+	.CLASS .rate { float: right; width: 170px; color: #777; text-align: right; padding: 0 10px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+	.CLASS .name { margin-right: 300px; }
+	.CLASS .name > i { width: 12px; margin-right: 5px; text-align: center; }
+	.CLASS .buttons span { line-height: 21px; margin:0px 2px 2px 2px ; border-radius: var(--radius); border: 0; margin: 0 5px; }
+	.CLASS figure .description { margin-left: 5px; }
+	.CLASS figure .name .badges { display: inline-block; border-left: 1px solid #e0e0e0; padding-left: 15px; }
+	.ui-box-icon { color: #7BB2F9 }
+	
+	@media(max-width:768px) {
+		.CLASS .name { margin-right: 46px; }
+	}
+</style>
+
+<ui-component name="box" path="common.form" config="if:~PATH~;width:1000;icon:ti ti-cube;title:@(Softwares);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+	<nav>
+		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i>@(Settings)</button>
+		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
+		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+	</nav>
+	<ui-component name="datagrid" path="?.items" config="height:fluid;minheight:fluid;numbering:false;button:?/button;checked:?.checked;">
+		<script type="text/plain">
+			[
+			{ name: 'status', text: '@(Status)', width: 90, filter: false, sort: false, template: '{{ if state == 0 }}<i title="In progress" class="ti ti-loading orange"></i>{{ else }}<i title="Container health" class="ti ti-pulse {{ if alerts && alerts.length > 0 }}orange{{ else }}green{{ fi }} fa-lg"></i> <i title="Basic authentication" class="fa fa-user-o {{ if security_basic_auth == true }}red{{ else }}green{{ fi }} fa-lg"></i> <i title="Ip filter" class="fa fa-shield {{ if security_ip == true }}red{{ else }}green{{ fi }} fa-lg"></i> <i title="Security alert" class="fa fa-bug green fa-lg"></i>{{ fi }}', classth: 'left' },
+			{ name: 'domain', text: 'Domain', width: 250 },
+			{ name: 'version', text: 'Version', classth: 'left', template: '<i class="{{ if version != latest_version }}orange{{ else }}green{{ fi }} fa-lg">{{ version }}</i>', width: 100 },
+			{ name: 'software', text: '@(Catalog)', width: 100, template: '{{ software }}', classth: 'left' },
+			{ name: 'size', text: '@(Size)', width: 70, sort: true, template: '{{ size }}', classth: 'left', classfilter: 'left' },
+			{ name: 'instance', text: '@(Instance)', width: 300, template: '{{ instance }}', classth: 'left' },
+			{ type: 'controls', template: '<button name="link" data-domain="{{ domain }}" data-exec="?/link" title="@(External link)"><i class="fa fa-external-link"></i></button><button name="edit" class="exec items" data-id="{{ id }}" data-exec="?/update" title="@(Edit)"><i class="fa fa-pencil"></i></button><button name="variables" class="exec items" data-vid="{{ vid }}" data-key="{{ domain }}" data-exec="?/variables" title="@(Variables)"><i class="ti ti-variables"></i></button><button name="variables" class="exec items" data-sid="{{ sid }}" data-key="{{ domain }}" data-exec="?/secrets" title="@(Secrets)"><i class="ti ti-eye-slash"></i></button>' }
+			]
+		</script>
+	</ui-component>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var interval;
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('softwares ERROR', function(result){
+				exports.set(result);
+			});
+
+            /*interval = setInterval(function() {
+                exports.tapi('softwares ERROR', 'softwares');
+            }, 10000);*/
+		};
+
+		exports.refreshGraph = function() {
+			REDIRECT('/ @showloading @hideloading');
+		};
+
+		exports.settings = function(el) {
+			const id = GET('?.settingsId');
+			const type = 'settings';
+			const key = 'softwares';
+
+			if(!id){
+				SET('formvariable @reset @hideloading', { type: type, key: key });
+				SET('common.form2', 'formvariable');
+			}
+			else {
+				exports.tapi('variables_read/{0} ERROR'.format(id), { type: type, format: 'yaml' }, function(response) {
+					SET('formvariable @reset @hideloading', response);
+					SET('common.form2', 'formvariable');
+				});
+			}
+		};
+		
+		exports.close = function() {
+            clearInterval(interval);
+		};
+
+		exports.add = async function() {
+			exports.tapi('softwares_new ERROR', function(response) {
+				SET('formsoftware @reset @hideloading', response);
+				SET('common.form2', 'formsoftware');
+			});
+		};
+
+		exports.update = function(el) {
+			var id = ATTRD(el, 'id');
+			var projectid = ATTRD(el, 'projectid');
+			exports.tapi('softwares_read/{0} ERROR'.format(id), function(response) {
+				SET('formsoftware @reset @hideloading', response);
+				SET('common.form2', 'formsoftware');
+			});
+		};
+
+		exports.link = function(el) {
+			var domain = ATTRD(el, 'domain');
+			var win = window.open('https://'+domain, '_blank');
+			win.focus();
+		};
+
+		exports.variables = function(el) {
+			const vid = ATTRD(el, 'vid');
+			const key = ATTRD(el, 'key');
+			const type = 'software';
+
+			if(!vid){
+				SET('formvariable @reset @hideloading', { type: type, key: key });
+				SET('common.form2', 'formvariable');
+			}
+			else {
+				exports.tapi('variables_read/{0} ERROR'.format(vid), { type: type, format: 'yaml' }, function(response) {
+					SET('formvariable @reset @hideloading', response);
+					SET('common.form2', 'formvariable');
+				});
+			}
+		};
+
+		exports.secrets = function(el) {
+			const sid = ATTRD(el, 'sid');
+			const key = ATTRD(el, 'key');
+			const type = 'secret';
+
+			if(!sid){
+				SET('formvariable @reset @hideloading', { type: type, key: key });
+				SET('common.form2', 'formvariable');
+			}
+			else {
+				exports.tapi('variables_read/{0} ERROR'.format(sid), { type: type, key: key, format: 'yaml' }, function(response) {
+					SET('formvariable @reset @hideloading', response);
+					SET('common.form2', 'formvariable');
+				});
+			}
+		};
+
+		exports.operations = function(el) {
+			
+			clearInterval(interval);
+
+			var model = GET('?');
+			var options = {};
+			options.align = 'center';
+			options.items = [];
+			options.element = el;
+			var icon = ATTRD(el, 'icon');
+
+			options.items.push({ action: 'start', name: 'Start', icon: 'play', comment: '@(Do you want to start selected items ?)'});
+			options.items.push({ action: 'stop', name: 'Stop', icon: 'stop-alt', comment: '@(Do you want to stop selected items ?)'});
+			options.items.push({ action: 'main', name: '(Re) deploy', icon: 'refresh', comment: '@(Do you want to upgrade selected items ?)'});
+			options.items.push({ action: 'backup', name: 'Backup', icon: 'download', comment: '@(Do you want to backup selected items ?)'});
+			options.items.push({ action: 'restore', name: 'Restore', icon: 'upload', comment: '@(Do you want to restore selected items ?)'});
+			options.items.push({ action: 'remove', name: 'Remove', icon: 'remove', comment: '@(Do you want to remove permanently selected items ? Backup will be destroyed)' });
+
+			options.callback = function(item) {
+				SETTER('approve/show', item.comment, '"{0}"'.format(item.icon), function() {
+					model.checked.wait(function(value, next) {
+						exports.tapi('softwares_execute/{0} ERROR'.format(value.id), { action: item.action }, function(result) {
+							next();
+						});
+					}, function(){
+						SETTER('notify/success', '@(Done)');
+						exports.refresh();
+						if(item.action == 'remove')
+							exports.refreshGraph();
+					});
+				});
+			};
+			SETTER('menu', 'show', options);
+		};
+	});
+</script>

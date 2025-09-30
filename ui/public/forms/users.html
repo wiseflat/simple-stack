@@ -1,0 +1,82 @@
+<style>
+	.CLASS figure { font-size: 12px; }
+	.CLASS .buttons { float: right; padding-left: 10px; }
+	.CLASS .name { margin-right: 300px; display: flex; align-items: center; }
+	.ui-box-icon { color: #EB73F8 }
+
+	@media(max-width: 768px) {
+		.CLASS .name { margin-right: 46px; }
+	}
+</style>
+
+<ui-component name="box" path="common.form" config="if:~PATH~;width:600;icon:ti ti-users;title:@(Users);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+	<nav>
+		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+	</nav>
+	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
+	<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:key;output:?.searchoutput">
+		<div class="padding">
+			<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
+				<script type="text/html">
+				{{ foreach m in value }}
+				<figure data-id="{{ m.id }}" class="exec" data-exec="?/edit">
+					<section>
+						<div class="buttons">
+							<span class="exec" data-exec="?/remove" data-prevent="true"><i class="ti ti-remove red"></i></span>
+						</div>
+						{{ if m.dtlogged }}<div class="pull-right gray fs11 hidden-xs" style="margin-top:4px"><i class="ti ti-door-alt mr5"></i>{{ m.dtlogged | format('[ts]') }}</div>{{ fi }}
+						<div class="name">
+							{{ if m.isinactive }}<span class="fs11 mr5 badge badge-small badge-red">@(Inactive)</span>{{ fi }}
+							<span class="{{ if m.isinactive }}silver nob{{ else if m.isdisabled }}gray nob{{ fi }}"{{ if m.isinactive }} style="text-decoration:line-through"{{ fi }}>{{ m.last_name }} {{ m.first_name }}</span>
+							{{ if m.isonline }}<span class="fs11 ml5 badge badge-medium badge-green">@(Online)</span>{{ fi }}
+							{{ if m.sa }}<span class="fs11 ml5 badge badge-medium">@(Super admin)</span>{{ fi }}
+							{{ if m.isdisabled }}<span class="fs11 ml5 badge badge-medium badge-silver">@(Disabled)</span>{{ fi }}
+						</div>
+					</section>
+				</figure>
+				{{ end }}
+				</script>
+			</ui-bind>
+		</div>
+	</ui-component>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('users ERROR', function(results) {
+				var output = {
+					search: '',
+					searchoutput: [],
+					items: results
+				};
+				exports.set(output);
+			});
+		};
+
+		exports.add = function(el) {
+			SET('formuser @default', { password: GUID(10) });
+			SET('common.form2', 'formuser');
+		};
+
+		exports.edit = function(el) {
+			var id = ATTRD(el);
+			exports.tapi('users_read/{0} ERROR'.format(id), function(response) {
+				SET('formuser @reset', response);
+				SET('common.form2', 'formuser');
+			});
+		};
+
+		exports.remove = function(el) {
+			var id = ATTRD(el);
+			EXEC('-approve/show', '@(Remove selected user?)', '"ti ti-remove" @(Remove)', function() {
+				exports.tapi('users_remove/{0} ERROR'.format(id), exports.refresh);
+			});
+		};
+	});
+</script>

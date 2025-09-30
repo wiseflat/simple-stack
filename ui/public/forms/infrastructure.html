@@ -1,0 +1,77 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:800;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-folder;zindex:30" plugin="~PATH~" class="hidden">
+	<div class="padding">
+		<ui-bind path="?.id" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">ID: <b>{{ value }}</b></div>
+			</script>
+		</ui-bind>
+		<div>
+			<div class="m">
+				<ui-component name="input" path="?.name" config="required:1">@(Name)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.description" config="required:1">@(Description)</ui-component>
+			</div>
+		</div>
+	</div>
+	<hr class="nmt nmb" />
+	<div class="padding">
+		<div>
+			<div class="m">
+				<ui-component name="input" path="?.admin_login" config="required:1">@(Admin login)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.admin_pass" config="camouflage:1;placeholder:Sensible variable hidden after submission">@(Admin password)</ui-component>
+				<div class="help exec link" data-exec="?/generate"><i class="ti ti-key mr5"></i>@(Generate password)</div>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.admin_ip" config="required:1">@(Admin ip address)</ui-component>
+			</div>
+		</div>
+	</div>
+	<hr class="nmt nmb" />
+	<div class="padding">
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.color" config="type:color" default="'#4285F4'">@(Color)</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.icon" config="type:icon" default="'ti ti-bull'">@(Icon)</ui-component>
+			</div>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(header) {
+			var model = exports.model;
+			header.reconfigure({ title: model.id ? '@(Update infrastructure)' : '@(Add infrastructure)' });
+			caller = exports.caller;
+		};
+
+		exports.generate = function() {
+			exports.set('admin_pass', GUID(10));
+		};
+
+		exports.submit = function(hide) {
+			var form = exports.form;
+			exports.tapi('infrastructures_{0} ERROR'.format(form.id ? ('update/' + form.id) : 'create'), form, function() {
+				hide();
+				CLRELOAD('cl');
+				SETTER('notify/success', '@(Done)');
+				caller.exec('refresh');
+			});
+		};
+	});
+</script>

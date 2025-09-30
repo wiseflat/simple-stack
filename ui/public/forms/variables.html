@@ -1,0 +1,132 @@
+<style>
+	.CLASS figure { /*border-top: 1px solid #e0e0e02e;*/ font-size: 14px; margin-top: 20px; margin-bottom: 20px;}
+	.CLASS figure:first-child { border-top: 0; }
+	.CLASS figure:first-child { margin-top: 0; }
+	.CLASS .buttons { float: right; padding-left: 10px; }
+	.CLASS .name { margin-right: 100px; }
+	.CLASS .name > i { width: 12px; margin-right: 5px; text-align: center; }
+	.CLASS figure .name .description { margin-left: 9px; }
+	.CLASS .buttons span { line-height: 21px; margin:0px 2px 2px 2px ; border-radius: var(--radius); border: 0; margin: 0 5px; }
+	.CLASS figure .name .picto { display: inline-block; padding-right: 15px; }
+	.CLASS figure .name .badges { display: inline-block; border-left: 1px solid #e0e0e0; padding-left: 15px; }
+	.ui-box-icon { color: #EA706B }
+
+	@media(max-width:768px) {
+		.CLASS .name { margin-right: 46px; }
+	}
+</style>
+
+<ui-component name="box" path="common.form" config="if:~PATH~;width:600;icon:ti ti-variables;title:@(Variables);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
+	<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:key;output:?.searchoutput">
+		<div class="padding">
+			<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
+				<script type="text/html">
+				{{ foreach m in value }}
+					<figure data-id="{{ m.id }}" data-key="{{ m.key }}" data-type="{{ m.type }}" class="exec items" data-exec="?/update">
+						<section>
+							<!-- <div class="buttons">
+								<span class="badge" data-prevent="true">{{ m.type }}</span>
+							</div> -->
+							<div class="name">
+								<div class="picto">
+									<i class="ti ti-{{ m.type | type }}" style="color:{{ m.type | color }}"></i>
+								</div>
+								{{ m.key }}
+							</div>
+						</section>
+					</figure>
+				{{ end }}
+				</script>
+			</ui-bind>
+		</div>
+	</ui-component>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		Thelpers.type = function(val) {
+			switch(val){
+				case 'project':
+					return 'folders';
+					break;
+				case 'provider':
+					return 'cloud';
+					break;
+				case 'region':
+					return 'network';
+					break;
+				case 'location':
+					return 'compass';
+					break;
+				case 'instance':
+					return 'server';
+					break;
+				case 'software':
+					return 'cube';
+					break;
+				case 'secret':
+					return 'key green';
+					break;
+				case 'variable':
+					return 'variables';
+					break;
+			}
+		};
+
+		Thelpers.color = function(val) {
+			switch(val){
+				case 'project':
+					return '#C5FC7C';
+					break;
+				case 'provider':
+					return '#96FA7A';
+					break;
+				case 'region':
+					return '#96FBB9';
+					break;
+				case 'location':
+					return '#7BB2F9';
+					break;
+				case 'instance':
+					return '#96FCFD';
+					break;
+				case 'software':
+					return '#7BB2F9';
+					break;
+				case 'secret':
+					return '#7BB2F9';
+					break;
+				case 'variable':
+					return '#7BB2F9';
+					break;
+			}
+		};
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('variables ERROR', function(results){
+				var output = {
+					search: '',
+					searchoutput: [],
+					items: results
+				};
+				exports.set(output);
+			});
+		};
+		
+		exports.update = function(el) {
+			var id = ATTRD(el, 'id');	
+			var key = ATTRD(el, 'key');
+			var type = ATTRD(el, 'type');
+			exports.tapi('variables_read/{0} ERROR'.format(id), { key: key, type: type, format: 'yaml'}, function(response) {
+				SET('formvariable @reset @hideloading', response);
+				SET('common.form2', 'formvariable');
+			});
+		};
+	});
+</script>

@@ -1,0 +1,85 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:400;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-server;zindex:30" plugin="~PATH~" class="hidden">
+	<div class="padding" id="info">
+		<ui-bind path="?" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">ID: <b>{{ value.item.id }}</b></div>
+				<div class="monospace">Instance: <b>{{ value.item.instance }}</b></div>
+				<div class="monospace">Software: <b>{{ value.item.software | getSoftware }}</b></div>
+				<div class="monospace">Domain: <b>{{ value.item.domain }}</b></div>
+			</script>
+		</ui-bind>		
+	</div>
+	<hr class="nmt nmb" />
+	<div class="padding">
+		<div class="m" id="instance">
+			<ui-component name="input" path="?.item.instance" config="required:1;dirsource:?.instances">@(Instance)</ui-component>
+		</div>
+		<div class="m" id="software">
+			<ui-component name="input" path="?.item.software" config="required:1;dirsource:?.softwares">@(Software)</ui-component>
+		</div>
+		<div class="m">
+			<ui-component name="input" path="?.item.size" config="required:1;dirsource:?.sizes">@(Size)</ui-component>
+		</div>
+	</div>
+	<hr class="nmt nmb" />
+	<div class="padding">
+		<div class="m" id="domain">
+			<ui-component name="input" path="?.item.domain" config="required:1">@(Domain name)</ui-component>
+		</div>
+		<div class="m">
+			<ui-component name="input" path="?.item.domain_alias" config="required:0">@(Domain alias)</ui-component>
+		</div>
+		<div class="m">
+			<ui-component name="input" path="?.item.exposition" config="required:1;dirsource:?.expositions">@(Domain exposition)</ui-component>
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		Thelpers.getSoftware = function(val) {
+			const software = exports.model.softwares.find(item => item.id === val);
+			return software.name;
+		};
+
+		exports.reload = function(header) {
+			var model = exports.model;
+			if(typeof model.item.id == 'undefined'){
+				$('#info').attr('hidden', true);
+				$('#instance').attr('hidden', false);
+				$('#software').attr('hidden', false);
+				$('#domain').attr('hidden', false);
+			}
+			else {
+				$('#info').attr('hidden', false);
+				$('#instance').attr('hidden', true);
+				$('#software').attr('hidden', true);
+				$('#domain').attr('hidden', true);
+			}
+
+			header.reconfigure({ title: model.item.id ? '@(Update software)' : '@(Add software)' });
+			caller = exports.caller;
+		};
+
+		exports.submit = function(hide) {
+			var form = exports.form;
+			exports.tapi('softwares_{0} ERROR'.format(form.item.id ? ('update/' + form.item.id) : 'create'), form.item, function() {
+				hide();
+				CLRELOAD('cl');
+				SETTER('notify/success', '@(Done)');
+				caller.exec('refresh');
+				caller.exec('refreshGraph');
+			});
+		};
+	});
+</script>

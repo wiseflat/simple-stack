@@ -1,0 +1,204 @@
+@{layout('')}
+@{title(config.name)}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="robots" content="all,follow" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="QWS" />
+	<link rel="apple-touch-icon" href="/icon.png" />
+	<link href="https://cdn.componentator.com/spa.min@19.css" rel="stylesheet" />
+	<script src="https://cdn.componentator.com/spa.min@19.js"></script>
+	<script src="/js/3d-force-graph.min@1.73.2.js"></script>
+	<link href="/css/ui.css" />
+	<link href="/css/default.css" />
+	@{import('meta', 'head', 'favicon.ico')}
+</head>
+<body>
+	<ui-component name="autodarkmode"></ui-component>
+	<ui-component name="errorhandler"></ui-component>
+	<ui-component name="loading" config="style:2" class="hidden"></ui-component>
+	<ui-component name="locale" config="language:@{user.language}"></ui-component>
+	<ui-component name="exec"></ui-component>
+	<ui-component name="title" path="common.title"></ui-component>
+	<ui-component name="shortcuts"></ui-component>
+	<ui-component name="directory" config="placeholder:@(Search)"></ui-component>
+	<ui-component name="spotlight"></ui-component>
+	<ui-component name="LAZY timepicker"></ui-component>
+	<ui-component name="LAZY colorpicker"></ui-component>
+	<ui-component name="LAZY approve"></ui-component>
+	<ui-component name="LAZY notify" config="position:bottom right"></ui-component>
+	<ui-component name="LAZY icons"></ui-component>
+	<ui-component name="LAZY menu" config="style:2"></ui-component>
+	<ui-component name="LAZY clipboard"></ui-component>
+	<div><ui-component name="page" path="common.page" config="if:graph;url:/pages/index.html;reload:?/reload" class="invisible hidden"></ui-component></div>
+	<ui-component name="importer" path="common.form" config="if:forminfrastructures;url:/forms/infrastructures.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:forminfrastructure;url:/forms/infrastructure.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formvariables;url:/forms/variables.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formvariable;url:/forms/variable.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formcatalogs;url:/forms/catalogs.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formcatalog;url:/forms/catalog.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formsoftwares;url:/forms/softwares.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formsoftware;url:/forms/software.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formusers;url:/forms/users.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formuser;url:/forms/user.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formsettings;url:/forms/settings.html"></ui-component>
+	<ui-component name="importer" path="common.form" config="if:formpassword;url:/forms/password.html"></ui-component>
+
+	@{json(model, 'pluginsdata')}
+
+	<script>
+
+		ENVIRONMENT('ui');
+
+		var user = EMPTYOBJECT;
+		var common = {};
+
+		DEF.color = '#4285F4';
+		DEF.api = '/api/';
+		DEF.versionhtml = '@{CONF.version}';
+		DEF.languagehtml = '@{user.language}';
+
+		common.clientid = GUID(5) + Date.now().toString(36);
+		common.plugins = PARSE('#pluginsdata');
+		common.name = document.title;
+
+		NAV.clientside('.jR');
+
+		(function() {
+			ADD('websocket', { url: '/api/?id=' + common.clientid });
+		})();
+
+		PLUGIN('common', function(exports) {
+
+			var model = exports.model;
+
+			exports.dropcheck = function(e) {
+				return model.form === 'formdetail';
+			};
+
+			exports.dropsend = function(files) {
+				EXEC(model.form + '/drop', files);
+			};
+
+			exports.version = function() {
+				exports.tapi('version', function(response) {
+					if (response.value !== DEF.versionhtml)
+						location.reload();
+				});
+			};
+
+			exports.on('service', function() {
+				exports.version();
+			});
+
+		});
+
+		ROUTE('/', function() {
+			SET('common.page', 'graph');
+		}, 'init');
+
+		SETTER(true, 'shortcuts/register', 'esc', function(e) {
+
+			if (common.form3) {
+				NULL('common.form3');
+				return;
+			}
+
+			if (common.form2) {
+				NULL('common.form2');
+				return;
+			}
+
+			if (common.form === 'formdetail') {
+				W.focus();
+				EXEC('formdetail/hide');
+				NULL('common.form', 200);
+			} else
+				NULL('common.form');
+
+		});
+
+		SETTER(true, 'shortcuts/register', 'F2', function(e){
+			var opt = {};
+
+			opt.delay = 400;
+			opt.recent = '';
+			opt.clear = true;
+			opt.cache = '';
+			opt.placeholder = 'action';
+			opt.search = function(value, next) {
+				DAPI('search/?q={0}'.format(encodeURIComponent(value)), function(response) {
+					next(response);
+				});
+			};
+			
+			opt.callback = function(selected) {
+				switch (selected.id) {
+					case 'logout':
+						location.href = '/logout/';
+						break;
+					case 'edit':
+						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), function(response) {
+							SET('{0} @reset @hideloading'.format(selected.form), response);
+							SET('common.form2', selected.form);
+						});
+						break;
+					case 'main':
+					case 'backup':
+					case 'stop':
+					case 'start':
+					case 'restore':
+						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), {action: selected.id }, function(response) {
+							SETTER('notify/success', '@({0} in progress...)'.format(selected.id));
+						});
+						break;
+					case 'build':
+						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), function(response) {
+							SETTER('notify/success', '@({0} in progress...)'.format(selected.id));
+						});
+						break;
+					default:
+						SET('common.form', selected.form);
+						break;
+				}
+			};
+	
+			SETTER('spotlight/show', opt);
+		});
+
+		ON('message', function(msg) {
+			switch (msg.TYPE) {
+				case 'setter':
+					SETTER(msg.name, msg.value);
+					return;
+				case 'reload':
+					location.reload(true);
+					return;
+				case 'sync':
+					common.clients = msg.data;
+					UPD('common.clients');
+					break;
+				case 'close':
+					delete common.clients[msg.clientid];
+					UPD('common.clients');
+					break;
+			}
+
+			if (msg.TYPE === 'refresh') {
+
+				if (msg.markdown) {
+					if (common.form === 'formdetail' && msg.id === W.formdetail.id)
+						SET('formdetail.markdown', msg.markdown);
+					return;
+				}
+			}
+		});
+	</script>
+
+</body>
+</html>

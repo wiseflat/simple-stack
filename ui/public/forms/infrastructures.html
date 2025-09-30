@@ -1,0 +1,107 @@
+<style>
+	.CLASS figure { /*border-top: 1px solid #e0e0e02e;*/ font-size: 14px; margin-top: 20px; margin-bottom: 20px;}
+	.CLASS figure:first-child { border-top: 0; }
+	.CLASS figure:first-child { margin-top: 0; }
+	.CLASS .buttons { float: right; padding-left: 10px; }
+	.CLASS .name { margin-right: 100px; }
+	.CLASS .name > i { width: 12px; margin-right: 5px; text-align: center; }
+	.CLASS figure .name .description { margin-left: 9px; }
+	.CLASS .buttons span { line-height: 21px; margin:0px 2px 2px 2px ; border-radius: var(--radius); border: 0; margin: 0 5px; }
+	.CLASS figure .name .picto { display: inline-block; padding-right: 15px; }
+	.CLASS figure .name .badges { display: inline-block; border-left: 1px solid #e0e0e0; padding-left: 15px; }
+	.ui-box-icon { color: #EA706B }
+
+	@media(max-width:768px) {
+		.CLASS .name { margin-right: 46px; }
+	}
+</style>
+
+<ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-folders;title:@(Infrastructures);reload:?/reload;hide:?/close;" class="hidden ~PATH~" plugin="~PATH~">
+	<nav>
+		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+	</nav>
+	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
+	<ui-component name="empty" path="?.items" config="parent:auto;icon:ti ti-frown red">
+		<script type="text/html">
+			@(You don't have any infrastructures here)
+		</script>
+		<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:name;output:?.searchoutput">
+			<div class="padding">
+				<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
+					<script type="text/html">
+					{{ foreach m in value }}
+						<figure data-id="{{ m.id }}" class="exec items" data-exec="?/update">
+							<section>
+								<div class="buttons">
+									<span class="exec" data-exec="?/remove" data-prevent="true"><i class="ti ti-trash red"></i></span>
+								</div>
+								<div class="name">
+									<div class="picto">
+										<i class="{{ m.icon }}" style="color:{{ m.color }}"></i>
+									</div>
+									{{ m.name | empty }}
+
+									<div class="badges">
+										{{ if m.isprivate }}<span class="badge badge-small badge-green">@(Private)</span>{{ fi }}
+										{{ if m.isarchived }}<span class="badge badge-small badge-purple">@(Archived)</span>{{ fi }}
+									</div>
+								</div>
+							</section>
+						</figure>
+					{{ end }}
+					</script>
+				</ui-bind>
+			</div>
+		</ui-component>
+	</ui-component>
+
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('infrastructures ERROR', function(results){
+				var output = {
+					search: '',
+					searchoutput: [],
+					items: results
+				};
+				exports.set(output);
+			});
+		};
+		
+		exports.refreshGraph = function() {
+			REDIRECT('/ @showloading @hideloading');
+		};
+
+		exports.add = function() {
+			SET('forminfrastructure @default', {});
+			SET('common.form2', 'forminfrastructure');
+		};
+
+		exports.remove = function(el) {
+			var id = ATTRD(el);
+			SETTER('approve/show', '@(Remove selected infrastructure?)', '"ti ti-trash" @(Remove)', function() {
+				exports.tapi('infrastructures_remove/{0} ERROR'.format(id),function() {
+					SETTER('notify/success', '@(Done)');
+					CLRELOAD('cl');
+					exports.refresh();
+					exports.refreshGraph();
+				});
+			});
+		};
+
+		exports.update = function(el) {
+			var id = ATTRD(el);
+			exports.tapi('infrastructures_read/{0} ERROR'.format(id), function(response) {
+				SET('forminfrastructure @reset @hideloading', response);
+				SET('common.form2', 'forminfrastructure');
+			});
+		};
+	});
+</script>

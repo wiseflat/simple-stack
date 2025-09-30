@@ -1,0 +1,7 @@
+/index.js.json
+/logs/
+/tmp/
+config
+index.pid
+databases/*.nosql
+node_modules

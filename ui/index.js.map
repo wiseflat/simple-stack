@@ -1,0 +1,537 @@
+{
+	"routes": [
+		{
+			"method": "GET",
+			"url": "/tapi/"
+		},
+		{
+			"method": "GET",
+			"url": "/api/ping"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "users",
+			"name": "List of users"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "users_read",
+			"params": "id:string",
+			"name": "Read user"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "users_create",
+			"input": "*first_name:String, *last_name:String, *email:Email, language:Lower(2), *password:String, *token:String, isdisabled:Boolean, sa:Boolean",
+			"name": "Create user"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "users_update",
+			"input": "*first_name:String, *last_name:String, *email:Email, language:Lower(2), password:String, token:String, sa:Boolean, isdisabled:Boolean, isinactive:Boolean, notifications:Boolean",
+			"name": "Update user"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "users_remove",
+			"name": "Remove user"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 2,
+			"id": "login",
+			"input": "*email:Email,*password:String",
+			"name": "Login"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "settings_read",
+			"name": "Read a user information"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "settings_update",
+			"input": "*first_name:String, *last_name:String, *email:Email, *language:String",
+			"name": "Save settings"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "password",
+			"input": "*password:String",
+			"name": "Change password"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 2,
+			"id": "account_create",
+			"input": "*email:Email, *password:String",
+			"name": "Create user account"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "version",
+			"name": "Version"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "search",
+			"name": "Search item",
+			"query": "q:String"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "catalogs",
+			"name": " of catalog items"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "catalogs_read",
+			"name": "Read a catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "catalogs_create",
+			"input": "*name:String, *version:String",
+			"name": "Create catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "catalogs_update",
+			"input": "*alias:String, *description:String, documentation:String, *cron:Boolean, *crontab:String",
+			"name": "Update catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "catalogs_remove",
+			"name": "Remove catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "catalogs_execute",
+			"name": "Execute a build"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "infrastructures",
+			"name": "List of cloud infrastructures"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "infrastructures_read",
+			"name": "Read a project"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "infrastructures_create",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, *admin_pass:String",
+			"name": "Create project"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "infrastructures_update",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, admin_pass:String",
+			"name": "Update project"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "infrastructures_remove",
+			"name": "Remove infrastructure"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "softwares",
+			"name": "List all softwares"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "softwares_new",
+			"name": "Get all dependencies to create software"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "softwares_read",
+			"name": "Read a software"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "softwares_create",
+			"input": "*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String",
+			"name": "Create a software"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "softwares_update",
+			"input": "*size:String, domain_alias:String, *exposition:String",
+			"name": "Update software"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "softwares_update_version",
+			"input": "*version:String",
+			"name": "Update software version"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "softwares_remove",
+			"name": "Mark software as eligible for destruction"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "softwares_execute",
+			"input": "*action:{start|stop|main|backup|restore|remove}",
+			"name": "Execute playbook"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "variables",
+			"name": "List of variables"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "variables_read",
+			"input": "*key:String, *type:String, format:{yaml|json}",
+			"name": "Read a variable set"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "variables_create",
+			"input": "*type:String, *key:String, value:String",
+			"name": "Create a variable set"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "variables_update",
+			"input": "*type:String, *key:String, status:Boolean, value:String",
+			"name": "Update a variable set"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "graphs",
+			"name": "List all projects as graph"
+		},
+		{
+			"method": "GET",
+			"url": "/logout/",
+			"auth": 1
+		},
+		{
+			"method": "POST",
+			"url": "/api/tfstates/{id}/",
+			"auth": 1,
+			"params": "id:string"
+		},
+		{
+			"method": "GET",
+			"url": "/api/tfstates/{id}/",
+			"auth": 1,
+			"params": "id:string"
+		},
+		{
+			"method": "GET",
+			"url": "/api/inventory",
+			"auth": 1
+		},
+		{
+			"method": "POST",
+			"url": "/api/secret",
+			"auth": 1
+		},
+		{
+			"method": "GET",
+			"url": "/*",
+			"auth": 1
+		},
+		{
+			"method": "GET",
+			"url": "/*",
+			"auth": 2
+		},
+		{
+			"method": "SOCKET",
+			"url": "/api/",
+			"auth": 1
+		}
+	],
+	"actions": [
+		{
+			"name": "Catalogs/spotlight",
+			"params": "*prefix:String,*action:String"
+		},
+		{
+			"name": "Catalogs/list",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/create",
+			"input": "*name:String, *version:String",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/read",
+			"params": "*id:UID",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/update",
+			"params": "*id:UID",
+			"input": "*alias:String, *description:String, documentation:String, *cron:Boolean, *crontab:String",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/remove",
+			"params": "*id:UID",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/execute",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Common/version"
+		},
+		{
+			"name": "Account/create",
+			"input": "*email:Email, *password:String"
+		},
+		{
+			"name": "Graphs/list"
+		},
+		{
+			"name": "Infrastructures/spotlight",
+			"params": "*prefix:String,*action:String"
+		},
+		{
+			"name": "Infrastructures/list"
+		},
+		{
+			"name": "Infrastructures/list_instances"
+		},
+		{
+			"name": "Infrastructures/create",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, *admin_pass:String"
+		},
+		{
+			"name": "Infrastructures/read",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Infrastructures/update",
+			"params": "*id:UID",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, admin_pass:String"
+		},
+		{
+			"name": "Infrastructures/remove",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Infrastructures/tfstates_read",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Infrastructures/tfstates_update",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Inventory/read"
+		},
+		{
+			"name": "Softwares/spotlight",
+			"params": "*prefix:String,*action:String,*api:String, alias:String"
+		},
+		{
+			"name": "Softwares/list"
+		},
+		{
+			"name": "Softwares/new"
+		},
+		{
+			"name": "Softwares/read",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Softwares/create",
+			"input": "*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String"
+		},
+		{
+			"name": "Softwares/update",
+			"params": "*id:UID",
+			"input": "*size:String, domain_alias:String, *exposition:String"
+		},
+		{
+			"name": "Softwares/update_version",
+			"params": "*id:UID",
+			"input": "*version:String"
+		},
+		{
+			"name": "Softwares/remove",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Softwares/execute",
+			"params": "*id:UID",
+			"input": "*action:{start|stop|main|backup|restore|remove}"
+		},
+		{
+			"name": "Spotlight/search",
+			"query": "q:String"
+		},
+		{
+			"name": "Users/list",
+			"permissions": "admin"
+		},
+		{
+			"name": "Users/create",
+			"input": "*first_name:String, *last_name:String, *email:Email, language:Lower(2), *password:String, *token:String, isdisabled:Boolean, sa:Boolean",
+			"permissions": "admin"
+		},
+		{
+			"name": "Users/read",
+			"params": "*id:UID",
+			"permissions": "admin"
+		},
+		{
+			"name": "Users/update",
+			"params": "*id:UID",
+			"input": "*first_name:String, *last_name:String, *email:Email, language:Lower(2), password:String, token:String, sa:Boolean, isdisabled:Boolean, isinactive:Boolean, notifications:Boolean",
+			"permissions": "admin"
+		},
+		{
+			"name": "Users/remove",
+			"params": "*id:UID",
+			"permissions": "admin"
+		},
+		{
+			"name": "Users/login",
+			"input": "*email:Email,*password:String"
+		},
+		{
+			"name": "Users/settings_read"
+		},
+		{
+			"name": "Users/settings_update",
+			"input": "*first_name:String, *last_name:String, *email:Email, *language:String"
+		},
+		{
+			"name": "Users/password_update",
+			"input": "*password:String"
+		},
+		{
+			"name": "Users/logout"
+		},
+		{
+			"name": "Variables/list"
+		},
+		{
+			"name": "Variables/read",
+			"params": "*id:UID",
+			"input": "*key:String, *type:String, format:{yaml|json}"
+		},
+		{
+			"name": "Variables/read2",
+			"input": "*key2:String"
+		},
+		{
+			"name": "Variables/create",
+			"input": "*type:String, *key:String, value:String"
+		},
+		{
+			"name": "Variables/update",
+			"params": "*id:UID",
+			"input": "*type:String, *key:String, status:Boolean, value:String"
+		},
+		{
+			"name": "Variables/remove",
+			"params": "*id:UID"
+		},
+		{
+			"name": "Variables/secret",
+			"input": "*type:String, *key:String, subkey:String, missing:{create|warn|error}, nosymbols:Boolean, userpass:String, length:Number, overwrite:Boolean, delete:Boolean"
+		}
+	]
+}
