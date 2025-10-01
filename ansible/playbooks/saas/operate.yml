@@ -48,3 +48,19 @@
       delegate_to: localhost
       become: false
       when: task == "main"
+
+    - name: Destroy software
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}/api"
+        user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+        method: POST
+        body_format: json
+        body:
+          schema: softwares_remove/{{ software.id }}
+        force_basic_auth: true
+        status_code: 200
+      ignore_errors: true
+      delegate_to: localhost
+      become: false
+      when: task == "destroy"

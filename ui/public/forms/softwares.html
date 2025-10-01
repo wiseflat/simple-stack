@@ -152,7 +152,7 @@
 			options.items.push({ action: 'main', name: '(Re) deploy', icon: 'refresh', comment: '@(Do you want to upgrade selected items ?)'});
 			options.items.push({ action: 'backup', name: 'Backup', icon: 'download', comment: '@(Do you want to backup selected items ?)'});
 			options.items.push({ action: 'restore', name: 'Restore', icon: 'upload', comment: '@(Do you want to restore selected items ?)'});
-			options.items.push({ action: 'remove', name: 'Remove', icon: 'remove', comment: '@(Do you want to remove permanently selected items ? Backup will be destroyed)' });
+			options.items.push({ action: 'destroy', name: 'Destroy', icon: 'remove', comment: '@(Do you want to destroy permanently selected items ? Backup will be destroyed)' });
 
 			options.callback = function(item) {
 				SETTER('approve/show', item.comment, '"{0}"'.format(item.icon), function() {

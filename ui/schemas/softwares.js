@@ -20,7 +20,7 @@ NEWSCHEMA('Softwares', function (schema) {
 		for (const [field, { regex, comment, optional }] of Object.entries(rules)) {
 			if (optional && (model[field] === '' || model[field] == null)) continue;
 			if (!FUNC.regex(regex, model[field])) {
-				$.invalid(REGEX_USERS[field].comment);
+				$.invalid(REGEX_SOFTWARES[field].comment);
 				return false;
 			}
 		}
@@ -152,9 +152,9 @@ NEWSCHEMA('Softwares', function (schema) {
 		input: '*size:String, domain_alias:String, *exposition:String',
 		action: async function ($, model) {
 			const rules = {
-				size: 			{ regex: REGEX_USERS.size, 			comment: REGEX_USERS.size.comment },
-				domain_alias:   { regex: REGEX_USERS.domain_alias, 	comment: REGEX_USERS.domain_alias.comment, optional: true },
-				exposition: 	{ regex: REGEX_USERS.exposition, 	comment: REGEX_USERS.exposition.comment }
+				size: 			{ regex: REGEX_SOFTWARES.size, 			comment: REGEX_SOFTWARES.size.comment },
+				domain_alias:   { regex: REGEX_SOFTWARES.domain_alias, 	comment: REGEX_SOFTWARES.domain_alias.comment, optional: true },
+				exposition: 	{ regex: REGEX_SOFTWARES.exposition, 	comment: REGEX_SOFTWARES.exposition.comment }
 			};
 
 			if (!validateModel(model, rules))
@@ -201,7 +201,7 @@ NEWSCHEMA('Softwares', function (schema) {
 	schema.action('execute', {
 		name: 'Execute playbook',
 		params: '*id:UID',
-		input: '*action:{start|stop|main|backup|restore|remove}',
+		input: '*action:{start|stop|main|backup|restore|destroy}',
 		action: async function ($, model) {
 			const item = await DATA.read('nosql/softwares')
 				.where('uid', $.user.id)

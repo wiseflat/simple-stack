@@ -252,7 +252,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "softwares_execute",
-			"input": "*action:{start|stop|main|backup|restore|remove}",
+			"input": "*action:{start|stop|main|backup|restore|destroy}",
 			"name": "Execute playbook"
 		},
 		{
@@ -455,7 +455,7 @@
 		{
 			"name": "Softwares/execute",
 			"params": "*id:UID",
-			"input": "*action:{start|stop|main|backup|restore|remove}"
+			"input": "*action:{start|stop|main|backup|restore|destroy}"
 		},
 		{
 			"name": "Spotlight/search",
