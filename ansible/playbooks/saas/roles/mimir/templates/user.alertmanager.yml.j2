@@ -7,17 +7,17 @@ route:
   repeat_interval: 90m
   group_interval: 5m
   group_wait: 60s
-  receiver: telegram_receiver
+  receiver: http_remote_api
 
   routes:
-    - receiver: telegram_receiver
+    #- receiver: telegram_receiver
+    #  match_re:
+    #    severity: critical|warning
+    #  continue: true
+    - receiver: http_remote_api
       match_re:
         severity: critical|warning
       continue: true
-    # - receiver: http_remote_api
-    #   match_re:
-    #     severity: critical|warning
-    #   continue: true
 
 inhibit_rules:
   - source_match:
@@ -28,16 +28,16 @@ inhibit_rules:
     equal: ['alertname', 'cluster', 'service']
 
 receivers:
-  # - name: 'http_remote_api'
-  #   webhook_configs:
-  #     - url: 'https://remote_api/api/alerts/trigger'
-  #       http_config:
-  #         authorization:
-  #           credentials: "credz"
-  #       send_resolved: true
+  - name: 'http_remote_api'
+    webhook_configs:
+      - url: 'https://remote_api/api/alerts/trigger'
+        http_config:
+          authorization:
+            credentials: "credz"
+        send_resolved: true
 
-  - name: telegram_receiver
-    telegram_configs:
-      - api_url: 'https://api.telegram.org'
-        bot_token: '{{ notifications.telegram.token }}'
-        chat_id: {{ notifications.telegram.chat_id }}
+#  - name: telegram_receiver
+#    telegram_configs:
+#      - api_url: 'https://api.telegram.org'
+#        bot_token: '{{ notifications.telegram.token | default('') }}'
+#        chat_id: {{ notifications.telegram.chat_id | default('') }}

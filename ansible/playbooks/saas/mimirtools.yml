@@ -4,14 +4,18 @@
   hosts: localhost
   gather_facts: false
   become: false
+  vars_prompt:
+    - name: endpoint
+      prompt: Mimir endpoint
+      private: false
   vars:
     project: default
     mimir_tmp_dir: /tmp/mimirtool
     mimir_env:
       MIMIR_TENANT_ID: demo
-      MIMIR_ADDRESS: "{{ mimir.url }}"
-      MIMIR_API_USER: "{{ mimir.login }}"
-      MIMIR_API_KEY: "{{ mimir.password }}"
+      MIMIR_ADDRESS: "https://{{ endpoint }}"
+      MIMIR_API_USER: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='login', missing='error') }}"
+      MIMIR_API_KEY: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='passwd', missing='error') }}"
   pre_tasks:
     - name: Create temporary directory
       ansible.builtin.file:
