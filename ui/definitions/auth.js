@@ -1,5 +1,5 @@
 var opt = {};
-opt.secret = '123456';
+opt.secret = CONF.auth_secret;
 opt.cookie = CONF.auth_cookie;
 opt.expire = '3 minutes';
 opt.cleaner = '5 minutes';
@@ -70,11 +70,6 @@ opt.onlogout = async function(meta){
 
 AUTH(opt);
 MAIN.session = opt;
-
-ON('configure', function() {
-	opt.secret = CONF.auth_secret;
-	opt.cookie = CONF.auth_cookie;
-});
 
 // The service below clears all sessions in 5 minutes interval
 ON('service', async function(counter) {
