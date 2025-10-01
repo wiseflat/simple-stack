@@ -30,12 +30,12 @@ NEWSCHEMA('Softwares', function (schema) {
 	// Enrich a software item with its name, variable‑id and secret‑id
 	async function enrichSoftwareItem(item, $) {
 		const [softwareRec, variableRec, secretRec] = await Promise.all([
-			DATA.read('nosql/catalogs').where('id', item.software).promise($),
+			DATA.read('nosql/catalogs').where('id', item.software).fields('name,version').promise($),
 			DATA.read('nosql/variables').where('key', item.domain).where('type', 'software').promise($),
 			DATA.read('nosql/variables').where('key', item.domain).where('type', 'secret').promise($)
 		]);
 
-		item.software = softwareRec ? softwareRec.name : item.software;
+		item.software = softwareRec;
 		if (variableRec) item.vid = variableRec.id;
 		if (secretRec)   item.sid = secretRec.id;
 	}
