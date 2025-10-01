@@ -29,13 +29,13 @@ RUN mkdir /tmp/terraform /root/.ssh && \
     unzip terraform_1.12.1_linux_arm64.zip && \
     mv terraform /usr/local/bin/
 
-COPY . /simple-stack
+COPY . /ansible
 
-WORKDIR /simple-stack
+WORKDIR /ansible
 
 RUN pip install --break-system-packages -r requirements.txt
 
-WORKDIR /simple-stack/ansible
+WORKDIR /ansible
 
 RUN ansible-galaxy collection install -r requirements.yml -p ./collections
 
