@@ -7,9 +7,9 @@
     - name: Nomad system reconcile summaries
       ansible.builtin.shell: nomad system reconcile summaries -address=https://127.0.0.1:4646 -tls-skip-verify
       environment:
-        NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
 
     - name: Nomad system gc
       ansible.builtin.shell: nomad system gc -address=https://127.0.0.1:4646 -tls-skip-verify
       environment:
-        NOMAD_TOKEN: "{{ lookup('community.general.passwordstore', 'nomad/' + inventory_hostname + '/nomad_management_token') }}"
+        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
