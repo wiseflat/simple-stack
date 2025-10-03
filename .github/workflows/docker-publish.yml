@@ -51,7 +51,7 @@ jobs:
 
       - name: Set version (SemVer)
         id: set_version
-        run: echo "VERSION=v${{ github.run_number }}" >> $GITHUB_ENV
+        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Extract Docker UI metadata
         id: meta-ui
@@ -107,7 +107,7 @@ jobs:
 
       - name: Set version (SemVer)
         id: set_version
-        run: echo "VERSION=v${{ github.run_number }}" >> $GITHUB_ENV
+        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Extract Docker Ansible metadata
         id: meta-ansible
@@ -139,6 +139,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Set version (SemVer) for release
+        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
