@@ -1,94 +1,63 @@
 # Simple Stack
 
-Welcome to the Simple Stack project! This project demonstrates just how easy it can be to self-host web applications without complexity.
+![GitHub stars](https://img.shields.io/github/stars/your-repo/simple-stack?style=flat)
+![License](https://img.shields.io/github/license/your-repo/simple-stack)
+
+**Simple Stack** is a reference implementation that shows how to self‑host modern web applications with minimal operational overhead. It combines Terraform for infrastructure, Ansible for configuration, and a lightweight UI for management.
+
+## Philosophy
+
+- **Simplicity first** – every component can be understood in a few minutes.  
+- **Transparency** – all code is declarative and version‑controlled.  
+- **Portability** – works on any major cloud provider or on‑premise hardware.  
+- **Extensibility** – add new services by extending the existing Ansible roles or Terraform modules.
 
 ## Project Goals
 
-- Deploy cloud infrastructure with Terraform (or add onpremise servers)
-- Manage your servers with Ansible
-- Orchestrate your docker containers workload with Nomad
+The project aims to give SREs and developers a solid, opinionated foundation for:
 
----
+- Managing and deploying cloud infrastructure with a mainstream IaC tool.  
+- Configuring servers using a widely adopted automation framework.  
+- Orchestrating the full application lifecycle with containers.  
+- Scaling up/down horizontally or vertically with proven patterns.
 
 ## Project Structure
 
-The project consists of two main components:
+The repository is organised into three logical layers:
 
-### **Terraform**
+### IaC – Terraform
 
-A straightforward Terraform configuration to deploy a standalone cloud instance across multiple providers (e.g., OVH, Infomaniak, AWS, Scaleway). The objective is to minimize cloud resource usage and keep the deployment lightweight.
+Terraform modules provision a single compute instance on providers such as **OVHcloud**, **Infomaniak**, **AWS**, **Scaleway**, etc. The goal is to keep the footprint small while remaining provider‑agnostic.
 
-### **Ansible**
+### Configuration – Ansible
 
-A set of basic Ansible roles designed to configure and manage your server with minimal dependencies, reducing the need for frequent updates, limiting security vulnerabilities, and streamlining management.
+Ansible roles install Docker, pull the required images and configure the host. Roles are deliberately minimal to reduce attack surface and maintenance effort.
 
-### Features
+### SaaS – UI
 
-**With this project, you get:**
-- Simple container deployment using Ansible
-- Basic container management with Ansible
-- A lightweight control plane for orchestrating deployments
-- Simple service discovery for your containers
+A small web UI (the `ui/` directory) lets you create projects, store all variables and trigger deployments without writing additional scripts.
 
----
+## Features
 
-## Prerequisites
-
-You have two options for using this project:
-1. **Direct Use**: Use this repository as-is to benefit from ongoing updates and minimal configuration.
-2. **Fork and Contribute**: Fork this repository into your own GitHub namespace to add custom features. Feel free to contribute back to the community by submitting pull requests with your enhancements.
-
----
-
-## Supported Cloud Providers
-
-Currently, this code is compatible with **OVHcloud** and **Infomaniak** cloud providers, both offering OpenStack-based public cloud solutions. Be sure to download your OpenStack secrets file before beginning setup.
-
----
-
-## Getting Started
-
-To initialize the project, run:
-
-```bash
-make init
-```
-
-This command will initialize both Terraform and Ansible to prepare your instance and deploy your containers.
-
-## Build (or download) a docker image
-
-Several Ansible roles are available in this repository (Traefik, nginx, php-fpm, WordPress, MariaDB). Some of these roles use the latest version from Docker Hub, while others need to be built directly on the server.
-
-```bash
-make image
-```
-
-## Deploy a software
-
-Once you have built your custom images, you can deploy one of them!
-
-```bash
-make deploy
-```
-
-Note: Ensure that an A record DNS entry points to your server. This step is not yet automated.
-
-Once your domain will be deployed, a static yaml configuration file will be added on `host_vars/<instance_name>/<domain>.yml`. You can adapt it to add :
-
-- a domain alias
-- a restricted list of IP address to whitelist
-- a HTTP basic authentication
+- One‑click container deployment via Ansible.  
+- Basic container lifecycle management.  
+- Lightweight control plane for orchestrating deployments.  
+- Self‑hosted web UI for project administration.
 
 
-## Operate on a software
+## Contributing
 
-Some applications may require maintenance tasks (such as backup, restoration, or restart), or may even need to be removed. This option covers those actions.
+Contributions are welcome! Please:
 
-```bash
-make operate
-```
+- Fork the repository.  
+- Create a feature branch.  
+- Ensure code follows the existing style and passes `make lint`.  
+- Open a Pull Request with a clear description of the change.
 
----
+## License
 
-Thank you for exploring Simple Stack!
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+Thanks to the open‑source community for the tools that make this stack possible: Terraform, Ansible, Docker and the many contributors of the underlying roles.
