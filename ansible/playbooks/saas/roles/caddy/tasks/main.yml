@@ -8,14 +8,7 @@
     mode: "0755"
   loop:
     - "{{ software_path }}/etc/caddy"
-
-- name: Copy default config file
-  ansible.builtin.template:
-    src: Caddyfile
-    dest: "{{ software_path }}/etc/caddy/Caddyfile"
-    owner: root
-    group: root
-    mode: "0644"
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job to destination
   ansible.builtin.template:

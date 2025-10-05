@@ -57,6 +57,14 @@ job "{{ domain }}" {
         ports = ["caddy", "metrics"]
       }
 
+      template {
+        change_mode = "noop"
+        destination = "{{ software_path }}/etc/caddy/Caddyfile"
+        data = <<EOH
+{{ caddy_config }}
+  EOH
+      }
+
       resources {
         cpu    = {{ size[software.size].cpu }}
         memory = {{ size[software.size].memory }}
