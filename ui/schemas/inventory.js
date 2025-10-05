@@ -64,7 +64,7 @@ NEWSCHEMA('Inventory', function (schema) {
 
 		const softwares = await DATA.find('nosql/catalogs')
 			.fields('name,version')
-			.error('@(Error)')
+			// .error('@(Error)')
 			.promise();
 
 		inventory.infrastructure.vars.softwares = softwares.reduce((acc, cur) => {
@@ -88,12 +88,12 @@ NEWSCHEMA('Inventory', function (schema) {
 			for (const item of result.items) {
 				if(!item.tfstate.resources) continue;
 				for (const resource of item.tfstate.resources) {
+					if(resource.type !== "ansible_host") continue;
 					for (const instance of resource.instances) {
-						dataset.push({ id: item.id, hostname: instance.index_key });
+						dataset.push({ id: item.id, hostname: instance.attributes.name });
 					}
 				}
 			}
-
 			$.callback(await buildInventory(dataset), null, 2);
 		}
 	});

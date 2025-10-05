@@ -49,11 +49,15 @@ NEWSCHEMA('Infrastructures', function (schema) {
 				if (!infra.tfstate?.resources) continue;
 				for (const resource of infra.tfstate.resources) {
 					if (!resource.instances) continue;
+					if (resource.type !== "ansible_host") continue;
 					for (const instance of resource.instances) {
-						instances.push({ id: instance.index_key, name: instance.index_key });
+						// instances.push({ id: instance.index_key, name: instance.index_key });
+						instances.push({ id: instance.attributes.name, name: instance.attributes.name });
 					}
 				}
 			}
+
+			console.log(instances);
 			$.callback(instances);
 		}
 	});
