@@ -35,6 +35,10 @@ job "{{ domain }}" {
         to = 80
         static = 80
       }
+      port "traefik_api" {
+        to = 8080
+        static = 8080
+      }
     }
 
     service {
@@ -69,6 +73,7 @@ job "{{ domain }}" {
           "/var/log/traefik:/var/log/traefik:rw",
           "/etc/ssl/simplestack:/etc/ssl/simplestack:ro"
         ]
+        ports = ["traefik_ui", "traefik_ssl_ui", "traefik_api"]
 
         args = [
           "--configfile",
