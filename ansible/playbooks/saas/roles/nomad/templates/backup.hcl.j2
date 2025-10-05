@@ -3,14 +3,16 @@ job "{{ nomad_job_name }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "batch"
 
+{% if software.constraints.location %}
   constraint {
     attribute    = "${meta.location}"
-    set_contains = "{{ fact_instance.location }}"
+    set_contains = "{{ software.constraints.location }}"
   }
+{% endif %}
 
   constraint {
     attribute    = "${meta.instance}"
-    set_contains = "{{ inventory_hostname }}"
+    set_contains = "{{ software.instance }}"
   }
 
 {% if periodic %}
