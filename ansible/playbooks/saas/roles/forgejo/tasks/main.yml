@@ -47,8 +47,6 @@
     priv: "{{ service_name[:32] }}.*:ALL"
     state: present
 
-- debug:
-    msg: 
 - name: Copy default config file
   ansible.builtin.template:
     src: app.ini
