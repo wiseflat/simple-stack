@@ -19,6 +19,17 @@
     path: "/tmp/{{ catalog }}"
 
   pre_tasks:
+    - name: Create temporary build directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        recurse: true
+        state: directory
+        mode: '0755'
+      loop:
+        - /root/.docker
+        - "{{ build_work_dir }}/download"
+        - "{{ build_work_dir }}/{{ upstream_default_arch }}"
+
     - name: Copy docker config file
       ansible.builtin.copy:
         content: |
@@ -33,16 +44,6 @@
         owner: root
         group: root
         mode: '0600'
-
-    - name: Create temporary build directory
-      ansible.builtin.file:
-        path: "{{ item }}"
-        recurse: true
-        state: directory
-        mode: '0755'
-      loop:
-        - "{{ build_work_dir }}/download"
-        - "{{ build_work_dir }}/{{ upstream_default_arch }}"
 
   tasks:
     - name: Install dependencies
