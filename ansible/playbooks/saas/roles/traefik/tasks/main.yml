@@ -89,20 +89,21 @@
     group: root
     mode: '0755'
   loop:
-    - "{{ software_path }}"
-    - "{{ software_path }}/letsencrypt"
+    - "{{ software_path }}/etc/traefik/letsencrypt"
     - /var/log/traefik
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy config files
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "{{ software_path }}/{{ item }}"
+    dest: "{{ software_path }}/etc/traefik/{{ item }}"
     owner: root
     group: root
     mode: '0600'
   loop:
     - traefik.toml
     - traefik_tls.toml
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job to destination
   ansible.builtin.template:

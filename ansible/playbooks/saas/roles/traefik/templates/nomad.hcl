@@ -39,11 +39,10 @@ job "{{ domain }}" {
 
     service {
       name = "traefik"
-      port = "traefik_ssl_ui"
+      port = "traefik_ui"
       provider = "nomad"
       tags = [
-        "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "fqdn:{{ domain }}"
       ]
       check {
         name     = "traefik"
@@ -66,11 +65,15 @@ job "{{ domain }}" {
         image = "traefik:{{ softwares.traefik.version }}"
         network_mode = "host"
         volumes = [
-          "/data/{{ domain }}:/etc/traefik",
-          "/var/log/traefik:/var/log/traefik",
-          "/etc/ssl/simplestack:/etc/ssl/simplestack"
+          "{{ software_path }}/etc/traefik:/etc/traefik:rw",
+          "/var/log/traefik:/var/log/traefik:rw",
+          "/etc/ssl/simplestack:/etc/ssl/simplestack:ro"
         ]
-        ports = ["traefik_ui", "traefik_ssl_ui"]
+
+        args = [
+          "--configfile",
+          "/etc/traefik/traefik.toml"
+        ]
       }
 
       resources {
