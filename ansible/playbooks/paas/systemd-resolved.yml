@@ -1,0 +1,28 @@
+---
+- name: Configure systemd-resolved
+  any_errors_fatal: true
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Systemd-resolved | Create resolved directory
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf.d
+        state: directory
+        mode: '0755'
+
+    - name: Systemd-resolved | Copy systemd resolved config
+      ansible.builtin.copy:
+        content: |
+          [Resolve]
+          DNSStubListener=yes
+        dest: /etc/systemd/resolved.conf.d/systemd-resolved.conf
+        mode: '0644'
+      notify: Restart systemd-resolved
+
+  handlers:
+    - name: Restart systemd-resolved
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: true
+        name: systemd-resolved
