@@ -112,7 +112,7 @@
 				SET('common.form2', 'formvariable');
 			}
 			else {
-				exports.tapi('variables_read/{0} ERROR'.format(vid), { type: type, format: 'yaml' }, function(response) {
+				exports.tapi('variables_read/{0} ERROR'.format(vid), { type: type, key: key, format: 'yaml' }, function(response) {
 					SET('formvariable @reset @hideloading', response);
 					SET('common.form2', 'formvariable');
 				});
