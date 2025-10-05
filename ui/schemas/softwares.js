@@ -124,8 +124,8 @@ NEWSCHEMA('Softwares', function (schema) {
 		input: '*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String',
 		action: async function ($, model) {
 			const rules = {
-				instance: 		{ regex: REGEX_SOFTWARES.instance, comment: REGEX_SOFTWARES.instance.comment },
-				software:    	{ regex: REGEX_SOFTWARES.software,    comment: REGEX_SOFTWARES.software.comment },
+				// instance: 		{ regex: REGEX_SOFTWARES.instance, comment: REGEX_SOFTWARES.instance.comment },
+				// software:    	{ regex: REGEX_SOFTWARES.software,    comment: REGEX_SOFTWARES.software.comment },
 				size: 			{ regex: REGEX_SOFTWARES.size, comment: REGEX_SOFTWARES.size.comment },
 				domain:    		{ regex: REGEX_SOFTWARES.domain,    comment: REGEX_SOFTWARES.domain.comment },
 				domain_alias:   { regex: REGEX_SOFTWARES.domain_alias,    comment: REGEX_SOFTWARES.domain_alias.comment, optional: true },
