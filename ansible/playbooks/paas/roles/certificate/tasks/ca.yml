@@ -15,7 +15,7 @@
   become: false
   register: cert_ca_tls_priv_present
 
-- name: "Certificate | Create private key for CA (simplestack-ca-key.pem)"
+- name: "Certificate | Create private key for CA"
   community.crypto.openssl_privatekey:
     path: "{{ certificate_ca_host_dir }}/{{ certificate_ca_privatekey }}"
   delegate_to: "{{ certificate_ca_host }}"
@@ -54,19 +54,3 @@
   become: false
   when: not cert_ca_tls_priv_present.stat.exists
 
-- name: "Certificate | Create TLS directory on target"
-  ansible.builtin.file:
-    path: "{{ certificate_host_certificate_dir }}"
-    state: directory
-    mode: '0755'
-    recurse: true
-  when: not ca_pubkey_present.stat.exists
-
-- name: "Certificate | Copy Public certs on nodes - {{ certificate_ca_pubkey }}"
-  ansible.builtin.copy:
-    src: "{{ certificate_ca_host_dir }}/{{ certificate_ca_pubkey }}"
-    dest: "{{ certificate_host_certificate_dir }}/{{ certificate_ca_pubkey }}"
-    owner: "root"
-    group: "root"
-    mode: "0640"
-  when: not ca_pubkey_present.stat.exists

@@ -19,11 +19,7 @@
 
 - name: "Nomad | Install Nomad Auto Eligibility Node"
   ansible.builtin.include_tasks: "07_autoeligibility.yml"
-  when: nomad_mode == 'single'
 
 - name: "Nomad | Change SystemD configuration"
   ansible.builtin.include_tasks: "08_systemd_tuning.yml"
 
-- name: "Nomad | Firewall configuration"
-  ansible.builtin.include_tasks: "09_firewall.yml"
-  when: nomad_firewall

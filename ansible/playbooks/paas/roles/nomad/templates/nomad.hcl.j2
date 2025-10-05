@@ -2,76 +2,50 @@ name = "{{ nomad_node_name }}"
 region = "{{ nomad_region }}"
 datacenter = "{{ nomad_dc_name }}"
 
-disable_anonymous_signature = {{ nomad_disable_anonymous_signature }}
-disable_update_check = {{ nomad_disable_update_check }}
+disable_anonymous_signature = {{ nomad_disable_anonymous_signature | bool | lower }}
+disable_update_check = {{ nomad_disable_update_check | bool | lower }}
 
 data_dir = "{{ nomad_data_dir }}"
 
-{% if nomad_mode == 'single'%}
-bind_addr = "{{ nomad_bind_addr }}"
-{% else %}
-addresses {
-    http = "{{ nomad_address_http }}"
-    rpc = "{{ nomad_address_rpc }}"
-    serf = "{{ nomad_address_serf }}"
-}
-{% endif %}
+bind_addr = "{{ nomad_bind_address }}"
 
 advertise {
-    http = "{{ nomad_advertise_http }}"
-    rpc = "{{ nomad_advertise_rpc }}"
-    serf = "{{ nomad_advertise_serf }}"
+    http = "{{ nomad_advertise_address }}:{{ nomad_ports.http }}"
+    rpc = "{{ nomad_advertise_address }}:{{ nomad_ports.rpc }}"
+    serf = "{{ nomad_advertise_address }}:{{ nomad_ports.serf }}"
 }
 ports {
-    http = {{ nomad_port_http }}
-    rpc = {{ nomad_port_rpc }}
-    serf = {{ nomad_port_serf }}
+    http = {{ nomad_ports.http }}
+    rpc = {{ nomad_ports.rpc }}
+    serf = {{ nomad_ports.serf }}
 }
 
-enable_debug = {{ nomad_debug }}
+enable_debug = {{ nomad_debug | bool | lower }}
 log_file = "{{ nomad_log_file }}"
 log_level = "{{ nomad_log_level }}"
 log_rotate_bytes = {{ nomad_log_rotate_bytes }}
 log_rotate_duration = "{{ nomad_log_rotate_duration }}"
 log_rotate_max_files = {{ nomad_log_rotate_max_files }}
 
-leave_on_terminate = {{ nomad_leave_on_terminate | lower }}
-leave_on_interrupt = {{ nomad_leave_on_interrupt | lower }}
-
-
-{% if nomad_node_role == 'server' or nomad_node_role == 'both' %}
+leave_on_terminate = {{ nomad_leave_on_terminate | bool | lower }}
+leave_on_interrupt = {{ nomad_leave_on_interrupt | bool | lower }}
 
 tls {
-    http = {{ nomad_tls_http }}
-    rpc = {{ nomad_tls_rpc }}
+    http = true
+    rpc = true
     ca_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
-    cert_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
-    key_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    cert_file = "{{ nomad_tls_host_certificate_dir }}/{{ (nomad_node_role == 'client') | ternary(nomad_tls_cert_client, nomad_tls_cert_server) }}"
+    key_file = "{{ nomad_tls_host_certificate_dir }}/{{ (nomad_node_role == 'client') | ternary(nomad_tls_privatekey_client, nomad_tls_privatekey_server) }}"
     rpc_upgrade_mode = {{ nomad_tls_rpc_upgrade_mode }}
     verify_server_hostname = "{{ nomad_tls_verify_server_hostname }}"
     verify_https_client = "{{ nomad_tls_verify_https_client }}"
 }
-
-{% elif nomad_node_role == 'client'  %}
-
-tls {
-    http = {{ nomad_tls_http }}
-    rpc = {{ nomad_tls_rpc }}
-    ca_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
-    cert_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
-    key_file = "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_client }}"
-    rpc_upgrade_mode = {{ nomad_tls_rpc_upgrade_mode }}
-    verify_server_hostname = "{{ nomad_tls_verify_server_hostname }}"
-    verify_https_client = "{{ nomad_tls_verify_https_client }}"
-}
-
-{% endif %}
 
 acl {
-    enabled = {{ nomad_acl_enabled }}
+    enabled = {{ nomad_acl_enabled | bool | lower }}
     token_ttl = "{{ nomad_acl_token_ttl }}"
     policy_ttl = "{{ nomad_acl_policy_ttl }}"
-    replication_token = ""
+    replication_token = "{{ nomad_acl_replication_token }}"
 }
 
 telemetry {
@@ -104,14 +78,19 @@ telemetry {
 }
 
 autopilot {
-    cleanup_dead_servers      = {{ nomad_autopilot_cleanup_dead_servers }}
+    cleanup_dead_servers      = {{ nomad_autopilot_cleanup_dead_servers | bool | lower }}
     last_contact_threshold    = "{{ nomad_autopilot_last_contact_threshold }}"
     max_trailing_logs         = {{ nomad_autopilot_max_trailing_logs }}
     server_stabilization_time = "{{ nomad_autopilot_server_stabilization_time }}"
 }
 
+limits {
+  http_max_conns_per_client = 300
+  rpc_max_conns_per_client = 300
+}
+
 ui {
-  enabled =  {{ nomad_ui_enabled }}
+  enabled =  {{ nomad_ui_enabled | bool | lower }}
 
   content_security_policy {
     connect_src     = ["{{ nomad_ui_content_security_policy_connect_src }}"]

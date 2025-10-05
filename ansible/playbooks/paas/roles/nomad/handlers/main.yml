@@ -5,13 +5,6 @@
   ansible.builtin.apt:
     update_cache: true
 
-- name: Netplan_apply
-  ansible.builtin.command: "netplan apply"
-  async: 45
-  poll: 0
-  register: netplan_apply
-  changed_when: netplan_apply.ansible_job_id != 0
-
 - name: Nomad_restart
   ansible.builtin.systemd_service:
     name: nomad

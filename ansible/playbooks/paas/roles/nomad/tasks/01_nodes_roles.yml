@@ -2,62 +2,30 @@
 - name: Check number of host in play
   ansible.builtin.debug:
     msg: "Nomad will be deployed on {{ (ansible_play_hosts | length) }} host{% if (ansible_play_hosts | length) > 1 %}s{% endif %}"
-    verbosity: 1
-  run_once: true
 
-- name: "Nomad | Server Quorum"
+- name: nomad_bind_address
   ansible.builtin.debug:
-    msg: "Server quorum: {{ nomad_servers_quorum }}"
-    verbosity: 1
-  run_once: true
-  when:
-    - nomad_mode == 'cluster'
-    - nomad_roles_auto_assign
+    msg: "{{ nomad_bind_address }}"
 
-- name: "Nomad | Clients available"
+- name: nomad_advertise_address
   ansible.builtin.debug:
-    msg: "Clients available: {{ nomad_clients_available }}"
-    verbosity: 1
-  run_once: true
-  when:
-    - nomad_mode == 'cluster'
-    - nomad_roles_auto_assign
+    msg: "{{ nomad_advertise_address }}"
 
-- name: "Nomad | Assign server role"
-  ansible.builtin.set_fact:
-    nomad_node_role: "server"
-  when:
-    - nomad_mode == 'cluster'
-    - inventory_hostname in groups[nomad_cluster_name][0:(nomad_servers_quorum | int )]
-    - nomad_roles_auto_assign
+- name: nomad_ports
+  ansible.builtin.debug:
+    msg: "{{ nomad_ports }}"
 
-- name: "Nomad | Assign client role"
-  ansible.builtin.set_fact:
-    nomad_node_role: "client"
-  when:
-    - nomad_mode == 'cluster'
-    - inventory_hostname in groups[nomad_cluster_name][(nomad_servers_quorum | int ):]
-    - nomad_roles_auto_assign
+- name: nomad_servers
+  ansible.builtin.debug:
+    msg: "{{ nomad_servers }}"
 
-- name: "Nomad | Set role to nodes"
-  ansible.builtin.set_fact:
-    nomad_node_role: "{{ nomad_node_role }}"
-  when:
-    - nomad_mode == 'cluster'
-    - nomad_node_role is defined
+- name: nomad_client_meta_list
+  ansible.builtin.debug:
+    msg: "{{ nomad_client_meta_list }}"
 
-- name: "Nomad | Set role to node"
-  ansible.builtin.set_fact:
-    nomad_node_role: "both"
-  when: nomad_mode == 'single'
-
-- name: "Nomad | Insert Node role in local facts"
-  ansible.builtin.copy:
-    dest: /etc/ansible/facts.d/nomad_node_role.fact
-    content: "{{ nomad_node_role | to_nice_json }}"
-    mode: "0600"
-  when:
-    - ansible_local.nomad_node_role.nomad_node_role is not defined
+- name: nomad_servers_advertise_address
+  ansible.builtin.debug:
+    msg: "{{ nomad_servers_advertise_address }}"
 
 - name: "Nomad | Roles Status"
   ansible.builtin.debug:

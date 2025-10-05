@@ -1,17 +1,34 @@
 server {
-    enabled = {{ nomad_server_enabled }}
+    enabled = {{ nomad_server_enabled | bool | lower }}
 
-    bootstrap_expect = {{ nomad_server_bootstrap_expect }}
-
-
+    bootstrap_expect = {{ nomad_servers | length }}
 
     data_dir = "{{ nomad_data_dir_server }}"
 
-    rejoin_after_leave = {{ nomad_server_rejoin_after_leave }}
+    {% if nomad_server_retry_join | bool -%}
+        retry_join = [
+            {%- set comma = joiner(",") -%}
+            {% for server in nomad_servers_advertise_address -%}
+                {{ comma() }}"{{ server }}"
+            {%- endfor -%} ]
+        retry_max = {{ nomad_server_retry_max }}
+        retry_interval = "{{ nomad_serer_retry_interval }}"
+    {% else -%}
+        start_join = [
+            {%- set comma = joiner(",") -%}
+            {% for server in nomad_servers_advertise_address -%}
+                {{ comma() }}"{{ server }}"
+            {%- endfor -%} ]
+    {%- endif %}
 
-    # enabled_schedulers = [{% for item in nomad_server_enabled_schedulers %}"{{ item }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    rejoin_after_leave = {{ nomad_server_rejoin_after_leave | bool | lower }}
 
-    # num_schedulers = {{ nomad_server_num_schedulers }}
+    enabled_schedulers = [
+            {%- set comma = joiner(",") -%}
+            {% for scheduler in nomad_server_enabled_schedulers -%}
+                {{ comma() }}"{{ scheduler }}"
+            {%- endfor -%} ]
+    num_schedulers = {{ nomad_server_num_schedulers }}
 
     heartbeat_grace = "{{ nomad_server_heartbeat_grace }}"
     min_heartbeat_ttl = "{{ nomad_server_min_heartbeat_ttl }}"
