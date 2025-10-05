@@ -6,13 +6,13 @@
   become: true
   pre_tasks:
     - name: Create ansible facts.d directory
-      become: yes
-      file:
+      become: true
+      ansible.builtin.file:
         path: /etc/systemd/timesyncd.conf.d
         state: directory
         owner: "root"
         group: "root"
-        mode: 0755
+        mode: '0755'
 
     - name: Update timesyncd.conf
       ansible.builtin.copy:
