@@ -7,11 +7,15 @@ server:
 positions:
   filename: /var/lib/promtail/positions.yaml
 
+{% if loki_remote_write is defined %}
 clients:
   - url: {{ loki_remote_write.url }}/api/prom/push
     basic_auth:
       username: {{ loki_remote_write.login }}
       password: {{ loki_remote_write.password }}
+{% else %}
+clients: []
+{% endif %}
 
 scrape_configs:
   - job_name: system
