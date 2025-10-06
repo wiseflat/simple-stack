@@ -62,7 +62,7 @@
         mode: "0640"
 
 - name: Nomad | Copy certificate on client nodes
-  when: nomad_node_role == 'client'
+  when: nomad_node_role in ['client', 'both']
   block:
     - name: "Nomad | Check if TLS cert exists for Client"
       ansible.builtin.stat:
@@ -90,7 +90,7 @@
         certificate_client_privatekey: "{{ nomad_tls_privatekey_client }}"
         certificate_common_name: "{{ nomad_tls_common_name_client }}"
         certificate_subject_alt_name: "{{ nomad_tls_subject_alt_name_client }}"
-      when: nomad_mode == 'cluster'
+      # when: nomad_mode == 'cluster'
 
     - name: "Nomad | Copy cert client key on nodes"
       ansible.builtin.copy:
