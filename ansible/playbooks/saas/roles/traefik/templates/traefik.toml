@@ -2,6 +2,10 @@
   checkNewVersion = false
   sendAnonymousUsage = false
 
+[api]
+  dashboard = true
+  insecure = true
+  
 [entryPoints]
   [entryPoints.http]
     address = ":80"
@@ -47,8 +51,8 @@
     token = "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
   [providers.nomad.endpoint.tls]
     ca = "/etc/ssl/simplestack/simplestack-ca.pem"
-    cert = "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
-    key = "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    cert = "/etc/ssl/simplestack/{{ software.instance }}-dc1-client-nomad.pem"
+    key = "/etc/ssl/simplestack/{{ software.instance }}-dc1-client-nomad.key"
 
   [providers.file]
     filename = "/etc/traefik/traefik_tls.toml"

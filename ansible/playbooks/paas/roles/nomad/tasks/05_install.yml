@@ -1,6 +1,9 @@
+---
 - name: "Nomad Install | Install binary"
   ansible.builtin.apt:
     name: nomad
+    state: latest
+    allow_change_held_packages: true
     update_cache: true
   when: nomad_version is not defined
 

@@ -1,14 +1,19 @@
 client {
-    enabled = {{ nomad_client_enabled }}
-
+    enabled = {{ nomad_client_enabled | bool | lower }}
 
     state_dir = "{{ nomad_state_dir_client }}"
 
     node_class = "{{ nomad_client_node_class }}"
     node_pool = "{{ nomad_client_node_pool }}"
 
-    no_host_uuid = {{ nomad_client_no_host_uuid }}
+    no_host_uuid = {{ nomad_client_no_host_uuid | bool | lower }}
 
+    servers = [
+        {%- set comma = joiner(",") -%}
+        {%- for server in nomad_servers_advertise_address -%}
+            {{ comma() }}"{{ server }}:{{ nomad_ports.rpc }}"
+        {%- endfor -%} ]
+        
 {% if nomad_client_network_interface is defined %}
     network_interface = "{{ nomad_client_network_interface }}"
 {% endif %}
@@ -22,6 +27,7 @@ client {
       reserved_ports = "{{ nomad_client_host_network_default.reserved_ports }}"
 {% endif %}
     }
+
 {% if nomad_mode == "cluster" %}
     host_network "{{ nomad_client_host_network_cluster.name }}" {
       interface = "{{ nomad_client_host_network_cluster.interface }}"
@@ -32,21 +38,6 @@ client {
       reserved_ports = "{{ nomad_client_host_network_cluster.reserved_ports }}"
 {% endif %}
     }
-{% endif %}
-{% if nomad_bridge %}
-{% for item in nomad_bridge_list %}
-    host_network "{{ item.name }}"  {
-{% if nomad_bridge_list is defined and item.interface is defined %}
-      interface = "{{ item.interface }}"
-{% endif %}
-{% if nomad_bridge_list is defined and item.cidr is defined %}
-      cidr = "{{ item.cidr }}"
-{% endif %}
-{% if nomad_bridge_list is defined and item.reserved_ports is defined %}
-      reserved_ports = "{{ item.reserved_ports }}"
-{% endif %}
-    }
-{% endfor %}
 {% endif %}
 
 {% if nomad_client_meta_list%}

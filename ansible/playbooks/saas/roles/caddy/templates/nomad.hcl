@@ -3,14 +3,16 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "service"
 
+{% if software.constraints.location %}
   constraint {
     attribute    = "${meta.location}"
-    set_contains = "{{ fact_instance.location }}"
+    set_contains = "{{ software.constraints.location }}"
   }
+{% endif %}
 
   constraint {
     attribute    = "${meta.instance}"
-    set_contains = "{{ inventory_hostname }}"
+    set_contains = "{{ software.instance }}"
   }
 
   group "{{ domain }}" {
@@ -53,6 +55,14 @@ job "{{ domain }}" {
           "{{ software_path }}/etc/caddy:/etc/caddy:ro"
         ]
         ports = ["caddy", "metrics"]
+      }
+
+      template {
+        change_mode = "noop"
+        destination = "{{ software_path }}/etc/caddy/Caddyfile"
+        data = <<EOH
+{{ caddy_config }}
+  EOH
       }
 
       resources {

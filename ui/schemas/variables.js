@@ -60,7 +60,7 @@ NEWSCHEMA('Variables', function (schema) {
 			const key2 = model.key2.replace(/\./g, '_');
 			const variables = await DATA.find('nosql/variables')
 				.where('key2', key2)
-				.in('type', ['project', 'provider', 'region', 'instance'])
+				.in('type', ['project', 'provider', 'location', 'region', 'instance'])
 				.promise($);
 
 			if (!variables?.length) {
@@ -204,7 +204,7 @@ NEWSCHEMA('Variables', function (schema) {
 					stored[model.subkey] = generatePassword(model.userpass, model.nosymbols, model.length);
 					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
 						.where('id', result.id)
-						.error('@(Error)')
+						// .error('@(Error)')
 						.promise($);
 					$.callback(stored[model.subkey]);
 					return;
@@ -214,7 +214,7 @@ NEWSCHEMA('Variables', function (schema) {
 					stored[model.subkey] = generatePassword(model.userpass, model.nosymbols, model.length);
 					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
 						.where('id', result.id)
-						.error('@(Error)')
+						// .error('@(Error)')
 						.promise($);
 					$.success(stored[model.subkey]);
 					return;
@@ -224,7 +224,7 @@ NEWSCHEMA('Variables', function (schema) {
 					delete stored[model.subkey];
 					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
 						.where('id', result.id)
-						.error('@(Error)')
+						// .error('@(Error)')
 						.promise($);
 					$.success();
 					return;

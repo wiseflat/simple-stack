@@ -3,14 +3,16 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "service"
 
+{% if software.constraints.location %}
   constraint {
     attribute    = "${meta.location}"
-    set_contains = "{{ fact_instance.location }}"
+    set_contains = "{{ software.constraints.location }}"
   }
+{% endif %}
 
   constraint {
     attribute    = "${meta.instance}"
-    set_contains = "{{ inventory_hostname }}"
+    set_contains = "{{ software.instance }}"
   }
 
   group "traefik" {
@@ -33,15 +35,18 @@ job "{{ domain }}" {
         to = 80
         static = 80
       }
+      port "traefik_api" {
+        to = 8080
+        static = 8080
+      }
     }
 
     service {
       name = "traefik"
-      port = "traefik_ssl_ui"
+      port = "traefik_ui"
       provider = "nomad"
       tags = [
-        "fqdn:{{ domain }}",
-        "host:{{ inventory_hostname }}",
+        "fqdn:{{ domain }}"
       ]
       check {
         name     = "traefik"
@@ -64,11 +69,16 @@ job "{{ domain }}" {
         image = "traefik:{{ softwares.traefik.version }}"
         network_mode = "host"
         volumes = [
-          "/data/{{ domain }}:/etc/traefik",
-          "/var/log/traefik:/var/log/traefik",
-          "/etc/ssl/simplestack:/etc/ssl/simplestack"
+          "{{ software_path }}/etc/traefik:/etc/traefik:rw",
+          "/var/log/traefik:/var/log/traefik:rw",
+          "/etc/ssl/simplestack:/etc/ssl/simplestack:ro"
         ]
-        ports = ["traefik_ui", "traefik_ssl_ui"]
+        ports = ["traefik_ui", "traefik_ssl_ui", "traefik_api"]
+
+        args = [
+          "--configfile",
+          "/etc/traefik/traefik.toml"
+        ]
       }
 
       resources {

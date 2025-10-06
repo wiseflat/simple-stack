@@ -1,6 +1,11 @@
 ---
-- name: "Nomad | Commons tasks"
-  ansible.builtin.include_tasks: "01_nodes_roles.yml"
+- name: "Nomad | Debug"
+  ansible.builtin.include_tasks: "01_debug.yml"
+
+- name: "Nomad | Set timezone"
+  community.general.timezone:
+    name: "{{ nomad_timezone }}"
+    hwclock: local
 
 - name: "Nomad | Install CNI"
   ansible.builtin.include_tasks: "02_network.yml"
@@ -19,11 +24,7 @@
 
 - name: "Nomad | Install Nomad Auto Eligibility Node"
   ansible.builtin.include_tasks: "07_autoeligibility.yml"
-  when: nomad_mode == 'single'
 
 - name: "Nomad | Change SystemD configuration"
   ansible.builtin.include_tasks: "08_systemd_tuning.yml"
 
-- name: "Nomad | Firewall configuration"
-  ansible.builtin.include_tasks: "09_firewall.yml"
-  when: nomad_firewall

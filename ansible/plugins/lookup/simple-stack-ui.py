@@ -91,11 +91,11 @@ class LookupModule(LookupBase):
             body = e.read().decode(errors='replace')
 
             if status == 460:
-                display.warning((f"{data["key"]}/{data["subkey"]} does not exist... Continue anyway"))
+                display.warning("key or subkey does not exist")
                 return [{}]
 
             if status == 461:
-                raise AnsibleError(f"{data["key"]}/{data["subkey"]} does not exist")
+                raise AnsibleError("key or subkey does not exist")
 
             raise AnsibleError(f"HTTP {status} for {api_url}: {body}")
 

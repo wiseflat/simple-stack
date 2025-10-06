@@ -6,13 +6,13 @@
   become: true
   pre_tasks:
     - name: Create ansible facts.d directory
-      become: yes
-      file:
+      become: true
+      ansible.builtin.file:
         path: /etc/ansible/facts.d
         state: directory
         owner: "root"
         group: "root"
-        mode: 0755
+        mode: '0755'
 
     - name: Get ipinfo.io
       ansible.builtin.uri:
@@ -32,13 +32,8 @@
       ansible.builtin.apt:
         pkg:
           - python3-debian
-          - python3-passlib
-          - libxml2-utils
-          - ruby-rubygems
-          - binutils
           - unzip
           - make
-          - python3-pymysql
           - jq
 
         state: present
@@ -49,4 +44,3 @@
       retries: 10
   roles:
     - unattended-upgrades
-    - restic

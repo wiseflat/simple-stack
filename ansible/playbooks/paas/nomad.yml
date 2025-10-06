@@ -1,10 +1,10 @@
 ---
 - name: Create CA TLS
   any_errors_fatal: true
-  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  hosts: localhost
   gather_facts: false
   strategy: linear
-  become: true
+  become: false
   tasks:
     - name: "Create TLS CA"
       ansible.builtin.include_role:
