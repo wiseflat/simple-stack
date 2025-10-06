@@ -59,6 +59,8 @@ job "{{ domain }}" {
         REGISTRY_AUTH = "htpasswd"
         REGISTRY_AUTH_HTPASSWD_REALM = "Registry Realm"
         REGISTRY_AUTH_HTPASSWD_PATH = "/data/htpasswd"
+        REGISTRY_LOG_LEVEL = "info"
+        OTEL_TRACES_EXPORTER = "none"
         #There is a warning about the *HTTP secret*. It's only important if you have multiples registries behind a load balancer.
         REGISTRY_HTTP_SECRET = "Aumuu5ie-ieX7uwee-Aixah4ee"
       }

@@ -47,7 +47,7 @@
     prefix = "traefik"
     exposedByDefault = false
   [providers.nomad.endpoint]
-    address = "https://172.17.0.1:4646"
+    address = "https://127.0.0.1:4646"
     token = "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
   [providers.nomad.endpoint.tls]
     ca = "/etc/ssl/simplestack/simplestack-ca.pem"
