@@ -11,6 +11,7 @@
     - path: /data/{{ domain }}/prometheus
       owner: nobody
       group: nogroup
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy services configurations files
   ansible.builtin.copy:
@@ -22,6 +23,7 @@
   loop:
     - prometheus.yaml
     - rules.yaml
+  delegate_to: "{{ software.instance }}"
 
 - name: Template services configurations files
   ansible.builtin.template:
@@ -33,6 +35,7 @@
   loop:
     - mimir.yaml
     - alertmanager-fallback-config.yaml
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job
   ansible.builtin.template:

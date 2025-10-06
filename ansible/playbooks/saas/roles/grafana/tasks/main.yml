@@ -1,4 +1,15 @@
 ---
+- name: Create default directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ software_path }}"
+  delegate_to: "{{ software.instance }}"
+
 - name: Copy Grafana content files
   ansible.builtin.copy:
     src: "{{ item }}"
@@ -9,6 +20,7 @@
   loop:
     - dashboards
     - provisioning
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy Grafana content templates
   ansible.builtin.template:
@@ -19,6 +31,7 @@
     mode: '0644'
   loop:
     - prometheus.yaml
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job
   ansible.builtin.template:

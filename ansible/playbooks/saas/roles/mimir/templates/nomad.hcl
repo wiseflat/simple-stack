@@ -3,17 +3,26 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type        = "service"
 
-{% if software.constraints.location %}
+{% if software.constraints is defined and software.constraints.location is defined %}
   constraint {
     attribute    = "${meta.location}"
     set_contains = "{{ software.constraints.location }}"
   }
 {% endif %}
 
+{% if software.constraints is defined and software.constraints.instance is defined %}
   constraint {
     attribute    = "${meta.instance}"
-    set_contains = "{{ software.instance }}"
+    set_contains = "{{ software.constraints.instance }}"
   }
+{% endif %}
+
+{% if software.constraints is defined and software.constraints.distinct_hosts is defined %}
+  constraint {
+    operator  = "distinct_hosts"
+    value     = "{{ software.constraints.distinct_hosts }}"
+  }
+{% endif %}
 
   group "{{ domain }}-minio" {
     count = 1

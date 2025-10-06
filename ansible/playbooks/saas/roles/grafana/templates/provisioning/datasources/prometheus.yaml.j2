@@ -1,5 +1,6 @@
 apiVersion: 1
 
+{% if prometheus_remote_write is defined %}
 datasources:
   - name: Mimir
     uid: prometheus
@@ -46,4 +47,7 @@ datasources:
     secureJsonData:
       basicAuthPassword: "{{ loki_remote_write.password }}"
     isDefault: false
+{% endif %}
+{% else %}
+datasources: []
 {% endif %}

@@ -7,13 +7,13 @@
   roles:
     - prometheus
     - promtail
-    - phpfpm_exporter
+    # - phpfpm_exporter
     - node_exporter
-    - mysqld_exporter
+    # - mysqld_exporter
     - systemd_exporter
-    - mongodb_exporter
+    # - mongodb_exporter
     - blackbox_exporter
-    - nginx_exporter
-    - scan_exporter
-    - dns_exporter
-    - script_exporter
+    # - nginx_exporter
+    # - scan_exporter
+    # - dns_exporter
+    # - script_exporter

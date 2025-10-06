@@ -3,7 +3,7 @@ job "{{ nomad_job_name }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "batch"
 
-{% if software.constraints.location %}
+{% if software.constraints is defined and software.constraints.location is defined %}
   constraint {
     attribute    = "${meta.location}"
     set_contains = "{{ software.constraints.location }}"
