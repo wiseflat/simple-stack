@@ -1,0 +1,60 @@
+---
+- name: Copy llm nomad job to destination
+  ansible.builtin.template:
+    src: nomad-llm.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad llm job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+
+
+- name: Check for endpoint to become available
+  ansible.builtin.uri:
+    url: "https://{{ software.domain }}/v1/models"
+  delegate_to: localhost
+  register: _result
+  until: _result.status == 200
+
+- name: Warm up model with a simple query
+  ansible.builtin.uri:
+    url: https://{{ software.domain }}/v1/chat/completions
+    method: POST
+    body_format: json
+    body:
+      model: "{{ software.model }}"
+      messages:
+        - role: user
+          content: hello
+      max_tokens: 50
+    headers:
+      Content-Type: "application/json"
+    return_content: true
+  register: _result
+  until: _result.status == 200
+  retries: 10
+  delay: 10
+  delegate_to: localhost
+
+- name: Afficher la réponse du modèle
+  ansible.builtin.debug:
+    msg: "{{ _result.json }}"
