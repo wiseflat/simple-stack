@@ -51,20 +51,24 @@ job "{{ domain }}" {
     task "{{ domain }}-caddy" {
       driver = "docker"
 
-      config {
-        image = "{{ docker_private_registry.url }}/caddy:{{ softwares.caddy.version }}"
-        volumes = [
-          "{{ software_path }}/etc/caddy:/etc/caddy:ro"
-        ]
-        ports = ["caddy", "metrics"]
-      }
-
       template {
-        change_mode = "noop"
-        destination = "{{ software_path }}/etc/caddy/Caddyfile"
+        change_mode = "restart"
+        destination = "local/Caddyfile"
+        perms = "644"
         data = <<EOH
 {{ caddy_config }}
   EOH
+      }
+
+      config {
+        image = "{{ docker_private_registry.url }}/caddy:{{ softwares.caddy.version }}"
+        ports = ["caddy", "metrics"]
+        command = "caddy"
+        args  = [
+          "run",
+          "--config", 
+          "/local/Caddyfile"
+        ]
       }
 
       resources {
