@@ -1,5 +1,5 @@
 server:
-  http_listen_address: 127.0.0.1
+  http_listen_address: {{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}
   http_listen_port: 9080
   grpc_listen_port: 0
   log_level: warn

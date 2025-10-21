@@ -1,2 +1,2 @@
-ARGS="--web.listen-address=127.0.0.1:9558 \
+ARGS="--web.listen-address={{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}:9558 \
 --systemd.collector.unit-include=docker.service|promtail.service|coredns.service|prometheus.service|blackbox_exporter.service|node_exporter.service|scan_exporter.service"
