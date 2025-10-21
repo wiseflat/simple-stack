@@ -1,0 +1,59 @@
+---
+- name: "Nomad Juicefs | Copy configuration"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ nomad_job_files_dir }}/{{ item }}"
+    mode: '0644'
+  loop:
+    - juicefs-controller.hcl
+    - juicefs-node.hcl
+    - juicefs-volume.hcl
+
+- name: "Nomad Juicefs | Copy volume configuration"
+  ansible.builtin.template:
+    src: juicefs-volume.hcl.j2
+    dest: "{{ nomad_job_files_dir }}/juicefs-volume-{{ item }}.hcl"
+    mode: '0644'
+  loop:
+    - volume
+    - test
+    - llm
+
+- name: Nomad Juicefs | Run jobs
+  ansible.builtin.command: "/usr/bin/nomad job run {{ nomad_job_files_dir }}/{{ item }}"
+  args:
+    chdir: "{{ nomad_job_files_dir }}"
+  environment:
+    NOMAD_ADDR: "https://{{ nomad_http_ip }}:4646"
+    NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+    NOMAD_CLIENT_CERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+  register: nomad_job_start
+  loop:
+    - juicefs-controller.hcl
+    - juicefs-node.hcl
+  failed_when: nomad_job_start.rc >= 2
+  changed_when:
+    - '"error" in nomad_job_start.stdout'
+    - nomad_job_start.rc >= 2
+
+- name: Nomad Juicefs | Create volume
+  ansible.builtin.command: "/usr/bin/nomad volume create {{ nomad_job_files_dir }}/juicefs-volume-{{ item }}.hcl"
+  args:
+    chdir: "{{ nomad_job_files_dir }}"
+  environment:
+    NOMAD_ADDR: "https://{{ nomad_http_ip }}:4646"
+    NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+    NOMAD_CLIENT_CERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+  register: nomad_job_start
+  loop:
+    - volume
+    - test
+    - llm
+  failed_when: nomad_job_start.rc >= 2
+  changed_when:
+    - '"error" in nomad_job_start.stdout'
+    - nomad_job_start.rc >= 2

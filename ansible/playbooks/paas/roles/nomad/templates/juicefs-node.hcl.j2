@@ -1,0 +1,48 @@
+job "jfs-node" {
+  datacenters = ["dc1"]
+  type = "system"
+
+  group "nodes" {
+
+    constraint {
+        attribute = "${meta.location}"
+        operator  = "set_contains_any"
+        value     = "{{ nomad_constraints_juicefs_controller_nodes | join(',') }}"
+    }
+
+    task "juicefs-plugin" {
+      driver = "docker"
+
+      config {
+        image = "juicedata/juicefs-csi-driver:v0.30.0"
+
+        args = [
+          "--endpoint=unix://csi/csi.sock",
+          "--logtostderr",
+          "--v=5",
+          "--nodeid=test",
+          "--by-process=true",
+          #"--cache-dir", "/var/jfs-cache",
+          #"--cache-size", "50G",
+          #"--writeback",
+          #"--prefetch", "2"
+        ]
+
+        privileged = true
+      }
+
+      csi_plugin {
+        id        = "juicefs0"
+        type      = "node"
+        mount_dir = "/csi"
+      }
+      resources {
+        cpu    = 1000
+        memory = 1024
+      }
+      env {
+        POD_NAME = "csi-node"
+      }
+    }
+  }
+}
