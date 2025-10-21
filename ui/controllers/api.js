@@ -51,11 +51,12 @@ exports.install = function() {
 	ROUTE('+API    /api/       +softwares_execute/{id}               --> Softwares/execute');
 	
 	// Variables
-	ROUTE('+API    /api/       +variables		          --> Variables/list');
-	ROUTE('+API    /api/       +variables_read/{id}      --> Variables/read');
-	ROUTE('+API    /api/       +variables_create          --> Variables/create');
-	ROUTE('+API    /api/       +variables_update/{id}    --> Variables/update');
-	ROUTE('+POST   /api/secret                         --> Variables/secret');
+	ROUTE('+API    /api/       +variables		                     --> Variables/list');
+	ROUTE('+API    /api/       +variables_read/{id}                  --> Variables/read');
+	ROUTE('+API    /api/       +variables_create                     --> Variables/create');
+	ROUTE('+API    /api/       +variables_update/{id}                --> Variables/update');
+	ROUTE('+API    /api/       +variables_remove/{id}                --> Variables/remove');
+	ROUTE('+POST   /api/secret                                       --> Variables/secret');
 
 	// 3dForceGraph
 	ROUTE('+API    /api/       -graphs					  --> Graphs/list');

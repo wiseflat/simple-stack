@@ -25,9 +25,9 @@
 				{{ foreach m in value }}
 					<figure data-id="{{ m.id }}" data-key="{{ m.key }}" data-type="{{ m.type }}" class="exec items" data-exec="?/update">
 						<section>
-							<!-- <div class="buttons">
-								<span class="badge" data-prevent="true">{{ m.type }}</span>
-							</div> -->
+							<div class="buttons">
+								<span class="exec" data-exec="?/remove" data-prevent="true"><i class="ti ti-remove red"></i></span>
+							</div>
 							<div class="name">
 								<div class="picto">
 									<i class="ti ti-{{ m.type | type }}" style="color:{{ m.type | color }}"></i>
@@ -126,6 +126,13 @@
 			exports.tapi('variables_read/{0} ERROR'.format(id), { key: key, type: type, format: 'yaml'}, function(response) {
 				SET('formvariable @reset @hideloading', response);
 				SET('common.form2', 'formvariable');
+			});
+		};
+
+		exports.remove = function(el) {
+			var id = ATTRD(el);
+			EXEC('-approve/show', '@(Remove selected variable?)', '"ti ti-remove" @(Remove)', function() {
+				exports.tapi('variables_remove/{0} ERROR'.format(id), exports.refresh);
 			});
 		};
 	});
