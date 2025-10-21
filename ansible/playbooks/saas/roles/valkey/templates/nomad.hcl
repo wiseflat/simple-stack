@@ -3,7 +3,7 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "service"
 
-{% if software.constraints.location %}
+{% if software.constraints is defined and software.constraints.location is defined %}
   constraint {
     attribute    = "${meta.location}"
     set_contains = "{{ software.constraints.location }}"
@@ -21,6 +21,9 @@ job "{{ domain }}" {
     network {
       port "valkey" {
         to = 6379
+{% if software.static_port is defined %}
+        static = {{ software.static_port }}
+{% endif %}
       }
     }
 
@@ -35,7 +38,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}/{{ software }}:{{ softwares.valkey.version }}"
+        image = "valkey/valkey:{{ softwares.valkey.version }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/etc/valkey:/etc/valkey:ro",
@@ -44,8 +47,16 @@ job "{{ domain }}" {
         ports = ["valkey"]
         command = "/usr/local/bin/valkey-server"
         args = [
-          "/etc/valkey/valkey.conf",
-]
+          "/local/valkey.conf",
+        ]
+      }
+
+      template {
+        change_mode = "restart"
+        destination = "local/valkey.conf"
+        data = <<EOH
+{{ lookup('ansible.builtin.template', 'templates/valkey.conf') }}
+  EOH
       }
 
       resources {
