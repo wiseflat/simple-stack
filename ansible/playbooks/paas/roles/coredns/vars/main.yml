@@ -3,14 +3,14 @@ image:
   build: false
   upstream:
     source: github
-    user: ituoga
-    repo: coredns-nomad
-    type: archive
-    format: tar.gz
-    file: VERSION.FORMAT
+    user: coredns
+    repo: coredns
+    type: release
+    format: tgz
+    file: coredns_VERSION_OS_ARCH.FORMAT
     os: linux
     binary: coredns
   labels: {}
   name: coredns
 
-build_work_dir: /tmp/coredns-nomad
+build_work_dir: /tmp/coredns

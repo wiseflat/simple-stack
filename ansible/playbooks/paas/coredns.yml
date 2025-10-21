@@ -5,5 +5,4 @@
   gather_facts: true
   become: true
   roles:
-    - golang
     - coredns

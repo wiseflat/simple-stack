@@ -4,9 +4,8 @@ service.nomad.:1053 {
     #debug
     #log
     nomad {
-        zone service.nomad
-        address https://127.0.0.1:4646
-        token {{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}
+        address https://{{ hostvars[nomad_primary_master_node | default(inventory_hostname)]['ansible_ens3']['ipv4']['address'] }}:4646
+        token {{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}
         ttl 10
     }
     prometheus 127.0.0.1:9153

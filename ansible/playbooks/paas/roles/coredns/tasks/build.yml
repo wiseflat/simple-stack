@@ -14,37 +14,18 @@
     url: "{{ upstream_file_url }}"
     dest: "{{ build_work_dir }}/download/"
     mode: '0644'
-    force: no
   register: download_result
-
-- name: Coredns | Git checkout
-  ansible.builtin.git:
-    repo: https://github.com/coredns/coredns
-    dest: "{{ build_work_dir }}/download/coredns"
-    version: master
-    force: true
 
 - name: Coredns | Unarchive GitHub release
   ansible.builtin.unarchive:
-    src: "{{ build_work_dir }}/download/{{ image.upstream.repo }}-{{ upstream_file_name }}"
+    src: "{{ build_work_dir }}/download/{{ upstream_file_name }}"
     dest: "{{ build_work_dir }}/download"
     remote_src: true
   when: download_result.changed
 
-- name: Coredns | Build binary
-  ansible.builtin.shell:
-    cmd: "{{ item }}"
-    chdir: "{{ build_work_dir }}/download/coredns"
-  environment:
-    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
-  loop:
-    - echo "nomad:github.com/ituoga/coredns-nomad" >> plugin.cfg
-    - go mod edit -replace github.com/ituoga/coredns-nomad={{ build_work_dir }}/download/coredns-nomad-{{ latest_version }}
-    - make gen coredns
-
 - name: Coredns | Copy binary
   ansible.builtin.copy:
-    src: "{{ build_work_dir }}/download/coredns/{{ image.upstream.binary }}"
+    src: "{{ build_work_dir }}/download/coredns"
     dest: /usr/local/bin/coredns
     owner: root
     group: root
