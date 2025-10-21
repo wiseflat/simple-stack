@@ -1,6 +1,6 @@
 plugin "docker" {
     config {
-{% if docker_tls_configuration == true %}
+{% if nomad_docker_tls_configuration %}
     	endpoint = "tcp://{{ nomad_docker_tcp_listen_address }}:{{ nomad_docker_tcp_listen_port }}"
 
     	tls {
@@ -12,27 +12,27 @@ plugin "docker" {
     	endpoint = "unix:///var/run/docker.sock"
 {% endif %}
 
-{% if nomad_docker_private_registry_state == true %}
+{% if nomad_docker_private_registry_state %}
         auth {
             config = "{{ nomad_docker_private_registry_config }}"
         }
 {% endif %}
 
-        allow_privileged = {{ nomad_docker_allow_privileged }}
+        allow_privileged = {{ nomad_docker_allow_privileged | lower }}
 
         volumes {
-            enabled = {{ nomad_docker_volume_enable }}
+            enabled = {{ nomad_docker_volume_enable | lower }}
         }
         allow_caps = [{% for item in nomad_docker_client_allow_caps %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
 
         gc {
-            image       = {{ nomad_docker_gc_image }}
-            image_delay = "{{ nomad_docker_gc_image_delay }}"
-            container   = {{ nomad_docker_gc_container }}
+            image       = {{ nomad_docker_gc_image | lower }}
+            image_delay = "{{ nomad_docker_gc_image_delay | lower }}"
+            container   = {{ nomad_docker_gc_container | lower }}
 
             dangling_containers {
-                enabled        = {{ nomad_docker_gc_dangling_containers_enabled }}
-                dry_run        = {{ nomad_docker_gc_dangling_containers_dry_run }}
+                enabled        = {{ nomad_docker_gc_dangling_containers_enabled | lower }}
+                dry_run        = {{ nomad_docker_gc_dangling_containers_dry_run | lower }}
                 period         = "{{ nomad_docker_gc_dangling_containers_period }}"
                 creation_grace = "{{ nomad_docker_gc_dangling_containers_creation_grace }}"
             }

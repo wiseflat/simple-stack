@@ -45,24 +45,22 @@
       run_once: true
       when: not cert_tls_server_present.stat.exists or (cert_tls_server_present.stat.exists and not tls_check_server.valid_at.delay)
 
-    - name: "Nomad | Copy cert private server key on nodes"
+    - name: "Nomad | Copy certificates on server nodes"
       ansible.builtin.copy:
-        src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_server }}"
-        dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
-        owner: "root"
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
         group: "{{ nomad_group }}"
         mode: "0640"
-
-    - name: "Nomad | Copy cert server on nodes"
-      ansible.builtin.copy:
-        src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_server }}"
-        dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
-        owner: "root"
-        group: "{{ nomad_group }}"
-        mode: "0640"
+      loop:
+        - src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_server }}"
+          dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+        - src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_server }}"
+          dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+      notify: Nomad_restart
 
 - name: Nomad | Copy certificate on client nodes
-  when: nomad_node_role == 'client'
+  when: nomad_node_role in ['client', 'both']
   block:
     - name: "Nomad | Check if TLS cert exists for Client"
       ansible.builtin.stat:
@@ -90,20 +88,18 @@
         certificate_client_privatekey: "{{ nomad_tls_privatekey_client }}"
         certificate_common_name: "{{ nomad_tls_common_name_client }}"
         certificate_subject_alt_name: "{{ nomad_tls_subject_alt_name_client }}"
-      when: nomad_mode == 'cluster'
+      # when: nomad_mode == 'cluster'
 
-    - name: "Nomad | Copy cert client key on nodes"
+    - name: "Nomad | Copy certificates on client nodes"
       ansible.builtin.copy:
-        src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_client }}"
-        dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
-        owner: "root"
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
         group: "{{ nomad_group }}"
         mode: "0640"
-
-    - name: "Nomad | Copy cert private client key on nodes"
-      ansible.builtin.copy:
-        src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_client }}"
-        dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_client }}"
-        owner: "root"
-        group: "{{ nomad_group }}"
-        mode: "0640"
+      loop:
+        - src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_cert_client }}"
+          dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
+        - src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_privatekey_client }}"
+          dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_client }}"
+      notify: Nomad_restart

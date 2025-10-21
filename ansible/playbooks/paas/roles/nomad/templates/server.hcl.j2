@@ -1,11 +1,11 @@
 server {
-    enabled = {{ nomad_server_enabled | bool | lower }}
+    enabled = {{ nomad_server_enabled | lower }}
 
     bootstrap_expect = {{ nomad_servers | length }}
 
     data_dir = "{{ nomad_data_dir_server }}"
 
-    {% if nomad_server_retry_join | bool -%}
+    {% if nomad_server_retry_join -%}
         retry_join = [
             {%- set comma = joiner(",") -%}
             {% for server in nomad_servers_advertise_address -%}
@@ -21,7 +21,7 @@ server {
             {%- endfor -%} ]
     {%- endif %}
 
-    rejoin_after_leave = {{ nomad_server_rejoin_after_leave | bool | lower }}
+    rejoin_after_leave = {{ nomad_server_rejoin_after_leave | lower }}
 
     enabled_schedulers = [
             {%- set comma = joiner(",") -%}
