@@ -8,3 +8,4 @@
   ansible.builtin.file:
     path: "{{ software_path }}"
     state: absent
+  delegate_to: "{{ software.instance }}"

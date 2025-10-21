@@ -1,0 +1,4 @@
+apiVersion: 1
+
+apps:
+{{ (lookup('simple-stack-ui', type='secret', key=domain, subkey='plugins', missing='error') | from_json) | to_nice_yaml }}

@@ -41,7 +41,7 @@ job "{{ domain }}" {
       env {
         GF_LOG_MODE = "console"
         GF_SERVER_HTTP_PORT = "3000"
-        GF_INSTALL_PLUGINS = "grafana-piechart-panel"
+        GF_INSTALL_PLUGINS = "grafana-piechart-panel,grafana-llm-app"
         GF_SECURITY_ADMIN_USER = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='user', missing='create', nosymbols=true, length=8) }}"
         GF_SECURITY_ADMIN_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='passwd', missing='create', length=12) }}"
         DS_PROMETHEUS = "prometheus"
