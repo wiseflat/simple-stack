@@ -13,7 +13,9 @@ docker_private_registry_state: false
 docker_private_registry_url: ""
 docker_private_registry_username: ""
 docker_private_registry_password: ""
-docker_private_registry_config: /etc/docker/config.json
+docker_private_registry_config:
+  - /etc/docker/config.json
+  - /root/.docker/config.json
 
 # DNS
 docker_dns_configuration: true
