@@ -3,7 +3,7 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "service"
 
-{% if software.constraints.location %}
+{% if software.constraints is defined and software.constraints.location is defined %}
   constraint {
     attribute    = "${meta.location}"
     set_contains = "{{ software.constraints.location }}"
@@ -113,6 +113,8 @@ EOH
 
     task "{{ domain }}-rocketchat" {
       driver = "docker"
+
+      user = "42420:42420"
 
       env {
         ROOT_URL = "https://{{ domain }}"
