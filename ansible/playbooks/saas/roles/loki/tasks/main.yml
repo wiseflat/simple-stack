@@ -8,15 +8,7 @@
     mode: '0755'
   loop:
     - "{{ software_path }}/var/lib/loki"
-    - "{{ software_path }}/etc/loki"
-
-- name: Copy config file
-  ansible.builtin.template:
-    src: config.yaml.j2
-    dest: "{{ software_path }}/etc/loki/local-config.yaml"
-    owner: 10001
-    group: 10001
-    mode: '0644'
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job
   ansible.builtin.template:

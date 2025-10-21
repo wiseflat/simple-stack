@@ -40,10 +40,21 @@ job "{{ domain }}" {
       config {
         image = "grafana/loki:{{ softwares.loki.version }}"
         volumes = [
-          "{{ software_path }}/var/lib/loki:/var/lib/loki:rw",
-          "{{ software_path }}/etc/loki:/etc/loki:ro"
+          "{{ software_path }}/var/lib/loki:/var/lib/loki:rw"
+        ]
+        args = [
+          "-config.file",
+          "/local/config.yaml"
         ]
         ports = ["loki"]
+      }
+
+      template {
+        change_mode = "restart"
+        destination = "local/config.yaml"
+        data = <<EOH
+{{ lookup('ansible.builtin.template', 'templates/config.yaml.j2') }}
+  EOH
       }
 
       resources {
