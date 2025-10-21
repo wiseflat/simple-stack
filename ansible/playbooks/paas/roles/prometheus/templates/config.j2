@@ -248,6 +248,12 @@ scrape_configs:
       - source_labels: [__tmp_fqdn]
         target_label: fqdn
 
+      # Traefik exposes its metrics on a different port
+      - source_labels: [__address__]
+        regex: '(.+):\d+'
+        target_label: __address__
+        replacement: '${1}:8081'
+
   - job_name: 'minio'
     metrics_path: /minio/v2/metrics/cluster
     scheme: http
