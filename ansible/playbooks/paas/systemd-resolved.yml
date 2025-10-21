@@ -16,6 +16,7 @@
         content: |
           [Resolve]
           DNSStubListener=yes
+          DNSStubListenerExtra=172.17.0.1:53
         dest: /etc/systemd/resolved.conf.d/systemd-resolved.conf
         mode: '0644'
       notify: Restart systemd-resolved
