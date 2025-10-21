@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: vectordotdev
+    repo: vector
+    type: releases
+    format: tar.gz
+    file: vector-VERSION-ARCH-unknown-OS-gnu.FORMAT
+    os: linux
+  labels: {}
+  name: vector

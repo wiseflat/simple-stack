@@ -1,0 +1,3 @@
+---
+upstream_versions: "{{ (lookup('url', 'https://api.github.com/repos/{{ image.upstream.user }}/{{ image.upstream.repo }}/tags', headers={'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + lookup('ansible.builtin.env', 'GITHUB_API_TOKEN') })) }}"
+latest_version: "{{ upstream_versions | community.general.json_query('[].name') | select('match', '^(v|r)?\\d{1,4}(\\.\\d{1,4})(\\.\\d{1,4})$') | community.general.version_sort | last | replace('v', '') }}"
