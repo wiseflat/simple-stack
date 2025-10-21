@@ -1,0 +1,32 @@
+---
+- name: Configure sdb partition
+  any_errors_fatal: true
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Create default directory
+      ansible.builtin.file:
+        path: /data
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create a new primary partition /dev/sdb1
+      community.general.parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+
+    - name: Create a ext4 filesystem on /dev/sdb1
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/sdb1
+
+    - name: Mount up device
+      ansible.posix.mount:
+        path: /data
+        src: /dev/sdb1
+        fstype: ext4
+        state: present
