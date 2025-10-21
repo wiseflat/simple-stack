@@ -1,22 +1,4 @@
 ---
-- name: Create default directories
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  loop:
-    - "{{ software_path }}/data"
-    - "{{ software_path }}/etc/valkey"
-    - "{{ software_path }}/run/valkey"
-
-- name: Copy config file
-  ansible.builtin.copy:
-    src: valkey.conf
-    dest: "{{ software_path }}/etc/valkey/valkey.conf"
-    mode: '0644'
-
 - name: Copy nomad job to destination
   ansible.builtin.template:
     src: nomad.hcl

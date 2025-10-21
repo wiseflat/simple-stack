@@ -1,0 +1,16 @@
+[Unit]
+Description=Nvidia GPU Exporter
+Documentation=https://github.com/utkuozdemir/nvidia_gpu_exporter
+After=network-online.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+ExecStart=/usr/local/bin/nvidia_gpu_exporter
+SyslogIdentifier=nvidia_gpu_exporter
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

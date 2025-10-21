@@ -5,6 +5,12 @@
   gather_facts: true
   become: true
   pre_tasks:
+
+    - name: Set fqdn hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+        use: systemd
+
     - name: Create ansible facts.d directory
       become: true
       ansible.builtin.file:
@@ -13,20 +19,6 @@
         owner: "root"
         group: "root"
         mode: '0755'
-
-    - name: Get ipinfo.io
-      ansible.builtin.uri:
-        url: https://ipinfo.io
-        http_agent: curl/7.81.0
-      register: register_uri
-      check_mode: false
-
-    - name: Set ipinfo local_fact
-      ansible.builtin.copy:
-        content: |
-          {{ register_uri.json | to_nice_json }}
-        dest: /etc/ansible/facts.d/ipinfo.fact
-        mode: '0644'
 
     - name: Install mandatories packages
       ansible.builtin.apt:
@@ -42,5 +34,17 @@
       until: apt_status is success
       delay: 6
       retries: 10
+
   roles:
     - unattended-upgrades
+
+- name: Configure systemd resolved
+  ansible.builtin.import_playbook: systemd-resolved.yml
+- name: Configure docker
+  ansible.builtin.import_playbook: docker.yml
+- name: Configure nomad
+  ansible.builtin.import_playbook: nomad.yml
+- name: Configure coredns
+  ansible.builtin.import_playbook: coredns.yml
+- name: Configure metrology
+  ansible.builtin.import_playbook: metrology.yml

@@ -14,7 +14,7 @@
     url: "{{ upstream_file_url }}"
     dest: "{{ build_work_dir }}/download/"
     mode: '0644'
-    force: no
+    force: false
   register: download_result
 
 - name: Promtail | Unarchive GitHub release

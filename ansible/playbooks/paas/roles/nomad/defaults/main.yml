@@ -15,7 +15,7 @@ nomad_timezone: "Europe/Paris"
 nomad_group: simplestack
 
 # Configuration
-nomad_dc_name: "dc1"
+nomad_dc_name: dc1
 
 nomad_project: "{{ fact_instance.project }}"
 nomad_region: "{{ fact_instance.region }}"
@@ -43,15 +43,15 @@ nomad_leave_on_interrupt: true
 nomad_client_auto_join: true
 nomad_server_auto_join: true
 
-nomad_s3_storage_enabled: true
+nomad_s3_storage_enabled: false
 
 # Network
 nomad_http_scheme: https
 nomad_http_ip: "127.0.0.1"
 nomad_http_port: 4646
 
-nomad_cluster_bridge: "ens3"
-nomad_iface: "ens3"
+nomad_cluster_bridge: ens3
+nomad_iface: ens3
 
 nomad_bind_address: "0.0.0.0"
 nomad_advertise_address: "{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}"
@@ -146,25 +146,38 @@ nomad_client_host_network_cluster:
   name: cluster
   interface: "{{ nomad_cluster_bridge }}"
 
-nomad_client_meta_list: {"arch": "{{ architecture_map[ansible_facts.architecture] }}", "location": "{{ fact_instance.location }}", "instance": "{{ inventory_hostname }}"}
+nomad_client_meta_list: >-
+  {"arch": "{{ architecture_map[ansible_facts.architecture] }}",
+   "location": "{{ fact_instance.location }}",
+   "instance": "{{ inventory_hostname }}"}
 
-nomad_server_join: "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) or (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) | unique | list }}{% endif %}"
+nomad_server_join: >-
+  "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ (groups[nomad_deploy_cluster_name] |
+  map('extract', hostvars) |
+  selectattr('nomad_node_role', 'equalto', 'both') |
+  map(attribute='ansible_br0.ipv4.address')) or
+  (groups[nomad_deploy_cluster_name] |
+  map('extract', hostvars) |
+  selectattr('nomad_node_role', 'equalto', 'both') |
+  map(attribute='ansible_br0.ipv4.address')) |
+  unique | list }}{% endif %}"
+
 nomad_server_join_retry_max: 3
-nomad_server_join_retry_interval: "15s"
+nomad_server_join_retry_interval: 15s
 
 nomad_client_server_join_retry_max: 3
-nomad_client_server_join_retry_interval: "15s"
+nomad_client_server_join_retry_interval: 15s
 
-nomad_client_drain_on_shutdown_deadline: "1m"
-nomad_client_drain_on_shutdown_force: "true"
-nomad_client_drain_on_shutdown_ignore_system_jobs: "true"
+nomad_client_drain_on_shutdown_deadline: 1m
+nomad_client_drain_on_shutdown_force: true
+nomad_client_drain_on_shutdown_ignore_system_jobs: true
 
 nomad_client_cpu_total_compute: 0
 nomad_client_memory_total_mb: 0
 nomad_client_disk_total_mb: 0
 nomad_client_disk_free_mb: 0
 
-nomad_client_gc_interval: "1m"
+nomad_client_gc_interval: 1m
 nomad_client_gc_disk_usage_threshold: 80
 nomad_client_gc_inode_usage_threshold: 70
 nomad_client_gc_parallel_destroys: 2
@@ -175,12 +188,15 @@ nomad_client_reserved_disk: 0
 
 # TLS
 nomad_tls_ca_host: localhost
-nomad_tls_ca_host_dir: "~/.simple-stack/tls"
-nomad_tls_ca_pubkey: "simplestack-ca.pem"
-nomad_tls_ca_privatekey: "simplestack-ca-key.pem"
-nomad_tls_ca_provider: "ownca"
-nomad_tls_host_certificate_dir: "/etc/ssl/simplestack"
-nomad_tls_common_name: "nomad"
+nomad_tls_ca_host_dir: ~/.simple-stack/tls
+nomad_tls_ca_pubkey: simplestack-ca.pem
+nomad_tls_ca_privatekey: simplestack-ca-key.pem
+nomad_tls_ca_provider: ownca
+nomad_tls_host_certificate_dir: /etc/ssl/simplestack
+
+nomad_tls_common_name: nomad
+# IP range for 192.168.0.0/24 (all 256 addresses)
+nomad_tls_ip_range: "{{ range(0,256) | map('regex_replace', '^', 'IP:192.168.0.') | list | join(',') }}"
 nomad_tls_check_delay: "+2w"
 
 # TLS Server
@@ -188,36 +204,32 @@ nomad_tls_cert_server: "{{ nomad_dc_name }}-server-nomad.pem"
 nomad_tls_privatekey_server: "{{ nomad_dc_name }}-server-nomad.key"
 
 nomad_tls_common_name_server: "*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }}"
-# nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,DNS:server.global.{{ certificate_subject_alt_name }},DNS:server.{{ nomad_region }}.{{ certificate_subject_alt_name }},DNS:server.{{ nomad_dc_name }}.{{ certificate_subject_alt_name }},DNS:*.{{ nomad_dc_name }}.{{ certificate_subject_alt_name }},IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
-# nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad,IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
-nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad"
+nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,{{ nomad_tls_ip_range }},DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad"
 
 # TLS client
 nomad_tls_cert_client: "{{ inventory_hostname }}-{{ nomad_dc_name }}-client-nomad.pem"
 nomad_tls_privatekey_client: "{{ inventory_hostname }}-{{ nomad_dc_name }}-client-nomad.key"
 
 nomad_tls_common_name_client: "*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }}"
-# nomad_tls_subject_alt_name_client: "DNS:localhost,IP:127.0.0.1,DNS:client.global.{{ certificate_subject_alt_name }},DNS:client.{{ nomad_region }}.{{ nomad_tls_common_name }},DNS:client.{{ nomad_dc_name }}.{{ nomad_tls_common_name }},DNS:*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }},IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
-# nomad_tls_subject_alt_name_client: "DNS:localhost,IP:127.0.0.1,DNS:client.global.nomad,DNS:client.{{ nomad_region }}.nomad,DNS:client.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad,IP:172.26.64.1,IP:172.17.0.1,IP:172.18.0.1"
-nomad_tls_subject_alt_name_client: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,DNS:client.global.nomad,DNS:client.{{ nomad_region }}.nomad,DNS:client.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad"
+nomad_tls_subject_alt_name_client: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,{{ nomad_tls_ip_range }},DNS:client.global.nomad,DNS:client.{{ nomad_region }}.nomad,DNS:client.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad"
 
-nomad_tls_rpc_upgrade_mode: "false"
-nomad_tls_verify_server_hostname: "true"
-nomad_tls_verify_https_client: "false"
+nomad_tls_rpc_upgrade_mode: false
+nomad_tls_verify_server_hostname: true
+nomad_tls_verify_https_client: false
 
 # ACL
 nomad_acl_enabled: true
 nomad_acl_token_ttl: 30s
 nomad_acl_policy_ttl: 30s
-nomad_acl_replication_token: ""
+nomad_acl_replication_token:
 
 # Docker
-nomad_docker_client_dc_name: "dc1"
+nomad_docker_client_dc_name: "{{ nomad_dc_name }}"
 
 nomad_docker_tcp_listen_address: "127.0.0.1"
 nomad_docker_tcp_listen_port: 2376
 
-docker_tls_configuration: false
+nomad_docker_tls_configuration: false
 
 nomad_docker_client_tls_host_certificate_dir: "/etc/ssl/docker"
 nomad_docker_client_tls_cert: "{{ nomad_docker_client_dc_name }}-client-docker.pem"
@@ -241,40 +253,40 @@ nomad_docker_client_allow_caps:
   - sys_ptrace
   - sys_admin
 
-nomad_docker_private_registry_state: false
+nomad_docker_private_registry_state: true
 nomad_docker_private_registry_config: /etc/docker/config.json
 
-nomad_docker_allow_privileged: "{% if nomad_s3_storage_enabled %}true{% else %}false{% endif %}"
-nomad_docker_volume_enable: "true"
-nomad_docker_gc_image: "true"
-nomad_docker_gc_image_delay: "1h"
-nomad_docker_gc_container: "true"
-nomad_docker_gc_dangling_containers_enabled: "true"
-nomad_docker_gc_dangling_containers_dry_run: "false"
-nomad_docker_gc_dangling_containers_period: "5m"
-nomad_docker_gc_dangling_containers_creation_grace: "5m"
+nomad_docker_allow_privileged: true
+nomad_docker_volume_enable: true
+nomad_docker_gc_image: true
+nomad_docker_gc_image_delay: 1h
+nomad_docker_gc_container: true
+nomad_docker_gc_dangling_containers_enabled: true
+nomad_docker_gc_dangling_containers_dry_run: false
+nomad_docker_gc_dangling_containers_period: 5m
+nomad_docker_gc_dangling_containers_creation_grace: 5m
 
 # Telemetry
-nomad_telemetry_disable_hostname: "false"
-nomad_telemetry_collection_interval: "5s"
-nomad_telemetry_use_node_name: "false"
-nomad_telemetry_publish_allocation_metrics: "true"
-nomad_telemetry_publish_node_metrics: "true"
-nomad_telemetry_filter_default: "true"
+nomad_telemetry_disable_hostname: false
+nomad_telemetry_collection_interval: 5s
+nomad_telemetry_use_node_name: false
+nomad_telemetry_publish_allocation_metrics: true
+nomad_telemetry_publish_node_metrics: true
+nomad_telemetry_filter_default: true
 # nomad_telemetry_prefix_filter:
-nomad_telemetry_disable_dispatched_job_summary_metrics: "false"
+nomad_telemetry_disable_dispatched_job_summary_metrics: false
 # nomad_telemetry_statsite_address: ""
 # nomad_telemetry_statsd_address: ""
 # nomad_telemetry_datadog_address: ""
 # nomad_telemetry_datadog_tags:
-nomad_telemetry_prometheus_metrics: "true"
+nomad_telemetry_prometheus_metrics: true
 # nomad_telemetry_circonus_api_token: ""
 nomad_telemetry_circonus_api_app: "nomad"
 nomad_telemetry_circonus_api_url: "https://api.circonus.com/v2"
 nomad_telemetry_circonus_submission_interval: "10s"
 # nomad_telemetry_circonus_submission_url: ""
 # nomad_telemetry_circonus_check_id: ""
-nomad_telemetry_circonus_check_force_metric_activation: "false"
+nomad_telemetry_circonus_check_force_metric_activation: false
 # nomad_telemetry_circonus_check_instance_id: ""
 # nomad_telemetry_circonus_check_search_tag: ""
 # nomad_telemetry_circonus_check_display_name: ""
@@ -299,5 +311,5 @@ nomad_ui_content_security_policy_script_src: "'self'"
 nomad_ui_content_security_policy_style_src: ""
 
 nomad_ui_label_text: "{{ inventory_hostname }}"
-nomad_ui_label_background_color: "blue"
-nomad_ui_label_text_color: "white"
+nomad_ui_label_background_color: blue
+nomad_ui_label_text_color: white

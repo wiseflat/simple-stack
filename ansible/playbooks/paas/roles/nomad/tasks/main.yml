@@ -7,8 +7,8 @@
     name: "{{ nomad_timezone }}"
     hwclock: local
 
-- name: "Nomad | Install CNI"
-  ansible.builtin.include_tasks: "02_network.yml"
+# - name: "Nomad | Install CNI"
+#   ansible.builtin.include_tasks: "02_network.yml"
 
 - name: "Nomad | Commons tasks"
   ansible.builtin.include_tasks: "03_commons_tasks.yml"
@@ -27,4 +27,3 @@
 
 - name: "Nomad | Change SystemD configuration"
   ansible.builtin.include_tasks: "08_systemd_tuning.yml"
-

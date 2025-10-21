@@ -17,6 +17,7 @@
 <ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-folders;title:@(Catalog);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
 		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i>@(Settings)</button>
+		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
 	</nav>
 	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
 	<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:name;output:?.searchoutput">
@@ -68,6 +69,11 @@
 				};
 				exports.set(output);
 			});
+		};
+
+		exports.add = function() {
+			SET('formcatalog @default', {});
+			SET('common.form2', 'formcatalog');
 		};
 
 		exports.settings = function(el) {

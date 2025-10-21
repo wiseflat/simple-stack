@@ -1,0 +1,23 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: utkuozdemir
+    repo: nvidia_gpu_exporter
+    type: release
+    format: tar.gz
+    file: nvidia_gpu_exporter_VERSION_OS_ARCH.FORMAT
+    os: linux
+    binary: nvidia_gpu_exporter
+  labels: {}
+  name: nginx_exporter
+
+build_work_dir: /tmp/nvidia_gpu_exporter
+
+architecture_map:
+  amd64: amd64
+  x86_64: x86_64
+  armv7l: arm
+  aarch64: arm64
+  arm64: arm64

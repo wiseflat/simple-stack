@@ -15,9 +15,11 @@ remote_write:
     headers:
       X-Scope-OrgID: demo
     send_exemplars: true
+{% if prometheus_remote_write.basic_auth %}
     basic_auth:
       username: "{{ prometheus_remote_write.login }}"
       password: "{{ prometheus_remote_write.password }}"
+{% endif %}
     queue_config:
       capacity: 25000            # Capacité totale de la file d'attente
       max_shards: 10             # Nombre de shards parallèles (trop haut = surcharge CPU)
@@ -64,14 +66,10 @@ scrape_configs:
         regex: "^(__tmp_keep_me)$"
 
     static_configs:
-      - targets: ['127.0.0.1:9100']
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project  %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9100']
         labels:
-          instance: "{{ inventory_hostname }}"
-          project: "{{ prometheus_project }}"
-{% for item in prometheus_nodes_exporter | default([]) %}
-      - targets: ['{{ item.target }}:9100']
-        labels:
-          instance: "{{ item.instance }}"
+          instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
     scrape_interval: 60s
@@ -169,11 +167,39 @@ scrape_configs:
           project: "{{ prometheus_project }}"
 
   - job_name: "systemd_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    bearer_token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
+    params:
+      format: ['prometheus']
+    metrics_path: /metrics
+    tls_config:
+      insecure_skip_verify: true
     static_configs:
-      - targets: ['127.0.0.1:9558']
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9558']
         labels:
-          instance: "{{ inventory_hostname }}"
+          instance: "{{ item }}"
           project: "{{ prometheus_project }}"
+{% endfor %}
+
+  - job_name: "nvidia_gpu_exporter"
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    params:
+      format: ['prometheus']
+    metrics_path: /metrics
+    static_configs:
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9835']
+        labels:
+          instance: "{{ item }}"
+          project: "{{ prometheus_project }}"
+{% endfor %}
 
   - job_name: "nomad_exporter"
     metric_relabel_configs:
@@ -181,38 +207,51 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     scheme: https
-    bearer_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+    bearer_token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     params:
       format: ['prometheus']
     metrics_path: /v1/metrics
     tls_config:
       insecure_skip_verify: true
     static_configs:
-      - targets: ['127.0.0.1:4646']
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:4646']
         labels:
-          instance: "{{ inventory_hostname }}"
+          instance: "{{ item }}"
           project: "{{ prometheus_project }}"
-
+{% endfor %}
 
   - job_name: 'mimir_exporter'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - source_labels: ['__meta_nomad_service']
         regex: 'mimir-exporter'
         action: keep
 
   - job_name: 'promtail'
+    metric_relabel_configs:
+      - action: drop
+        regex: "^(go_|prometheus_|promhttp_).*"
+        source_labels: [__name__]
+    bearer_token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
+    params:
+      format: ['prometheus']
+    metrics_path: /metrics
+    tls_config:
+      insecure_skip_verify: true
     static_configs:
-      - targets: ['127.0.0.1:9080']
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9080']
         labels:
-          instance: "{{ inventory_hostname }}"
+          instance: "{{ item }}"
           project: "{{ prometheus_project }}"
+{% endfor %}
 
   - job_name: 'blackbox'
     static_configs:
@@ -223,12 +262,12 @@ scrape_configs:
 
   - job_name: 'traefik'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -248,16 +287,22 @@ scrape_configs:
       - source_labels: [__tmp_fqdn]
         target_label: fqdn
 
+      # Traefik exposes its metrics on a different port
+      - source_labels: [__address__]
+        regex: '(.+):\d+'
+        target_label: __address__
+        replacement: '${1}:8081'
+
   - job_name: 'minio'
     metrics_path: /minio/v2/metrics/cluster
     scheme: http
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -279,12 +324,12 @@ scrape_configs:
 
   - job_name: 'caddy'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -308,14 +353,47 @@ scrape_configs:
       #   replacement: '$1'
       #   target_label: instance
 
-  - job_name: 'mysql_exporter'
+
+  - job_name: 'vllm'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ inventory_hostname }}"
+      - target_label: project
+        replacement: "{{ prometheus_project }}"
+
+      - source_labels: ['__meta_nomad_service']
+        regex: 'vllm'
+        action: keep
+
+      - source_labels: [__meta_nomad_tags]
+        regex: .*,fqdn:([^,]+),.*
+        target_label: __tmp_fqdn
+        replacement: $1
+        action: replace
+
+      - source_labels: [__tmp_fqdn]
+        target_label: fqdn
+
+      # - source_labels: ['__meta_nomad_node']
+      #   replacement: '$1'
+      #   target_label: instance
+
+
+  - job_name: 'mysql_exporter'
+    nomad_sd_configs:
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+        region: "{{ fact_instance.region }}"
+        tls_config:
+          insecure_skip_verify: true
+        authorization:
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -341,12 +419,12 @@ scrape_configs:
 
   - job_name: 'nginx_exporter'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -372,12 +450,12 @@ scrape_configs:
 
   - job_name: 'phpfpm_exporter'
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
     relabel_configs:
       - target_label: instance
         replacement: "{{ inventory_hostname }}"
@@ -406,12 +484,12 @@ scrape_configs:
     metrics_path: /api/prometheus
     scheme: http
     nomad_sd_configs:
-      - server: "https://127.0.0.1:4646"
+      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
         authorization:
-          credentials: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          credentials: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
 
     relabel_configs:
       - target_label: instance

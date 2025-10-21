@@ -68,10 +68,11 @@
     port: "{{ nomad_http_port }}"
 
 - name: Block
+  when: nomad_node_role in ['server', 'both']
   block:
     - name: "Nomad Install | Read Nomad management token from UI"
       ansible.builtin.set_fact:
-        nomad_management_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+        nomad_management_token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
   rescue:
     - name: "Nomad ACL | Generate Bootstrap token"
       ansible.builtin.uri:
@@ -88,7 +89,7 @@
 
     - name: "Nomad Install | Set Nomad management token and insert in UI"
       ansible.builtin.set_fact:
-        nomad_management_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='create', userpass=nomad_management_token_result.json.SecretID) }}"
+        nomad_management_token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='create', userpass=nomad_management_token_result.json.SecretID) }}"
 
 - name: "Nomad Configuration | Enable MemoryOversubscription"
   ansible.builtin.uri:
@@ -109,18 +110,18 @@
   register: nomad_memoryoversubscription
   ignore_errors: true
 
-- name: "Nomad Configuration | Add S3 storage plugin job templates"
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "{{ nomad_job_files_dir }}/{{ item }}"
-    mode: '0644'
-  loop:
-    - "plugin-s3-controller.hcl"
-    - "plugin-s3-node.hcl"
-  when:
-    - nomad_s3_storage_enabled
-    - nomad_node_role in ['client', 'both']
-  notify: Nomad_s3_jobs
+# - name: "Nomad Configuration | Add S3 storage plugin job templates"
+#   ansible.builtin.template:
+#     src: "{{ item }}.j2"
+#     dest: "{{ nomad_job_files_dir }}/{{ item }}"
+#     mode: '0644'
+#   loop:
+#     - "plugin-s3-controller.hcl"
+#     - "plugin-s3-node.hcl"
+#   when:
+#     - nomad_s3_storage_enabled
+#     - nomad_node_role in ['client', 'both']
+#   notify: Nomad_s3_jobs
 
-- name: "Nomad Configuration | Flush handlers"
-  ansible.builtin.meta: flush_handlers
+# - name: "Nomad Configuration | Flush handlers"
+#   ansible.builtin.meta: flush_handlers

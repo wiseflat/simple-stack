@@ -1,0 +1,11 @@
+---
+- name: Install nomad juicefs CSI driver
+  any_errors_fatal: true
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Install nomad juicefs CSI driver
+      ansible.builtin.import_role:
+        name: nomad
+        tasks_from: 10_juicefs

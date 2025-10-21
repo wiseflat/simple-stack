@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: vllm-project
+    repo: vllm
+    type: release
+    format: tar.gz
+    file: vllm-VERSION.FORMAT
+  labels: {}
+  name: vllm
+  origin: ubuntu:latest

@@ -1,12 +1,12 @@
 client {
-    enabled = {{ nomad_client_enabled | bool | lower }}
+    enabled = {{ nomad_client_enabled | lower }}
 
     state_dir = "{{ nomad_state_dir_client }}"
 
     node_class = "{{ nomad_client_node_class }}"
     node_pool = "{{ nomad_client_node_pool }}"
 
-    no_host_uuid = {{ nomad_client_no_host_uuid | bool | lower }}
+    no_host_uuid = {{ nomad_client_no_host_uuid | lower }}
 
     servers = [
         {%- set comma = joiner(",") -%}
@@ -51,8 +51,8 @@ client {
 {% if nomad_mode == 'cluster' %}
     drain_on_shutdown {
       deadline           = "{{ nomad_client_drain_on_shutdown_deadline }}"
-      force              = {{ nomad_client_drain_on_shutdown_force }}
-      ignore_system_jobs = {{ nomad_client_drain_on_shutdown_ignore_system_jobs }}
+      force              = {{ nomad_client_drain_on_shutdown_force | lower }}
+      ignore_system_jobs = {{ nomad_client_drain_on_shutdown_ignore_system_jobs | lower }}
     }
 {% endif %}
 

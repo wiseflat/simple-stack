@@ -1,0 +1,18 @@
+type = "csi"
+id = "juicefs-{{ item }}"
+name = "juicefs-{{ item }}"
+
+capability {
+  access_mode = "multi-node-multi-writer"
+  attachment_mode = "file-system"
+}
+plugin_id = "juicefs0"
+
+secrets {
+  name="juicefs-volume"
+  metaurl="redis://{{ nomad_juicefs_secrets.valkey.address }}:{{ nomad_juicefs_secrets.valkey.port }}/0"
+  bucket="http://{{ nomad_juicefs_secrets.minio.address }}:{{ nomad_juicefs_secrets.minio.port }}/minio/{{ item }}"
+  storage="minio"
+  access-key="{{ lookup('simple-stack-ui', type='secret', key=nomad_juicefs_secrets.minio.domain, subkey='user', missing='error') }}"
+  secret-key="{{ lookup('simple-stack-ui', type='secret', key=nomad_juicefs_secrets.minio.domain, subkey='passwd', missing='error') }}"
+}

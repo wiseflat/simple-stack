@@ -26,24 +26,8 @@
         state: directory
         mode: '0755'
       loop:
-        - /root/.docker
         - "{{ build_work_dir }}/download"
         - "{{ build_work_dir }}/{{ upstream_default_arch }}"
-
-    - name: Copy docker config file
-      ansible.builtin.copy:
-        content: |
-          {
-              "auths": {
-                  "{{ docker_private_registry.url }}": {
-                      "auth": "{{ (docker_private_registry.username + ':' + docker_private_registry.password) | b64encode }}"
-                  }
-              }
-          }
-        dest: /root/.docker/config.json
-        owner: root
-        group: root
-        mode: '0600'
 
   tasks:
     - name: Install dependencies
@@ -59,9 +43,9 @@
     - name: Build
       when: image_build
       block:
-        - name: Build image
+        - name: Build and publish image
           community.docker.docker_image_build:
-            name: "{{ docker_private_registry.url }}/{{ image_name }}:{{ image_version }}"
+            name: "{{ docker_private_registry.url }}/{{ docker_private_registry.project is defined | ternary(docker_private_registry.project + '/', '') }}{{ image_name }}:{{ image_version }}"
             tag: latest
             path: "/tmp/{{ catalog }}"
             dockerfile: Dockerfile
@@ -91,6 +75,7 @@
             version: "{{ image_version }}"
         force_basic_auth: true
         status_code: 200
-      ignore_errors: true
+      register: ui_update
+      failed_when: ui_update.status != 200
       delegate_to: localhost
       become: false

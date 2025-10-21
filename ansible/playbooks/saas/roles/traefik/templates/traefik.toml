@@ -14,6 +14,8 @@
         [entryPoints.http.http.redirections.entrypoint]
           to = "https"
           scheme = "https"
+  [entryPoints.metrics]
+    address = ":8081"
   [entryPoints.https]
     address = ":443"
 
@@ -25,7 +27,7 @@
     buckets = [0.1,0.3,1.2,5.0]
     addEntryPointsLabels = true
     addServicesLabels = true
-    entryPoint = "https"
+    entryPoint = "metrics"
 
 [log]
   level = "WARN"
@@ -47,7 +49,7 @@
     prefix = "traefik"
     exposedByDefault = false
   [providers.nomad.endpoint]
-    address = "https://172.17.0.1:4646"
+    address = "https://{{ hostvars[nomad_primary_master_node]['ansible_ens3']['ipv4']['address'] | default('127.0.0.1') }}:4646"
     token = "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
   [providers.nomad.endpoint.tls]
     ca = "/etc/ssl/simplestack/simplestack-ca.pem"

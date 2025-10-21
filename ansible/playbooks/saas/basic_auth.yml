@@ -14,4 +14,4 @@
   tasks:
     - name: Debug hash
       ansible.builtin.debug:
-        msg: "{{ login }}:{{ password | password_hash('blowfish') }}"
+        msg: "{{ login }}:{{ password | ansible.builtin.password_hash('blowfish') }}"

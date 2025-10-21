@@ -1,15 +1,4 @@
 ---
-- name: Create default directory
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-  loop:
-    - "{{ software_path }}/etc/caddy"
-  delegate_to: "{{ software.instance }}"
-
 - name: Copy nomad job to destination
   ansible.builtin.template:
     src: nomad.hcl

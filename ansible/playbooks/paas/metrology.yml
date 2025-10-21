@@ -4,16 +4,51 @@
   hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
-  roles:
-    - prometheus
-    - promtail
-    - phpfpm_exporter
-    - node_exporter
-    - mysqld_exporter
-    - systemd_exporter
-    - mongodb_exporter
-    - blackbox_exporter
-    - nginx_exporter
-    - scan_exporter
-    - dns_exporter
-    - script_exporter
+  vars_prompt:
+    - name: project
+      prompt: project name
+      private: false
+  tasks:
+    - name: End the play for hosts that are not in admins group
+      ansible.builtin.meta: end_host
+      when: fact_instance.location != 'admins'
+
+    - name: Install prometheus
+      ansible.builtin.import_role:
+        name: prometheus
+
+- name: Install exporters
+  any_errors_fatal: true
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Create prometheus group
+      ansible.builtin.group:
+        name: prometheus
+        system: true
+
+    - name: Create prometheus user
+      ansible.builtin.user:
+        name: prometheus
+        create_home: false
+        system: true
+
+    - name: Install exporters
+      ansible.builtin.include_role:
+        name: "{{ exporter }}"
+      loop:
+        - promtail
+        - phpfpm_exporter
+        - node_exporter
+        - mysqld_exporter
+        - systemd_exporter
+        - mongodb_exporter
+        - blackbox_exporter
+        - nginx_exporter
+        - scan_exporter
+        - dns_exporter
+        - script_exporter
+        - nvidia_gpu_exporter
+      loop_control:
+        loop_var: exporter

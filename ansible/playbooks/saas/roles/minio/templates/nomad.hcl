@@ -3,7 +3,7 @@ job "{{ domain }}" {
   datacenters = ["{{ fact_instance.datacenter }}"]
   type = "service"
 
-{% if software.constraints.location %}
+{% if software.constraints is defined and software.constraints.location is defined %}
   constraint {
     attribute    = "${meta.location}"
     set_contains = "{{ software.constraints.location }}"
@@ -21,6 +21,9 @@ job "{{ domain }}" {
     network {
       port "minio" {
         to = 9000
+{% if software.static_port is defined %}
+        static = {{ software.static_port }}
+{% endif %}
       }
     }
 
@@ -53,7 +56,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url }}/minio:{{ softwares.minio.version }}"
+        image = "{{ docker_private_registry.url_project | default(docker_private_registry.url) }}/minio:{{ softwares.minio.version }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/var/backup:/var/backup:rw"

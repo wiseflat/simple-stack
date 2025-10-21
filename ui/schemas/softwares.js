@@ -44,24 +44,20 @@ NEWSCHEMA('Softwares', function (schema) {
 		name: 'Search item',
 		params: '*prefix:String,*action:String,*api:String, alias:String',
 		action: async function ($) {
-			try {
-				const { prefix, action, api, alias } = $.params;
-				const list = await $.action('Softwares/list').promise($);
-				const result = list.map(item => ({
-					id: action,
-					api,
-					form: 'formsoftware',
-					search: item.domain,
-					name: item.domain,
-					itemid: item.id,
-					html: `${prefix}: <span class="gray">${alias || action} ${item.domain}</span>`,
-					icon: 'ti-cube',
-					color: 'blue'
-				}));
-				$.callback(result);
-			} catch (err) {
-				$.error(err);
-			}
+			const { prefix, action, api, alias } = $.params;
+			const list = await $.action('Softwares/list').promise($);
+			const result = list.map(item => ({
+				id: action,
+				api,
+				form: 'formsoftware',
+				search: item.domain,
+				name: item.domain,
+				itemid: item.id,
+				html: `${prefix}: <span class="gray">${alias || action} ${item.domain}</span>`,
+				icon: 'ti-cube',
+				color: 'blue'
+			}));
+			$.callback(result);
 		}
 	});
 
