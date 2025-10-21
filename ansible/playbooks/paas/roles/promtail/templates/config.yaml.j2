@@ -10,9 +10,11 @@ positions:
 {% if loki_remote_write is defined %}
 clients:
   - url: {{ loki_remote_write.url }}/api/prom/push
+{% if loki_remote_write.basic_auth %}
     basic_auth:
       username: {{ loki_remote_write.login }}
       password: {{ loki_remote_write.password }}
+{% endif %}
 {% else %}
 clients: []
 {% endif %}
