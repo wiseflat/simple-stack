@@ -1,0 +1,142 @@
+---
+- name: Install nomad nvidia plugin
+  any_errors_fatal: true
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  gather_facts: true
+  become: true
+  vars:
+    build_work_dir: /tmp
+    upstream_file_url: https://github.com/hashicorp/nomad-device-nvidia.git
+    nvidia_container_toolkit_version: "1.17.8-1"
+    nvidia_gpg_key_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
+    nvidia_repo_list_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+    nvidia_keyring_path: "/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg"
+    nvidia_list_path: "/etc/apt/sources.list.d/nvidia-container-toolkit.list"
+
+  roles:
+    - golang
+
+  pre_tasks:
+
+    - name: Créer le répertoire du keyring s'il n'existe pas
+      ansible.builtin.file:
+        path: "{{ nvidia_keyring_path | dirname }}"
+        state: directory
+        mode: "0755"
+
+    - name: Télécharger et enregistrer la clé GPG NVIDIA
+      ansible.builtin.get_url:
+        url: "{{ nvidia_gpg_key_url }}"
+        dest: /tmp/nvidia-container-toolkit.gpg
+        mode: "0644"
+
+    - name: Convertir la clé GPG en format keyring
+      ansible.builtin.command:
+        cmd: "gpg --dearmor -o {{ nvidia_keyring_path }} /tmp/nvidia-container-toolkit.gpg"
+        creates: "{{ nvidia_keyring_path }}"
+
+    - name: Télécharger le fichier de dépôt NVIDIA et ajouter le signed-by
+      ansible.builtin.shell: |
+        curl -s -L {{ nvidia_repo_list_url }} | \
+        sed 's#deb https://#deb [signed-by={{ nvidia_keyring_path }}] https://#g' > {{ nvidia_list_path }}
+      args:
+        creates: "{{ nvidia_list_path }}"
+
+    - name: Activer la section experimental (décommenter)
+      ansible.builtin.replace:
+        path: "{{ nvidia_list_path }}"
+        regexp: '^#(.*experimental.*)$'
+        replace: '\1'
+
+    - name: Mettre à jour la liste des paquets
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Installer les paquets NVIDIA Container Toolkit
+      ansible.builtin.apt:
+        name:
+          - "nvidia-container-toolkit={{ nvidia_container_toolkit_version }}"
+          - "nvidia-container-toolkit-base={{ nvidia_container_toolkit_version }}"
+          - "libnvidia-container-tools={{ nvidia_container_toolkit_version }}"
+          - "libnvidia-container1={{ nvidia_container_toolkit_version }}"
+        state: present
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        pkg:
+          - nvidia-utils-580
+          - nvidia-driver-580
+          - nvidia-container-runtime
+          - nomad-device-nvidia
+        state: present
+        install_recommends: true
+        update_cache: true
+      register: apt_status
+      until: apt_status is success
+      delay: 6
+      retries: 10
+
+    - name: Nomad-nvidia-plugin | Git checkout
+      ansible.builtin.git:
+        repo: https://github.com/hashicorp/nomad-device-nvidia.git
+        dest: "{{ build_work_dir }}/nomad-device-nvidia"
+        version: main
+        force: true
+
+    - name: Nomad-nvidia-plugin | Build binary
+      ansible.builtin.command:
+        cmd: make compile
+        chdir: "{{ build_work_dir }}/nomad-device-nvidia"
+      environment:
+        PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+      register: my_output
+      changed_when: my_output.rc != 0
+
+    - name: Create nomad plugin directory
+      ansible.builtin.file:
+        path: /opt/nomad/plugins
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Nomad-nvidia-plugin | Copy binary
+      ansible.builtin.copy:
+        src: /tmp/nomad-plugins/nomad-device-nvidia
+        dest: /opt/nomad/plugins/nomad-device-nvidia
+        owner: root
+        group: root
+        mode: '0755'
+        remote_src: true
+
+
+    - name: Copy using inline content
+      ansible.builtin.copy:
+        content: |
+          plugin "nomad-device-nvidia" {
+            config {
+              enabled            = true
+              fingerprint_period = "5s"
+            }
+          }
+        dest: /etc/nomad.d/nvidia.hcl
+        owner: root
+        group: root
+        mode: '0644'
+
+    # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+    - name: Nomad-nvidia-plugin | Test nvidia support
+      ansible.builtin.command: nvidia-ctk runtime configure --runtime=docker
+
+    - name: Nomad-nvidia-plugin | Restart docker
+      ansible.builtin.command: systemctl restart docker
+
+    # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html
+    - name: Nomad-nvidia-plugin | Test nvidia support
+      ansible.builtin.command: docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi
+      register: docker_run
+
+    - name: Nomad-nvidia-plugin | Debug
+      ansible.builtin.debug:
+        msg: "{{ docker_run }}"
