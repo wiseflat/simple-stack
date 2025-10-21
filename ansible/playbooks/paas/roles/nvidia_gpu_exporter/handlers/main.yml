@@ -1,0 +1,7 @@
+---
+- name: Restart nvidia_gpu_exporter
+  listen: Restart nvidia_gpu_exporter
+  ansible.builtin.service:
+    name: nvidia_gpu_exporter
+    state: restarted
+    enabled: true

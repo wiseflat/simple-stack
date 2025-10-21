@@ -1,0 +1,23 @@
+---
+- name: End the play for hosts that don't have nvidia gpu
+  ansible.builtin.meta: end_host
+  when: not nvidia_gpu_exporter_enable
+
+- name: Nvidia_gpu_exporter | Include upstream variables
+  ansible.builtin.include_vars: upstream.yml
+
+- name: Nvidia_gpu_exporter | Get binary
+  ansible.builtin.include_tasks: build.yml
+  when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
+
+- name: Nvidia_gpu_exporter | Copy templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+    owner: prometheus
+    group: prometheus
+  loop:
+    - src: service.j2
+      dest: /etc/systemd/system/nvidia_gpu_exporter.service
+  notify: Restart nvidia_gpu_exporter
