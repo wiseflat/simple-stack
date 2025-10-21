@@ -30,8 +30,8 @@
         software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') }}"
 
     - name: Debug software
-      debug:
-        msg: "{{ software }}" 
+      ansible.builtin.debug:
+        msg: "{{ software }}"
 
   tasks:
     - name: Deploy service
