@@ -56,7 +56,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url }}/minio:{{ softwares.minio.version }}"
+        image = "{{ docker_private_registry.url_project | default(docker_private_registry.url) }}/minio:{{ softwares.minio.version }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/var/backup:/var/backup:rw"

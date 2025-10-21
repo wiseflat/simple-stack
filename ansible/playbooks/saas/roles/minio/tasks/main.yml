@@ -1,15 +1,4 @@
 ---
-- name: Create default directory
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: directory
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: '0755'
-  loop:
-    - path: "{{ software_path }}/data"
-    - path: "{{ software_path }}/var/backup"
-
 - name: Copy nomad job to destination
   ansible.builtin.template:
     src: nomad.hcl
