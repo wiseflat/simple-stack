@@ -211,7 +211,7 @@ NEWSCHEMA('Softwares', function (schema) {
 				.error('@(Settings are undefined)')
 				.promise($);
 
-			const decryptedSettings = JSON.parse(DECRYPT(settingsRec.value, CONF.auth_secret));
+			const decryptedSettings = JSON.parse(DECRYPT(settingsRec.value, process.env.AUTH_SECRET));
 
 			const catalogName = (await DATA.read('nosql/catalogs')
 				.where('id', item.software)

@@ -85,7 +85,7 @@ NEWSCHEMA('Infrastructures', function (schema) {
 			// Populate system fields
 			model.id = UID();
 			model.uid = $.user.id;
-			model.admin_pass = model.admin_pass.sha256(CONF.auth_secret);
+			model.admin_pass = model.admin_pass.sha256(process.env.AUTH_SECRET);
 			model.dtcreated = new Date();
 			model.isarchived = false;
 			model.tfstate = { version: 4 };
@@ -138,7 +138,7 @@ NEWSCHEMA('Infrastructures', function (schema) {
 					$.invalid(`${REGEX_PROJECTS.admin_pass.comment}`);
 					return;
 				}
-				model.admin_pass = model.admin_pass.sha256(CONF.auth_secret);
+				model.admin_pass = model.admin_pass.sha256(process.env.AUTH_SECRET);
 			} else {
 				// Preserve existing hash
 				const existing = await DATA
