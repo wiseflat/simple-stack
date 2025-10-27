@@ -1,6 +1,6 @@
 var opt = {};
-opt.secret = CONF.auth_secret;
-opt.cookie = CONF.auth_cookie;
+opt.secret = process.env.AUTH_SECRET;
+opt.cookie = process.env.AUTH_COOKIE;
 opt.expire = '3 minutes';
 opt.cleaner = '5 minutes';
 opt.strict = false;
@@ -12,7 +12,7 @@ opt.onauthorize = function($) {
 		let bufferObj = Buffer.from(authorization, "base64");
 		let decodedString = bufferObj.toString("utf8").split(':');
 
-		DATA.read('nosql/users').where('email', decodedString[0]).where('password', decodedString[1].sha256(CONF.auth_secret)).where('isinactive', false).where('isremoved', false).callback(function(err, user){
+		DATA.read('nosql/users').where('email', decodedString[0]).where('password', decodedString[1].sha256(process.env.AUTH_SECRET)).where('isinactive', false).where('isremoved', false).callback(function(err, user){
 			if(err){
 				$.invalid(401);
 			}

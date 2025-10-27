@@ -156,7 +156,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 				.error('@(Settings are undefined)')
 				.promise($);
 
-			const decrypted = JSON.parse(DECRYPT(settings.value, CONF.auth_secret));
+			const decrypted = JSON.parse(DECRYPT(settings.value, process.env.AUTH_SECRET));
 
 			const payload = {
 				meta: { hosts: decrypted.instance },

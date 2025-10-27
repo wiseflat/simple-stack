@@ -1,6 +1,6 @@
 NEWSCHEMA('Users', function (schema) {
 
-	const hash = value => value.sha256(CONF.auth_secret);
+	const hash = value => value.sha256(process.env.AUTH_SECRET);
 	const expire = (value = CONF.auth_cookie_expire) => NOW.add(value || '1 month');
 
 	function validateModel(model, rules) {

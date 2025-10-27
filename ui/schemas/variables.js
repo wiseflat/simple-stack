@@ -33,7 +33,7 @@ NEWSCHEMA('Variables', function (schema) {
 				return;
 			}
 
-			const decrypted = DECRYPT(result.value, CONF.auth_secret);
+			const decrypted = DECRYPT(result.value, process.env.AUTH_SECRET);
 			let value;
 			try {
 				value = JSON.parse(decrypted);
@@ -70,10 +70,10 @@ NEWSCHEMA('Variables', function (schema) {
 
 			const merged = variables.reduce((acc, variable) => {
 				try {
-					const parsed = JSON.parse(DECRYPT(variable.value, CONF.auth_secret));
+					const parsed = JSON.parse(DECRYPT(variable.value, process.env.AUTH_SECRET));
 					return { ...acc, ...parsed };
 				} catch (_) {
-					const raw = DECRYPT(variable.value, CONF.auth_secret);
+					const raw = DECRYPT(variable.value, process.env.AUTH_SECRET);
 					return { ...acc, ...raw };
 				}
 			}, {});
@@ -92,7 +92,7 @@ NEWSCHEMA('Variables', function (schema) {
 				key: model.key,
 				key2,
 				dtupdated: NOW,
-				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), CONF.auth_secret)
+				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), process.env.AUTH_SECRET)
 			};
 
 			await DATA.insert('nosql/variables', payload)
@@ -112,7 +112,7 @@ NEWSCHEMA('Variables', function (schema) {
 
 			const updatePayload = {
 				status: model.status,
-				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), CONF.auth_secret),
+				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), process.env.AUTH_SECRET),
 				dtupdated: NOW,
 				key2
 			};
@@ -166,7 +166,7 @@ NEWSCHEMA('Variables', function (schema) {
 						key: model.key,
 						key2: model.key.replace(/\./g, '_'),
 						dtupdated: NOW,
-						value: ENCRYPT({ [model.subkey]: generatePassword(model.userpass, model.nosymbols, model.length) }, CONF.auth_secret)
+						value: ENCRYPT({ [model.subkey]: generatePassword(model.userpass, model.nosymbols, model.length) }, process.env.AUTH_SECRET)
 					};
 					await DATA.insert('nosql/variables', newRecord)
 						.error('@(Error)')
@@ -187,9 +187,9 @@ NEWSCHEMA('Variables', function (schema) {
 
 			let stored;
 			try {
-				stored = JSON.parse(DECRYPT(result.value, CONF.auth_secret));
+				stored = JSON.parse(DECRYPT(result.value, process.env.AUTH_SECRET));
 			} catch (_) {
-				stored = DECRYPT(result.value, CONF.auth_secret);
+				stored = DECRYPT(result.value, process.env.AUTH_SECRET);
 			}
 
 			if (model.subkey) {
@@ -202,7 +202,7 @@ NEWSCHEMA('Variables', function (schema) {
 
 				if (!subExists && model.missing === 'create') {
 					stored[model.subkey] = generatePassword(model.userpass, model.nosymbols, model.length);
-					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
+					await DATA.update('nosql/variables', { value: ENCRYPT(stored, process.env.AUTH_SECRET), dtupdated: NOW })
 						.where('id', result.id)
 						// .error('@(Error)')
 						.promise($);
@@ -212,7 +212,7 @@ NEWSCHEMA('Variables', function (schema) {
 
 				if (model.overwrite) {
 					stored[model.subkey] = generatePassword(model.userpass, model.nosymbols, model.length);
-					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
+					await DATA.update('nosql/variables', { value: ENCRYPT(stored, process.env.AUTH_SECRET), dtupdated: NOW })
 						.where('id', result.id)
 						// .error('@(Error)')
 						.promise($);
@@ -222,7 +222,7 @@ NEWSCHEMA('Variables', function (schema) {
 
 				if (model.delete) {
 					delete stored[model.subkey];
-					await DATA.update('nosql/variables', { value: ENCRYPT(stored, CONF.auth_secret), dtupdated: NOW })
+					await DATA.update('nosql/variables', { value: ENCRYPT(stored, process.env.AUTH_SECRET), dtupdated: NOW })
 						.where('id', result.id)
 						// .error('@(Error)')
 						.promise($);

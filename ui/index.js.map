@@ -292,6 +292,14 @@
 			"method": "API",
 			"url": "/api/",
 			"auth": 1,
+			"params": "id:string",
+			"id": "variables_remove",
+			"name": "Remove a variable set"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
 			"id": "graphs",
 			"name": "List all projects as graph"
 		},
