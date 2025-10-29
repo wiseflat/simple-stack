@@ -8,3 +8,7 @@
     image_name: "{{ image.name }}"
     image_labels: "{{ image.labels }}"
     image_build: "{{ image.build }}"
+
+- name: End playbook if no new version
+  ansible.builtin.meta: end_host
+  when: softwares[image.name] is defined and softwares[image.name] == image_version
