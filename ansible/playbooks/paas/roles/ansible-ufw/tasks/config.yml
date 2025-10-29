@@ -18,7 +18,6 @@
     to_ip: "{{ item.to_ip | default(omit) }}"
     to_port: "{{ item.to_port | default(omit) }}"
   with_items: "{{ ufw_rules }}"
-  no_log: true
 
 - name: Config port/protocol/network custom rules
   community.general.ufw:
@@ -39,7 +38,6 @@
     to_ip: "{{ item.to_ip | default(omit) }}"
     to_port: "{{ item.to_port | default(omit) }}"
   with_items: "{{ ufw_custom_rules }}"
-  no_log: true
 
 - name: Config application rules
   community.general.ufw:

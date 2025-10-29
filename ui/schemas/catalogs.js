@@ -168,6 +168,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 				builder.method('POST');
 				builder.url(decrypted.url);
 				builder.json(payload);
+				builder.insecure();
 				if (decrypted.authentication) {
 					builder.auth(decrypted.login, decrypted.password);
 				}

@@ -1,0 +1,15 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: codercom
+    repo: code-server
+    type: release
+    format: tar.gz
+    file: code-server_VERSION_ARCH.FORMAT
+    os: linux
+  labels: {}
+  name: code_server
+
+traefik_x_robots_tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex

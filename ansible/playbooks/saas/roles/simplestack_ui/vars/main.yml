@@ -1,0 +1,12 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: wiseflat
+    repo: simple-stack
+    file: vVERSION
+  labels: {}
+  name: simplestack_ui
+
+traefik_x_robots_tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex

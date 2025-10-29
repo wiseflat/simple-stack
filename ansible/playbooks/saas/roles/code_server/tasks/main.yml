@@ -1,0 +1,33 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/config/workspace"
+    - "{{ software_path }}/home/coder/.config/code-server"
+    - "{{ software_path }}/home/coder/.cache"
+    - "{{ software_path }}/home/coder/.config"
+    - "{{ software_path }}/home/coder/.local"
+    - "{{ software_path }}/home/coder/.ssh"
+    - "{{ software_path }}/projects"
+
+- debug:
+    msg: "{{ size}}" 
+
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
+

@@ -232,6 +232,7 @@ NEWSCHEMA('Softwares', function (schema) {
 				builder.method('POST');
 				builder.url(decryptedSettings.url);
 				builder.json(payload);
+				builder.insecure();
 				if (decryptedSettings.authentication) {
 					builder.auth(decryptedSettings.login, decryptedSettings.password);
 				}
