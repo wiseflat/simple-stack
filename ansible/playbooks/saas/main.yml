@@ -27,7 +27,7 @@
 
     - name: Get software variables
       ansible.builtin.set_fact:
-        software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') }}"
+        software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') | from_json }}"
 
     - name: Debug software
       ansible.builtin.debug:
