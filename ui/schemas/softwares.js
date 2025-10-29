@@ -71,7 +71,7 @@ NEWSCHEMA('Softwares', function (schema) {
 				.promise($);
 
 			const settings = await DATA.read('nosql/variables')
-				.where('key', 'catalogs')
+				.where('key', 'softwares')
 				.where('type', 'settings')
 				.promise($);
 

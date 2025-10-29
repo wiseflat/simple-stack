@@ -42,11 +42,15 @@ job "{{ domain }}" {
         SIMPLE_STACK_UI_USER = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='user', missing='error') }}"
         SIMPLE_STACK_UI_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='password', missing='error') }}"
         SIMPLE_STACK_UI_URL = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='url', missing='error') }}"
+        GITHUB_API_TOKEN = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='github_api_token', missing='error') }}"
       }
 
       config {
         image = "ghcr.io/wiseflat/simple-stack-ansible:v{{ softwares.simplestack_ui.version }}"
         ports = ["http"]
+        volumes = [
+          "/root/.ssh:/root/.ssh:ro"
+        ]
         work_dir = "/ansible"
         command = "ansible-rulebook"
         args =  ["-r", "rulebook.yml", "-i", "inventory.py", "-vvv"]

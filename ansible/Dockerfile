@@ -4,6 +4,7 @@ ARG JAVA_VERSION=21
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     bash \
+    vim \
     git \
     curl \
     unzip \
