@@ -38,14 +38,13 @@
     - name: Debug latest version
       ansible.builtin.debug:
         msg: "{{ image_version }}"
-        verbosity: 1
 
     - name: Build
       when: image_build
       block:
         - name: Build and publish image
           community.docker.docker_image_build:
-            name: "{{ docker_private_registry.url }}/{{ docker_private_registry.project is defined | ternary(docker_private_registry.project + '/', '') }}{{ image_name }}:{{ image_version }}"
+            name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name }}:{{ image_version }}"
             tag: latest
             path: "/tmp/{{ catalog }}"
             dockerfile: Dockerfile
