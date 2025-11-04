@@ -9,9 +9,15 @@
     image_labels: "{{ image.labels }}"
     image_build: "{{ image.build }}"
 
+- debug:
+    msg: 
+      - "{{ softwares }}"
+      - "{{ softwares[image.name] }}"
+      - "{{ image_version }}"
+
 - name: End playbook if no new version
   ansible.builtin.meta: end_host
-  when: softwares[image.name] is defined and softwares[image.name] == image_version
+  when: softwares[image.name] is defined and softwares[image.name].version == image_version
 
 - name: Download Github release
   ansible.builtin.get_url:

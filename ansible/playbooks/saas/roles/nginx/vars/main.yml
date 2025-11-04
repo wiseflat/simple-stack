@@ -11,5 +11,3 @@ image:
   origin: alpine:latest
   dependances:
     - nginx
-
-nginx_version: 1.26.2
