@@ -14,9 +14,8 @@
 	<link href="https://cdn.componentator.com/spa.min@19.css" rel="stylesheet" />
 	<script src="https://cdn.componentator.com/spa.min@19.js"></script>
 	<script src="/js/3d-force-graph.min@1.73.2.js"></script>
-	<link href="/css/ui.css" />
-	<link href="/css/default.css" />
-	@{import('meta', 'head', 'favicon.ico')}
+	@{if CONF.color}<style>:root{--color:@{CONF.color};}</style>@{fi}
+	@{import('meta', 'head', 'default.css + ui.css', 'favicon.ico')}
 </head>
 <body>
 	<ui-component name="autodarkmode"></ui-component>
@@ -27,7 +26,6 @@
 	<ui-component name="title" path="common.title"></ui-component>
 	<ui-component name="shortcuts"></ui-component>
 	<ui-component name="directory" config="placeholder:@(Search)"></ui-component>
-	<ui-component name="spotlight"></ui-component>
 	<ui-component name="LAZY timepicker"></ui-component>
 	<ui-component name="LAZY colorpicker"></ui-component>
 	<ui-component name="LAZY approve"></ui-component>
@@ -77,14 +75,6 @@
 
 			var model = exports.model;
 
-			exports.dropcheck = function(e) {
-				return model.form === 'formdetail';
-			};
-
-			exports.dropsend = function(files) {
-				EXEC(model.form + '/drop', files);
-			};
-
 			exports.version = function() {
 				exports.tapi('version', function(response) {
 					if (response.value !== DEF.versionhtml)
@@ -121,54 +111,6 @@
 			} else
 				NULL('common.form');
 
-		});
-
-		SETTER(true, 'shortcuts/register', 'F2', function(e){
-			var opt = {};
-
-			opt.delay = 400;
-			opt.recent = '';
-			opt.clear = true;
-			opt.cache = '';
-			opt.placeholder = 'action';
-			opt.search = function(value, next) {
-				DAPI('search/?q={0}'.format(encodeURIComponent(value)), function(response) {
-					next(response);
-				});
-			};
-			
-			opt.callback = function(selected) {
-				switch (selected.id) {
-					case 'logout':
-						location.href = '/logout/';
-						break;
-					case 'edit':
-						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), function(response) {
-							SET('{0} @reset @hideloading'.format(selected.form), response);
-							SET('common.form2', selected.form);
-						});
-						break;
-					case 'main':
-					case 'backup':
-					case 'stop':
-					case 'start':
-					case 'restore':
-						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), {action: selected.id }, function(response) {
-							SETTER('notify/success', '@({0} in progress...)'.format(selected.id));
-						});
-						break;
-					case 'build':
-						DAPI('{0}/{1} ERROR'.format(selected.api, selected.itemid), function(response) {
-							SETTER('notify/success', '@({0} in progress...)'.format(selected.id));
-						});
-						break;
-					default:
-						SET('common.form', selected.form);
-						break;
-				}
-			};
-	
-			SETTER('spotlight/show', opt);
 		});
 
 		ON('message', function(msg) {

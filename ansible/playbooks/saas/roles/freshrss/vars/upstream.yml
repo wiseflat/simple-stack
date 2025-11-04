@@ -1,5 +1,7 @@
 ---
-upstream_version: "{{ lookup('url', 'https://api.github.com/repos/{{ image.upstream.user }}/{{ image.upstream.repo }}/tags', headers={'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + lookup('ansible.builtin.env', 'GITHUB_API_TOKEN') }) }}"
+upstream_version: "{{ lookup('url', 'https://api.github.com/repos/' + image.upstream.user + '/' + image.upstream.repo + '/tags', headers={'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + lookup('ansible.builtin.env', 'GITHUB_API_TOKEN') }) | from_json }}"
 latest_version: "{{ upstream_version | community.general.json_query('[].name') | select('match', '^(v|r)?\\d{1,4}(\\.\\d{1,4})(\\.\\d{1,4})$') | community.general.version_sort | last | replace('v', '') }}"
 upstream_file_name: "{{ upstream.source.file | replace('REPO', image.upstream.repo) | replace('VERSION', latest_version) | replace('OS', upstream.source.os) | replace('ARCH', upstream_default_arch) | replace('FORMAT', upstream.source.format) }}"
 upstream_file_url: "https://github.com/{{ image.upstream.user }}/{{ image.upstream.repo }}/archive/{{ upstream_file_name }}"
+
+
