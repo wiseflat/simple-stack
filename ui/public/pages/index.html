@@ -1,24 +1,154 @@
 <style>
+
+	.CLASS .task { margin-bottom: 4px; background-color: #f8f8f8; border-radius: var(--radius); overflow: hidden; }
+	.CLASS .folder { width: 120px; padding-right: 10px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; line-height: 21px; }
+	.CLASS .folder > div { border-radius: var(--radius); color: rgba(0,0,0,0.7); padding: 0 5px; background-color: #e8e8e8; }
+	.CLASS .closed .folder > div { color: rgba(100,100,100,0.7); opacity: 0.8; }
+	.CLASS .folder i { margin: 4px 2px 0 5px; }
+	.CLASS .folder a { color: #777; }
+	.CLASS .id { font-family: Menlo, Consolas, monospace; font-size: 11px; margin-right: 5px; color: #A0A0A0; }
+	.CLASS .status { margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: #000; background-color: #fff; min-width: 20px; height: 20px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; border: 1px solid #e0e0e0; }
+	.CLASS .status:hover span { text-decoration: underline; }
+	.CLASS .user { position: relative; display: inline-block; }
+	.CLASS .user span { color: #FFF !important; background-color: #E0E0E0; width: 20px; height: 20px; line-height: 21px; font-size: 8px; font-weight: bold; text-align: center; border-radius: 100px; margin-right: 5px; position: relative; display: inline-block; }
+	.CLASS .user img { width: 20px; height: 20px; border-radius: 100px; margin-right: 5px; position: relative; display: inline-block; }
+	.CLASS .user span:last-child { margin-right: 0; }
+	.CLASS .user img:last-child { margin-right: 0; }
+	.CLASS .assigned b { background-color: rgba(255,199,92,0.2); padding: 2px 5px !important; border-radius: var(--radius); }
+	.CLASS .open .assigned b { background-color: rgb(115,182,255,0.28); }
+	.CLASS .user i { margin-right: 5px; }
+	.CLASS .public { font-size: 15px; }
+	.CLASS .date { line-height: 21px; width: 100px; float: right; color: #777; margin-right: 5px; text-align: right; }
+	.CLASS .worked { float: right; color: #777; text-align: right; border-right: 1px solid #E0E0E0; margin-right: 10px; padding-right: 10px; line-height: 21px; min-height: 21px; }
+	.CLASS .worked span { margin-right: 5px; color: #A0A0A0; }
+	.CLASS .sender { width: 120px; float: right; border-right: 1px solid #E0E0E0; margin-right: 10px; padding-right: 5px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: #777; line-height: 21px; }
+	.CLASS .unread { background-color: rgba(255,254,209,0.4); }
+	.CLASS .unreadicon { color: #CCCB41; animation: unreadnotification 1s infinite forwards; margin-right: 5px; font-size: 14px; }
+	.CLASS .foreign { background-color: rgba(255,254,97,0.1); }
+	.CLASS .expired .name b { color: #e73323; }
+	.CLASS .name { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-left: 10px; display: flex; align-items: center; }
+	.CLASS .name b { padding: 2px 0; margin-right: 5px; }
+	.CLASS .name .ti-paperclip { color: #999; }
+	.CLASS .period { margin-right: 10px; color: rgba(0,0,0,0.6); border-radius: var(--radius); padding: 2px 4px 0; }
+	.CLASS .arrows { float: left; }
+	.CLASS .arrows .ti-minus { color: #777; }
+	.CLASS .priority.open .assigned b { background-color: rgba(232,72,63,0.15); }
+	.CLASS .open.priority b { color: #E8483F !important; }
+	.CLASS .open b { color: #222; }
+	.CLASS .open .status { color: #4285F4; }
+	.CLASS .open .folder { color: var(--color); }
+	.CLASS .pending b { font-weight: normal; }
+	.CLASS .sender a { color: #777; }
+	.CLASS .sender i { margin-right: 5px; }
+	.CLASS .selection { margin-top: 2px; width: 17px; height: 17px; }
+	.CLASS .postponed { color: #8C42F6; }
+	.CLASS .postponed .status { color: #8C42F6; }
+	.CLASS .postponed b { font-weight: normal; }
+	.CLASS .closed { color: #999; }
+	.CLASS .closed b { font-weight: normal; }
+	.CLASS .closed .id { color: #C0C0C0; }
+	.CLASS .closed .sender a { color: #A0A0A0; }
+	.CLASS .closed .folder { color: #A0A0A0; }
+	.CLASS .closed .status { color: #A0A0A0; }
+	.CLASS .closed .user span { color: #A0A0A0; font-weight: normal; filter: grayscale(1); }
+	.CLASS .closed .user img { filter: grayscale(1); }
+	.CLASS .listing { font-size: 12px; }
+	.CLASS .listing figure { border-radius: 0; }
+	.CLASS .listing section { /* padding: 7px 0 0; */ height: 34px; }
+	.CLASS .searchbox { max-width: 600px; text-align: left; position: relative; display: inline-block; width: 100%; margin: 12px 150px 0; }
+	.CLASS .searchbox .ui-searchinput { width: 100%; height: 34px; background-color: #F3F3F3; border: 0; margin-left: 30px; }
+	.CLASS .searchbox .ui-searchinput input { height: 33px; font-size: 14px; }
+	.CLASS .searchbox .ui-searchinput > span { width: 35px; line-height: 34px; font-size: 14px; }
+	.CLASS .searchbox .ui-searchinput > div { margin-left: 35px; }
+	.CLASS .separator { background-color: #fff !important; cursor: default; color: #888; padding: 25px 10px 15px; }
+	.CLASS .tickets .toolbar button { height: 34px; padding: 0 15px; font-size: 12px; width: 200px; }
+	.CLASS .counter { float: right; font-size: 11px; color: #A0A0A0; line-height: 18px; width: 18px; margin: 6px 0 0; text-align: center; }
+	.CLASS .counterunread { float: right; font-size: 11px; color: #FFF; background-color: #E73323; border-radius: 100px; line-height: 18px; width: 18px; margin: 6px 0 0; text-align: center; font-weight: bold; }
+	.CLASS .counterbookmark { float: right; font-size: 11px; color: #FFF; background-color: #EF9D4B; border-radius: 100px; line-height: 18px; width: 18px; margin: 6px 0 0; text-align: center; font-weight: bold; }
+	.CLASS .selected i { color: var(--color); }
+	.CLASS .isprivate { font-size: 10px; margin: 10px 0 0 0; float: right; color: orange !important; }
+	.CLASS .searchbox .calendar { float: left; font-size: 18px; margin: 4px 0 0; color: #999; }
+	.CLASS .searchbox .calendar:hover { color: #000; }
+	.CLASS .calendar.selected { animation: ticketscalendarbutton 1s infinite forwards; }
+	.CLASS .calendar.selected i { color: #EA706B; }
+	.CLASS .searchbox .ui-searchinput-is { background-color: #FFE8E8; }
+	.CLASS .comments { font-size: 16px; font-weight: normal; margin: 0; position: relative; display: inline-block; vertical-align: middle; color: rgba(0,0,0,0.4); border-left: 0; }
+	.CLASS .logo { float: left; margin: 20px 0 0 0; }
+	.CLASS .logo img { width: 120px; }
+	.CLASS .flag { padding: 3px; border-radius: var(--radius); line-height: 12px; font-size: 11px; margin: 0 5px 0 0; color: #FFF; vertical-align: middle; text-transform: uppercase; font-weight: bold; }
+	.CLASS .flag-asap { background-color: #E73323; }
+	.CLASS .flag-week { background-color: #CCCB41; }
+	.CLASS .flag-today { background-color: #EC8632; }
+	.CLASS .checkbox { width: 20px; height: 20px; border: 1px solid #E0E0E0; border-radius: var(--radius); background-color: #FFF; }
+
 	.CLASS .mobilemenu { display: none; z-index: 25; align-items: center; justify-content: center; width: 100%; height: 40px; position: absolute; left: 0; bottom: 0; background-color: #fff; border-top: 1px solid #e0e0e0; }
 	.CLASS .mobilemenu i { font-size: 20px; }
 	.CLASS main { position: relative; z-index: 1; }
 
-	@media(max-width: 768px)  {
-		.CLASS .mobilemenu { display: flex; height: 50px; background-color: #050505; }
+	.CLASS .fadeout { color: #A0A0A0; }
+	.CLASS .fadeout .period { background-color: rgba(0,0,0,0.06) !important; }
+	.CLASS .fadeout .date { color: #A0A0A0; }
+	.CLASS .fadeout .folder > div { background-color: rgba(0,0,0,0.06) !important; }
+	.CLASS .fadeout .date .red { color: #A0A0A0 !important; }
+	.CLASS .fadeout .status { color: #A0A0A0; }
+	.CLASS .fadeout .status > i { color: #A0A0A0 !important; }
+	.CLASS .subticket { position: relative; padding-left: 20px; }
+	.CLASS .subticket > section { margin: 0 !important; }
+	.CLASS .status-empty-BK { width: 120px; float: left; border-right: 1px solid #E0E0E0; margin-right: 10px; padding: 3px 0 0 5px; }
+	.CLASS .subticket .status { margin-left: 15px; }
+
+	.CLASS .subticket:before { position: absolute; background-color: transparent; width: 15px; height: 38px; display: block; content: ''; margin: -20px 0 0 0; border-left: 1px solid #D0D0D0; border-bottom: 1px solid #D0D0D0; border-radius: 0 0 0 var(--radius)}
+
+	.CLASS .listing figure > section { border-bottom: 0; display: flex; align-items: center; margin-right: 0; }
+	.CLASS .ticket .name { padding-left: 35px; }
+	.CLASS .ticket.subticket .name { padding-left: 10px; }
+	.CLASS .ticket .name:before { content: ''; width: 35px; height: 1px; background-color: #D0D0D0; position: absolute; left: 30px; }
+	.CLASS .ticket.subticket .name:before { display: none; }
+
+	@keyframes ticketscalendarbutton {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.15); }
+		100% { transform: scale(1); }
 	}
+
+	@keyframes unreadnotification {
+		0% { transform: translate(0, 0); }
+		30% { transform: translate(-2px, 0); }
+		60% { transform: translate(1px, 0); }
+		100% { transform: translate(0, 0); }
+	}
+
+	@media(max-width: 1200px) {
+		.CLASS .searchbox { max-width: 400px; }
+	}
+
+	@media(max-width: 980px) {
+		.CLASS .searchbox { max-width: 300px; margin-left: 50px; margin-right: 100px; }
+		.CLASS .date { display: none; }
+		.CLASS .worked { display: none; }
+		.CLASS .status span { display: none; }
+		.CLASS .period { display: none; }
+	}
+
+	@media(max-width: 980px) {
+		.CLASS .mobilemenu { display: flex; }
+		.CLASS .folder, .CLASS .worked, .CLASS .date { display: none; }
+	}
+
 </style>
 
 <ui-plugin config="aclass:1">
+
+	<header>
+		<span class="mainmenu exec" data-exec="?/menu"><i class="ti ti-menu"></i></span>
+		<a href="#" target="_top" class="logo"><img src="/img/logo.png" alt="@(SimpleStack)" /></a>
+	</header>
 
 	<ui-component name="layout" config="parent:auto;width:200;margin:58">
 		<main style="border-left:0px solid #E0E0E0">
 			<div id="3d-graph"></div>
 		</main>
 	</ui-component>
-
-	<div class="mobilemenu exec" data-exec="?/mobilemenu">
-		<i class="ti ti-navicon"></i>
-	</div>
 </ui-plugin>
 
 <script>
@@ -72,11 +202,10 @@
 			var model = exports.model || {};
 		};
 
-		exports.mobilemenu = function(el) {
+		exports.menu = function(el) {
 			var opt = {};
 			opt.element = el;
-			opt.align = 'center';
-			opt.fixedwidth = true;
+			opt.align = 'left';
 			opt.items = [];
 
 			exports.tapi('search ERROR', function(response) {
@@ -86,10 +215,6 @@
 
 			opt.callback = function(selected) {
 				switch (selected.id) {
-					case 'graphs':
-						SET('tickets @reset', {uri: selected.form});
-						REDIRECT('/ @showloading @hideloading');
-						break;
 					case 'logout':
 						location.href = '/logout/';
 						break;

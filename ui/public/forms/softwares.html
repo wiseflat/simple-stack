@@ -17,7 +17,7 @@
 
 <ui-component name="box" path="common.form" config="if:~PATH~;width:1000;icon:ti ti-cube;title:@(Softwares);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
-		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i>@(Settings)</button>
+		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i></button>
 		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
 	</nav>

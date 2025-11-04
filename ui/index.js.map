@@ -99,8 +99,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "search",
-			"name": "Search item",
-			"query": "q:String"
+			"name": "Search item"
 		},
 		{
 			"method": "API",
@@ -466,8 +465,7 @@
 			"input": "*action:{start|stop|main|backup|restore|destroy}"
 		},
 		{
-			"name": "Spotlight/search",
-			"query": "q:String"
+			"name": "Spotlight/search"
 		},
 		{
 			"name": "Users/list",
