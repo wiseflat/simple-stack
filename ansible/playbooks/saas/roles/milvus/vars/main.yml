@@ -1,0 +1,13 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: milvus-io
+    repo: milvus
+    type: releases
+    format: deb
+    file: milvus_VERSION_ARCH.FORMAT
+    os: linux
+  labels: {}
+  name: milvus
