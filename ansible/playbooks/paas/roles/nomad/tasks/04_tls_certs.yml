@@ -60,7 +60,7 @@
       notify: Nomad_restart
 
 - name: Nomad | Copy certificate on client nodes
-  when: nomad_node_role in ['client', 'both']
+  when: nomad_node_role in ['client']
   block:
     - name: "Nomad | Check if TLS cert exists for Client"
       ansible.builtin.stat:
@@ -88,7 +88,9 @@
         certificate_client_privatekey: "{{ nomad_tls_privatekey_client }}"
         certificate_common_name: "{{ nomad_tls_common_name_client }}"
         certificate_subject_alt_name: "{{ nomad_tls_subject_alt_name_client }}"
-      # when: nomad_mode == 'cluster'
+      run_once: true
+      when: not cert_tls_client_present.stat.exists or (cert_tls_client_present.stat.exists and not tls_check_client.valid_at.delay)
+
 
     - name: "Nomad | Copy certificates on client nodes"
       ansible.builtin.copy:
