@@ -6,6 +6,28 @@
     owner: "root"
     group: "root"
 
+- name: "Nomad Policy | Get node id"
+  ansible.builtin.uri:
+    url: "{{ nomad_http_scheme }}://{{ nomad_http_ip }}:{{ nomad_http_port }}/v1/nodes"
+    ca_path: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    client_cert: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    method: GET
+    headers:
+      X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}"
+    status_code:
+      - 200
+      - 404
+    return_content: true
+  delegate_to: "{{ nomad_primary_master_node | default(inventory_hostname) }}"
+  register: nomad_node_id
+
+- name: Nomad Policy | Set Node id as a fact
+  ansible.builtin.set_fact:
+    node_id: "{{ item.ID }}"
+  loop: "{{ nomad_node_id.json }}"
+  when: item.Name == inventory_hostname
+
 - name: Nomad SystemD tuning | Template for systemd override
   ansible.builtin.template:
     src: "override.conf.j2"

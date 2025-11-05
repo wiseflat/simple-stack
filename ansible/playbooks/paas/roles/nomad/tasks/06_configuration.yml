@@ -1,7 +1,7 @@
 ---
 - name: Block
   block:
-    - name: "Nomad Install | Read Gossip Encryption Key from PasswordStore"
+    - name: "Nomad Install | Read Gossip Encryption Key"
       ansible.builtin.set_fact:
         nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_encrypt_key', missing='error') }}"
   rescue:
@@ -11,7 +11,7 @@
       changed_when: nomad_encrypt_key_out.rc != 0
       run_once: true
 
-    - name: "Nomad Install | Set Gossip Encryption Key and insert in PasswordStore"
+    - name: "Nomad Install | Save Gossip Encryption Key"
       ansible.builtin.set_fact:
         nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_encrypt_key', missing='create', userpass=nomad_encrypt_key_out.stdout) }}"
 
