@@ -5,20 +5,12 @@
     state: directory
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
-    mode:  "{{ item.mode | default('0755') }}"
+    mode: "{{ item.mode | default('0755') }}"
   loop:
-    - path: "{{ software_path }}/bitnami/postgresql"
-    - path: "{{ software_path }}/bitnami/postgresql/data"
-      owner: 1001
-      group: root
-    - path: "{{ software_path }}/var/backup"
-      owner: nobody
-      group: nogroup
-      mode: '777'
-    - path: "{{ software_path }}/tmp"
+    - path: "{{ software_path }}/var/lib/postgresql"
       owner: root
       group: root
-      mode: '1777'
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy script to operate software
   ansible.builtin.copy:
@@ -30,6 +22,7 @@
   loop:
     - backup
     - restore
+  delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job
   ansible.builtin.template:
