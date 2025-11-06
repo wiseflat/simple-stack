@@ -1,0 +1,10 @@
+---
+image:
+  build: false
+  upstream:
+    source: github
+    user: BerriAI
+    repo: litellm
+    os: linux
+  labels: {}
+  name: litellm

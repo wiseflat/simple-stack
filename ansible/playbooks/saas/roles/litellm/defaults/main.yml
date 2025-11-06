@@ -1,0 +1,23 @@
+---
+# Environments variables
+litellm_env:
+  - key: LITELLM_MASTER_KEY
+    value: sk-1234
+  - key: LITELLM_SALT_KEY
+    value: sk-1234
+  - key: DATABASE_URL
+    value: postgresql://llmproxy:dbpassword9090@db:5432/litellm
+  - key: STORE_MODEL_IN_DB
+    value: true
+  - key: OVHCLOUD_API_KEY
+    value: changeme
+
+# Default configuration
+litellm_config:
+  model_list:
+    - model_name: ovhcloud/gpt-oss-120b
+      litellm_params:
+        model: ovhcloud/gpt-oss-120b
+        api_key: os.environ/OVHCLOUD_API_KEY
+
+litellm_dbhost: localhost
