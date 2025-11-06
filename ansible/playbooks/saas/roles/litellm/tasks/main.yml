@@ -1,0 +1,50 @@
+---
+- name: Install mandatories packages
+  ansible.builtin.apt:
+    pkg:
+      - python3-psycopg2
+
+- name: Create postgresql database
+  community.postgresql.postgresql_db:
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_user: postgres
+    name: "{{ service_name }}"
+    encoding: UTF8
+    state: present
+
+- name: Create postgresql user
+  community.postgresql.postgresql_user:
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_user: postgres
+    login_db: "{{ service_name }}"
+    name: "{{ service_name }}"
+    password: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='litellm_dbpasswd', missing='create', length=12) }}"
+    state: present
+
+- name: Create postgresql privileges
+  community.postgresql.postgresql_privs:
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_user: postgres
+    db: "{{ service_name }}"
+    roles: "{{ service_name }}"
+    type: schema
+    objs: public
+    privs: CREATE
+    state: present
+
+- name: Copy nomad job
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
