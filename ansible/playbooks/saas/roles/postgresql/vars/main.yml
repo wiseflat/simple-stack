@@ -11,5 +11,3 @@ image:
     os: linux
   labels: {}
   name: postgresql
-
-latest_version: "17.4.0"
