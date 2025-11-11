@@ -16,11 +16,11 @@
 - name: Copy config file
   ansible.builtin.copy:
     src: config.ini
-    dest: "{{ path }}/config.ini"
+    dest: "{{ build_work_dir }}/config.ini"
     mode: '0644'
 
 - name: Copy dockerfile
   ansible.builtin.template:
     src: Dockerfile.j2
-    dest: "{{ path }}/Dockerfile"
+    dest: "{{ build_work_dir }}/Dockerfile"
     mode: '0644'

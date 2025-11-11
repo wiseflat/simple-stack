@@ -30,8 +30,8 @@
 
 - name: Copy binary in build directory
   ansible.builtin.copy:
-    src: "{{ path }}/download/AdGuardHome/{{ image.upstream.binary }}"
-    dest: "{{ path }}/{{ image.upstream.binary }}"
+    src: "{{ build_work_dir }}/download/AdGuardHome/{{ image.upstream.binary }}"
+    dest: "{{ build_work_dir }}/{{ image.upstream.binary }}"
     mode: '0755'
     remote_src: true
   when: download_result.changed
@@ -39,5 +39,5 @@
 - name: Copy dockerfile
   ansible.builtin.template:
     src: Dockerfile.j2
-    dest: "{{ path }}/Dockerfile"
+    dest: "{{ build_work_dir }}/Dockerfile"
     mode: '0644'

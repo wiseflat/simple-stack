@@ -18,17 +18,17 @@
 - name: Download wp-cli
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    dest: "{{ path }}/wp-cli"
+    dest: "{{ build_work_dir }}/wp-cli"
     mode: '0755'
 
 - name: Copy dockerfile
   ansible.builtin.template:
     src: Dockerfile.j2
-    dest: "{{ path }}/Dockerfile"
+    dest: "{{ build_work_dir }}/Dockerfile"
     mode: '0644'
 
 - name: Copy php.ini
   ansible.builtin.template:
     src: php.ini
-    dest: "{{ path }}/php.ini"
+    dest: "{{ build_work_dir }}/php.ini"
     mode: '0644'
