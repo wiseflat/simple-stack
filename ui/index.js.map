@@ -299,6 +299,20 @@
 			"method": "API",
 			"url": "/api/",
 			"auth": 1,
+			"id": "settings_import",
+			"name": "Import backup"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "settings_export",
+			"name": "Export backup"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
 			"id": "graphs",
 			"name": "List all projects as graph"
 		},
@@ -426,6 +440,12 @@
 		},
 		{
 			"name": "Inventory/read"
+		},
+		{
+			"name": "Settings/import"
+		},
+		{
+			"name": "Settings/export"
 		},
 		{
 			"name": "Softwares/spotlight",

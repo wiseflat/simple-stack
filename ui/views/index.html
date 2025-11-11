@@ -34,6 +34,7 @@
 	<ui-component name="LAZY menu" config="style:2"></ui-component>
 	<ui-component name="LAZY clipboard"></ui-component>
 	<div><ui-component name="page" path="common.page" config="if:graph;url:/pages/index.html;reload:?/reload" class="invisible hidden"></ui-component></div>
+	<ui-component name="importer" path="common.form" config="if:formupgrade;url:/forms/upgrade.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:forminfrastructures;url:/forms/infrastructures.html"></ui-component>
 	<ui-component name="importer" path="common.form2" config="if:forminfrastructure;url:/forms/infrastructure.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formvariables;url:/forms/variables.html"></ui-component>
@@ -91,6 +92,9 @@
 
 		ROUTE('/', function() {
 			SET('common.page', 'graph');
+
+			SET('formupgrade @reset @hideloading', { version: DEF.versionhtml, currentstep: 'step1' });
+			SET('common.form', 'formupgrade');
 		}, 'init');
 
 		SETTER(true, 'shortcuts/register', 'esc', function(e) {

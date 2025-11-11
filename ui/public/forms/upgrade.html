@@ -1,0 +1,18 @@
+<ui-component name="box" path="common.form" config="if:~PATH~;width:600;icon:ti ti-users;title:@(Upgrade);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+		exports.reload = function() {
+            var model = exports.model;
+            console.log(model);
+            // exports.set(model);
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.form;
+		};
+	});
+</script>

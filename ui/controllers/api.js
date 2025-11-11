@@ -58,6 +58,10 @@ exports.install = function() {
 	ROUTE('+API    /api/       +variables_remove/{id}                --> Variables/remove');
 	ROUTE('+POST   /api/secret                                       --> Variables/secret');
 
+	// Settings
+	ROUTE('+API    /api/       -settings_import	                     --> Settings/import');
+	ROUTE('+API    /api/       -settings_export	                     --> Settings/export');
+
 	// 3dForceGraph
 	ROUTE('+API    /api/       -graphs					  --> Graphs/list');
 
