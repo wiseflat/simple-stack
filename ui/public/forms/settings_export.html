@@ -1,0 +1,16 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;icon:cloud-download;title:@(Export);autofocus:true;reload:?/reload;width:600" class="hidden ~PATH~" plugin="~PATH~">
+	<div>
+		<div class="padding">
+			<ui-component name="textarea" path="?.export" config="height:400">Export</ui-component>
+		</div>
+	</div>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+		exports.reload = function() {
+			var model = exports.model;
+			exports.set(model);
+		};
+	});
+</script>

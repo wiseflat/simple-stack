@@ -1,0 +1,65 @@
+<ui-component name="box" path="common.form" config="if:~PATH~;width:600;icon:ti ti-cog;title:@(Settings);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+	<div class="padding">
+		<ui-component name="tabs" path="?.tab" class="invisible">
+			<section data-id="upgrade" title="Upgrade" data-icon="ti ti-bell">
+			<div class="padding"></div>
+			</section>
+			<section data-id="import" title="Import" data-icon="ti ti-cloud-upload">
+				<div class="padding">
+					<ui-component name="input" path="?.import_password" config="required:1">@(Set a password to encrypt your import)</ui-component>
+				</div>
+				<div class="padding">
+					<ui-component name="textarea" path="?.import" config="height:200">Import data</ui-component>
+				</div>
+				<div class="padding">
+					<ui-component name="button" config="exec:?/import;validation:true">Import data</ui-component>
+				</div>
+			</section>
+			<section data-id="export" title="Export" data-icon="ti ti-cloud-download">
+				<div class="padding">
+					<ui-component name="input" path="?.export_password" config="required:1">@(Set a password to crypt your export)</ui-component>
+				</div>
+				<div class="padding">
+					<ui-component name="checkboxlist" path="?.catalogs1" config="datasource:?.catalogs;type:number">Catalog items</ui-component>
+					<br />
+					<ui-component name="checkboxlist" path="?.projects1" config="datasource:?.projects;type:number">Projects</ui-component>
+				</div>
+				<div class="padding">
+					<ui-component name="button" config="exec:?/export;validation:true">Export data</ui-component>
+				</div>
+			</section>
+		</ui-component>
+	</div>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+            var model = exports.model;
+
+			exports.tapi('infrastructures ERROR', function(results){
+				model.projects = results;
+				model.catalogs = [{ id: 1, name: 'All items' }];
+				exports.set(model);
+			});
+		};
+
+		exports.import = function() {
+			var model = exports.form;
+			exports.tapi('settings_import ERROR', { import: model.import, password: model.import_password }, function(response) {
+				SETTER('notify/success', '@(Done)');
+				REDIRECT('/ @showloading @hideloading');
+			});
+		};
+
+		exports.export = function() {
+			var model = exports.form;
+			exports.tapi('settings_export ERROR', { projects: model.projects1, password: model.export_password }, function(response) {
+				SET('formsettingsExport @reset @hideloading', { export: response });
+				SET('common.form2', 'formsettingsExport');
+			});
+		};
+	});
+</script>

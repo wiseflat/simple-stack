@@ -202,4 +202,35 @@ NEWSCHEMA('Infrastructures', function (schema) {
 			$.success();
 		}
 	});
+
+	schema.action('export', {
+		name: 'Export all infrastructures',
+		params: '*ids:String',
+		action: async function ($) {
+			const result = await DATA
+				.list('nosql/infrastructures')
+				.where('uid', $.user.id)
+				.in('id', $.params.ids.split(','))
+				.error('@(Error)')
+				.promise($);
+			$.callback(result.items);
+		}
+	});
+
+	schema.action('import', {
+		name: 'Import an infrastructure',
+		params: '*id:UID',
+		input: '*color:Color, *description:String, *dtcreated:String, *icon:Icon, isarchived:Boolean, *name:String, *tfstate:Json',
+		action: async function ($, model) {
+			const { id } = $.params;
+			model.tfstate = JSON.parse(model.tfstate);
+			
+			DATA.modify('nosql/infrastructures', model, true).where('id', id).insert(function(doc) {
+				doc.uid = $.user.id;
+				doc.id = id;
+				doc.dtupdated = NOW;
+			});
+			$.success();
+		}
+	});
 });

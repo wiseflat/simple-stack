@@ -12,6 +12,8 @@ NEWACTION('Spotlight/search', {
         if ($.user.sa) {
             ORIGIN.push({ id: 'users', form: 'formusers', search: 'users', name: TRANSLATE($.user.language || '', '@(Users)'), icon: 'users', color: '#EB73F8' });
             ORIGIN.push('-');
+            ORIGIN.push({ id: 'import', form: 'formsettings', search: 'settings', name: TRANSLATE($.user.language || '', '@(Settings)'), icon: 'cog', color: '#EB73F8' });
+            ORIGIN.push('-');
         }
         ORIGIN.push({ id: 'profile',   form: 'formprofile',        search: 'profile',       name: TRANSLATE($.user.language || '', '@(Your profile)'),    icon: 'user',     color: '#EB73F8' });
         ORIGIN.push({ id: 'password',   form: 'formpassword',        search: 'user password',  name: TRANSLATE($.user.language || '', '@(Your password)'),   icon: 'key',          color: '#EB73F8' });

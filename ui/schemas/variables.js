@@ -244,4 +244,19 @@ NEWSCHEMA('Variables', function (schema) {
 			}
 		}
 	});
+
+	schema.action('import', {
+		name: 'Import a variable',
+		params: '*id:UID',
+		input: '*key:String, *key2:String, *type:String, *value:Json',
+		action: async function ($, model) {
+			const { id } = $.params;
+			model.value = ENCRYPT(model.value, process.env.AUTH_SECRET);
+			DATA.modify('nosql/variables', model, true).where('id', id).insert(function(doc) {
+				doc.id = id;
+				doc.dtupdated = NOW;
+			});
+			$.success();
+		}
+	});
 });
