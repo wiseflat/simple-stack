@@ -161,8 +161,8 @@ NEWSCHEMA('Users', function (schema) {
 		}
 	});
 
-	schema.action('settings_read', {
-		name: 'Read a user information',
+	schema.action('profile_read', {
+		name: 'Read user profile',
 		action: async function ($) {
 			const user = await DATA.read('nosql/users')
 				.where('id', $.user.id)
@@ -173,8 +173,8 @@ NEWSCHEMA('Users', function (schema) {
 		}
 	});
 
-	schema.action('settings_update', {
-		name: 'Save settings',
+	schema.action('profile_update', {
+		name: 'Save user profile',
 		input: '*first_name:String, *last_name:String, *email:Email, *language:String',
 		action: async function ($, model) {
 			await DATA.update('nosql/users', model)

@@ -10,8 +10,8 @@ exports.install = function() {
 	ROUTE('+API    /api/       -users_remove/{id}     --> Users/remove');
 	ROUTE('-API    /api/       +login                 --> Users/login');
 
-	ROUTE('+API    /api/       -settings_read         --> Users/settings_read');
-	ROUTE('+API    /api/       +settings_update       --> Users/settings_update');
+	ROUTE('+API    /api/       -profile_read         --> Users/profile_read');
+	ROUTE('+API    /api/       +profile_update       --> Users/profile_update');
 	ROUTE('+API    /api/       +password              --> Users/password_update');
 	ROUTE('+GET    /logout/                           --> Users/logout');
 
