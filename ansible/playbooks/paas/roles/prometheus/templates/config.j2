@@ -66,7 +66,7 @@ scrape_configs:
         regex: "^(__tmp_keep_me)$"
 
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project  %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project  %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9100']
         labels:
           instance: "{{ item }}"
@@ -178,7 +178,7 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9558']
         labels:
           instance: "{{ item }}"
@@ -194,7 +194,7 @@ scrape_configs:
       format: ['prometheus']
     metrics_path: /metrics
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9835']
         labels:
           instance: "{{ item }}"
@@ -214,7 +214,7 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:4646']
         labels:
           instance: "{{ item }}"
@@ -246,7 +246,7 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == project %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9080']
         labels:
           instance: "{{ item }}"
