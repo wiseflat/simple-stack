@@ -2,12 +2,12 @@
 - name: Script_exporter | Include upstream variables
   ansible.builtin.include_vars: upstream.yml
 
+- name: Script_exporter | Get speedtest script
+  include_tasks: speedtest.yml
+
 - name: Script_exporter | Get binary
   include_tasks: build.yml
   when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
-
-- name: Script_exporter | Get speedtest script
-  include_tasks: speedtest.yml
 
 - name: Script_exporter | Create custom directories
   ansible.builtin.file:
