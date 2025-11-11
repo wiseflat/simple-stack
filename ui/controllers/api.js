@@ -24,6 +24,9 @@ exports.install = function() {
 	ROUTE('+API    /api/       +catalogs_read/{id}         --> Catalogs/read');
 	ROUTE('+API    /api/       +catalogs_create            --> Catalogs/create');
 	ROUTE('+API    /api/       +catalogs_update/{id}       --> Catalogs/update');
+	ROUTE('+API    /api/       +catalogs_fork_create       --> Catalogs/fork_create');
+	ROUTE('+API    /api/       +catalogs_fork_update/{id}  --> Catalogs/fork_update');
+	ROUTE('+API    /api/       +catalogs_fork_remove       --> Catalogs/fork_remove');
 	ROUTE('+API    /api/       +catalogs_remove/{id}       --> Catalogs/remove');
 	ROUTE('+API    /api/       +catalogs_execute/{id}      --> Catalogs/execute');
 

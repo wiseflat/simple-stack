@@ -1,0 +1,125 @@
+---
+- name: Build a docker image
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  become: true
+  gather_facts: true
+  vars_prompt:
+    - name: catalog_id
+      prompt: catalog item id
+      private: false
+  vars:
+    build_work_dir: /tmp/{{ catalog }}
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+    path: "/tmp/{{ catalog }}"
+
+  pre_tasks:
+
+    - name: Get catalog item
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}/api"
+        user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+        method: POST
+        body_format: json
+        body:
+          schema: catalogs_read/{{ catalog_id }}
+        force_basic_auth: true
+        status_code: 200
+      ignore_errors: true
+      delegate_to: localhost
+      register: register_catalog_item
+      become: false
+
+    - debug:
+        msg: "{{ register_catalog_item.json }}"
+
+    - name: Set catalog item as facts
+      ansible.builtin.set_fact:
+        catalog: "{{ register_catalog_item.json.origin }}"
+        name: "{{ register_catalog_item.json.name }}"
+        dockerfile_root: "{{ register_catalog_item.json.dockerfile_root }}"
+        dockerfile_nonroot: "{{ register_catalog_item.json.dockerfile_nonroot }}"
+
+    - name: Create temporary build directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        recurse: true
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ build_work_dir }}/download"
+        - "{{ build_work_dir }}/{{ upstream_default_arch }}"
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.include_role:
+        name: "{{ catalog }}"
+        tasks_from: build
+
+    - name: Debug latest version
+      ansible.builtin.debug:
+        msg: "{{ image_version }}"
+
+    - name: Build and publish image
+      community.docker.docker_image_build:
+        name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name }}:{{ image_version }}"
+        tag: latest
+        path: "/tmp/{{ catalog }}"
+        dockerfile: Dockerfile
+        labels: "{{ image_labels }}"
+        rebuild: always
+        outputs:
+          - type: image
+            push: true
+      register: docker_image_build
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ docker_image_build }}"
+        verbosity: 1
+
+    # - name: Build
+    #   when: image_build
+    #   block:
+    #     - name: Build and publish image
+    #       community.docker.docker_image_build:
+    #         name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name }}:{{ image_version }}"
+    #         tag: latest
+    #         path: "/tmp/{{ catalog }}"
+    #         dockerfile: Dockerfile
+    #         labels: "{{ image_labels }}"
+    #         rebuild: always
+    #         outputs:
+    #           - type: image
+    #             push: true
+    #       register: docker_image_build
+
+    #     - name: Debug
+    #       ansible.builtin.debug:
+    #         msg: "{{ docker_image_build }}"
+    #         verbosity: 1
+
+    # - name: Update catalog item version on UI
+    #   ansible.builtin.uri:
+    #     url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}/api"
+    #     user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+    #     password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+    #     method: POST
+    #     body_format: json
+    #     body:
+    #       schema: catalogs_create
+    #       data:
+    #         name: "{{ image_name }}"
+    #         version: "{{ image_version }}"
+    #     force_basic_auth: true
+    #     status_code: 200
+    #   register: ui_update
+    #   failed_when: ui_update.status != 200
+    #   delegate_to: localhost
+    #   become: false
