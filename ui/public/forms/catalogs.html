@@ -17,7 +17,7 @@
 <ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-folders;title:@(Catalog);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
 		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i>@(Settings)</button>
-		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+		<button class="exec" data-exec="?/fork"><i class="ti ti-code-branch green"></i>@(Fork)</button>
 	</nav>
 	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
 	<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:name;output:?.searchoutput">
@@ -25,17 +25,18 @@
 			<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
 				<script type="text/html">
 				{{ foreach m in value }}
-					<figure data-alias="{{ m.alias }}" data-id="{{ m.id }}" class="exec items" data-exec="?/update">
+					<figure data-alias="{{ m.alias }}" data-id="{{ m.id }}" data-fork="{{ m.fork }}" class="exec items" data-exec="?/update">
 						<section>
 							<div class="buttons">
 								<span class="gray fs11 ml5">{{ m.version | empty }}</span>
+								<span class="exec"><span class="badge badge-small badge-green">{{ if m.fork }}<i class="ti ti-code-branch green">{{ else }}<i class="ti ti-code-branch grey"></i>{{ fi }}</i></span></span>
 								<span class="exec"><span class="badge badge-small badge-green">{{ if m.cron }}<i class="ti ti-clock orange">{{ else }}<i class="ti ti-clock grey"></i>{{ fi }}</i></span></span>
 								<span class="exec" data-exec="?/execute" data-prevent="true"><i class="ti ti-play green"></i></span>
 								<span class="exec version" data-exec="?/remove" data-prevent="true"><i class="ti ti-trash red"></i></span>
 							</div>
 							<div class="name">
 								<div class="picto">
-									<span><img src="/img/{{ m.name }}.png" width="15" heigth="15" /></span>
+									<span><img src="/img/{{ m.picto | def(m.name) }}.png" width="15" heigth="15" /></span>
 								</div>
 								{{ m.alias | empty(m.name) }}
 							</div>
@@ -68,12 +69,13 @@
 					settingsId: result.settingsId
 				};
 				exports.set(output);
+				SET('catalog_list', result.items);
 			});
 		};
 
-		exports.add = function() {
-			SET('formcatalog @default', {});
-			SET('common.form2', 'formcatalog');
+		exports.fork = function() {
+			SET('formcatalogfork @default', { tab: 'default', catalog_list: GET('catalog_list'), crontab: '* * * * *'});
+			SET('common.form2', 'formcatalogfork');
 		};
 
 		exports.settings = function(el) {
@@ -107,9 +109,19 @@
 
 		exports.update = function(el) {
 			var id = ATTRD(el);
+			var fork = ATTRD(el, 'fork');
 			exports.tapi('catalogs_read/{0} ERROR'.format(id), function(response) {
-				SET('formcatalog @reset @hideloading', response);
-				SET('common.form2', 'formcatalog');
+				if(fork){
+					response.tab = 'default';
+					response.catalog_list = GET('catalog_list');
+					
+					SET('formcatalogfork @reset @hideloading', response);
+					SET('common.form2', 'formcatalogfork');
+				}
+				else {
+					SET('formcatalog @reset @hideloading', response);
+					SET('common.form2', 'formcatalog');
+				}
 			});
 		};
 

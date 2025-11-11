@@ -3,7 +3,7 @@
 	.CLASS figure:first-child { border-top: 0; }
 	.CLASS figure:first-child { margin-top: 0; }
 	.CLASS .buttons { float: right; padding-left: 10px; }
-	.CLASS .name { margin-right: 100px; }
+	.CLASS .name { margin-right: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 75ch; }
 	.CLASS .name > i { width: 12px; margin-right: 5px; text-align: center; }
 	.CLASS figure .name .description { margin-left: 9px; }
 	.CLASS .buttons span { line-height: 21px; margin:0px 2px 2px 2px ; border-radius: var(--radius); border: 0; margin: 0 5px; }
@@ -71,6 +71,9 @@
 					break;
 				case 'variable':
 					return 'variables';
+					break;
+				case 'settings':
+					return 'cog orange';
 					break;
 			}
 		};

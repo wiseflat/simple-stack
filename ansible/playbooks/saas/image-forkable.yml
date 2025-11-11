@@ -1,0 +1,110 @@
+---
+- name: Build a Docker image from a catalog item
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  become: true
+  gather_facts: true
+  vars_prompt:
+    - name: catalog_id
+      prompt: "Catalog item ID"
+      private: false
+  vars:
+    build_work_dir: "/tmp/{{ catalog }}"
+    architecture_map:
+      amd64: amd64
+      x86_64: amd64
+      armv7l: arm
+      aarch64: arm64
+      arm64: arm64
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+    download_dir: "{{ build_work_dir }}/download"
+    arch_dir: "{{ build_work_dir }}/{{ upstream_default_arch }}"
+    image_name2: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name_manual }}:{{ image_version }}"
+    ui_url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}"
+    ui_user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
+    ui_password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
+
+  pre_tasks:
+    - name: Retrieve catalog item from UI
+      ansible.builtin.uri:
+        url: "{{ ui_url }}/api"
+        user: "{{ ui_user }}"
+        password: "{{ ui_password }}"
+        method: POST
+        body_format: json
+        body:
+          schema: "catalogs_read/{{ catalog_id }}"
+        force_basic_auth: true
+        status_code: 200
+      delegate_to: localhost
+      register: catalog_response
+      become: false
+
+    - name: Set catalog facts
+      ansible.builtin.set_fact:
+        catalog: "{{ catalog_response.json.origin | default(catalog_response.json.name) }}"
+        name: "{{ catalog_response.json.name }}"
+        dockerfile_root: "{{ catalog_response.json.dockerfile_root | default('') }}"
+        dockerfile_nonroot: "{{ catalog_response.json.dockerfile_nonroot | default('') }}"
+        image_name_manual: "{{ catalog_response.json.name | lower }}"
+
+    - name: Ensure temporary build directories exist
+      ansible.builtin.file:
+        path: "{{ arch_dir }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ download_dir }}"
+        - "{{ arch_dir }}"
+
+  tasks:
+    - name: Build service-specific assets (e.g., compile, fetch deps)
+      ansible.builtin.include_role:
+        name: "{{ catalog }}"
+        tasks_from: build
+
+    - name: Build and push Docker image (single source of truth)
+      community.docker.docker_image_build:
+        name: "{{ image_name2 }}"
+        tag: latest
+        path: "{{ build_work_dir }}"
+        dockerfile: Dockerfile
+        labels: "{{ image_labels | default({}) }}"
+        rebuild: always
+        outputs:
+          - type: image
+            push: true
+      register: docker_build
+      when: image_build
+      notify: Cleanup build directory
+
+    - name: Update catalog item version on UI
+      ansible.builtin.uri:
+        url: "{{ ui_url }}/api"
+        user: "{{ ui_user }}"
+        password: "{{ ui_password }}"
+        method: POST
+        body_format: json
+        body:
+          schema: catalogs_create
+          data:
+            name: "{{ image_name_manual }}"
+            version: "{{ image_version }}"
+        force_basic_auth: true
+        status_code: 200
+      delegate_to: localhost
+      register: ui_update
+      failed_when: ui_update.status != 200
+      become: false
+
+  handlers:
+    - name: Cleanup build directory
+      ansible.builtin.file:
+        path: "{{ build_work_dir }}"
+        state: absent
+      listen: cleanup_build
+
+  post_tasks:
+    - name: Trigger cleanup on failure
+      ansible.builtin.meta: clear_host_errors
+      when: ansible_failed_result is defined
+      notify: Cleanup build directory
