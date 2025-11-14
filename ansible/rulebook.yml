@@ -79,10 +79,10 @@
       condition: event.payload.type == "saas-image"
       actions:
         - run_playbook:
-            name: playbooks/saas/image.yml
+            name: playbooks/saas/image-forkable.yml
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
-              catalog: "{{ event.payload.catalog }}"
+              catalog_id: "{{ event.payload.catalog_id }}"
 
     - name: saas-operate
       condition: event.payload.type == "saas-operate"

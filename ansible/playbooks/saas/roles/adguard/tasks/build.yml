@@ -5,36 +5,14 @@
 - name: Set custom variables
   ansible.builtin.set_fact:
     image_version: "{{ latest_version }}"
-    image_name: "{{ image.name }}"
-    image_labels: "{{ image.labels }}"
-    image_build: "{{ image.build }}"
-
+    image_definition: "{{ image }}"
+    image_forkable: "{{ image.forkable }}"
+    upstream_file_url: "{{ upstream_file_url }}"
+    upstream_file_name: "{{ upstream_file_name }}"
+    
 - name: End playbook if no new version
   ansible.builtin.meta: end_host
-  when: softwares[image.name] is defined and softwares[image.name].version == image_version
-
-- name: Download Github release
-  ansible.builtin.get_url:
-    url: "{{ upstream_file_url }}"
-    dest: "{{ build_work_dir }}/download/"
-    mode: '0644'
-    force: no
-  register: download_result
-
-- name: Unarchive GitHub release
-  ansible.builtin.unarchive:
-    src: "{{ build_work_dir }}/download/{{ upstream_file_name }}"
-    dest: "{{ build_work_dir }}/download"
-    remote_src: true
-  when: download_result.changed
-
-- name: Copy binary in build directory
-  ansible.builtin.copy:
-    src: "{{ build_work_dir }}/download/AdGuardHome/{{ image.upstream.binary }}"
-    dest: "{{ build_work_dir }}/{{ image.upstream.binary }}"
-    mode: '0755'
-    remote_src: true
-  when: download_result.changed
+  when: softwares[catalog_image_name] is defined and softwares[catalog_image_name].version == image_version
 
 - name: Copy dockerfile
   ansible.builtin.template:

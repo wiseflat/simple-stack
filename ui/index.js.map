@@ -121,7 +121,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "catalogs_create",
-			"input": "*name:String, *version:String",
+			"input": "*name:String, *version:String, *forkable:Boolean",
 			"name": "Create catalog item"
 		},
 		{
@@ -380,7 +380,7 @@
 		},
 		{
 			"name": "Catalogs/create",
-			"input": "*name:String, *version:String",
+			"input": "*name:String, *version:String, *forkable:Boolean",
 			"permissions": "catalogs"
 		},
 		{

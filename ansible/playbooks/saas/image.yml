@@ -33,31 +33,30 @@
       ansible.builtin.include_role:
         name: "{{ catalog }}"
         tasks_from: build
+      vars:
+        catalog_image_name: "{{ catalog }}"
+        dockerfile_root: ""
+        dockerfile_nonroot: ""
 
     - name: Debug latest version
       ansible.builtin.debug:
         msg: "{{ image_version }}"
 
     - name: Build
-      when: image_build
+      when: image_definition.build
       block:
         - name: Build and publish image
           community.docker.docker_image_build:
-            name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name }}:{{ image_version }}"
+            name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_definition.name }}:{{ image_version }}"
             tag: latest
             path: "{{ build_work_dir }}"
             dockerfile: Dockerfile
-            labels: "{{ image_labels }}"
+            labels: "{{ image_definition.labels }}"
             rebuild: always
             outputs:
               - type: image
                 push: true
           register: docker_image_build
-
-        - name: Debug
-          ansible.builtin.debug:
-            msg: "{{ docker_image_build }}"
-            verbosity: 1
 
     - name: Update catalog item version on UI
       ansible.builtin.uri:
@@ -69,7 +68,7 @@
         body:
           schema: catalogs_create
           data:
-            name: "{{ image_name }}"
+            name: "{{ image_definition.name }}"
             version: "{{ image_version }}"
         force_basic_auth: true
         status_code: 200

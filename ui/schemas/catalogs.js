@@ -32,7 +32,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 		action: async function($) {
 			const [catalogs, settings] = await Promise.all([
 				DATA.list('nosql/catalogs')
-					.fields('id,name,origin,picto,suffix,alias,description,version,cron,crontab,fork')
+					.fields('id,name,origin,picto,suffix,alias,description,version,cron,crontab,forkable,fork')
 					.error('@(Error loading catalogs)')
 					.promise($),
 				DATA.read('nosql/variables')
@@ -51,7 +51,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 	schema.action('create', {
 		name: 'Create catalog item',
 		permissions: 'catalogs',
-		input: '*name:String, *version:String',
+		input: '*name:String, *version:String, *forkable:Boolean',
 		action: async function($, model) {
 			model.id = UID();
 			model.dtcreated = NOW;
@@ -68,6 +68,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 			} else {
 				await DATA.update('nosql/catalogs', {
 						version: model.version,
+						forkable: model.forkable,
 						dtupdated: NOW
 					})
 					.id(existing.id)
@@ -220,8 +221,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 			const payload = {
 				meta: { hosts: decrypted.instance },
 				type: 'saas-image',
-				catalog: item.name,
-				fork: item.fork
+				catalog_id: id
 			};
 
 			RESTBuilder.make(builder => {

@@ -1,5 +1,5 @@
 ---
-- name: Build a Docker image from a catalog item
+- name: Build a Docker image from a catalog id
   hosts: "{{ hosts_limit | default('infrastructure') }}"
   become: true
   gather_facts: true
@@ -8,17 +8,17 @@
       prompt: "Catalog item ID"
       private: false
   vars:
-    build_work_dir: "/tmp/{{ catalog }}"
     architecture_map:
       amd64: amd64
       x86_64: amd64
       armv7l: arm
       aarch64: arm64
       arm64: arm64
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
+    catalog: "{{ catalog_response.json.origin | default(catalog_response.json.name) }}"
+    build_work_dir: "/tmp/{{ catalog }}"
     download_dir: "{{ build_work_dir }}/download"
     arch_dir: "{{ build_work_dir }}/{{ upstream_default_arch }}"
-    image_name2: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_name_manual }}:{{ image_version }}"
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"    
     ui_url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}"
     ui_user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
     ui_password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
@@ -39,17 +39,9 @@
       register: catalog_response
       become: false
 
-    - name: Set catalog facts
-      ansible.builtin.set_fact:
-        catalog: "{{ catalog_response.json.origin | default(catalog_response.json.name) }}"
-        name: "{{ catalog_response.json.name }}"
-        dockerfile_root: "{{ catalog_response.json.dockerfile_root | default('') }}"
-        dockerfile_nonroot: "{{ catalog_response.json.dockerfile_nonroot | default('') }}"
-        image_name_manual: "{{ catalog_response.json.name | lower }}"
-
     - name: Ensure temporary build directories exist
       ansible.builtin.file:
-        path: "{{ arch_dir }}"
+        path: "{{ item }}"
         state: directory
         mode: "0755"
       loop:
@@ -57,24 +49,28 @@
         - "{{ arch_dir }}"
 
   tasks:
-    - name: Build service-specific assets (e.g., compile, fetch deps)
+    - name: Build assets
       ansible.builtin.include_role:
         name: "{{ catalog }}"
         tasks_from: build
+      vars:
+        catalog_image_name: "{{ catalog_response.json.name }}"
+        dockerfile_root: "{{ catalog_response.json.dockerfile_root | default('') }}"
+        dockerfile_nonroot: "{{ catalog_response.json.dockerfile_nonroot | default('') }}"
 
-    - name: Build and push Docker image (single source of truth)
+    - name: Build and push Docker image
       community.docker.docker_image_build:
-        name: "{{ image_name2 }}"
+        name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ catalog_response.json.name }}:{{ image_version }}"
         tag: latest
         path: "{{ build_work_dir }}"
         dockerfile: Dockerfile
-        labels: "{{ image_labels | default({}) }}"
+        labels: "{{ image_definition.labels | default({}) }}"
         rebuild: always
         outputs:
           - type: image
             push: true
       register: docker_build
-      when: image_build
+      when: image_definition.build
       notify: Cleanup build directory
 
     - name: Update catalog item version on UI
@@ -87,8 +83,9 @@
         body:
           schema: catalogs_create
           data:
-            name: "{{ image_name_manual }}"
+            name: "{{ catalog_response.json.name }}"
             version: "{{ image_version }}"
+            forkable: "{{ image_forkable | default(false) }}"
         force_basic_auth: true
         status_code: 200
       delegate_to: localhost

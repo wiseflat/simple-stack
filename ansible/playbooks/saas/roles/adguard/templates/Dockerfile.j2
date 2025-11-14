@@ -4,7 +4,13 @@ FROM {{ image.origin }}
 
 ARG TARGETARCH
 
-COPY {{ image.upstream.binary }} /usr/local/bin/{{ image.upstream.binary }}
+RUN apk add wget
+
+RUN wget -O {{ upstream_file_name }} {{ upstream_file_url }} && \
+    tar xzf {{ upstream_file_name }} && \
+    mv AdGuardHome/AdGuardHome /usr/local/bin/AdGuardHome
+
+{{ dockerfile_root | default('') }}
 
 USER root
 

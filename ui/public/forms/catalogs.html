@@ -74,7 +74,8 @@
 		};
 
 		exports.fork = function() {
-			SET('formcatalogfork @default', { tab: 'default', catalog_list: GET('catalog_list'), crontab: '* * * * *'});
+			const catalog_list = GET('catalog_list').filter(item => Boolean(item?.forkable));
+			SET('formcatalogfork @default', { tab: 'default', catalog_list: catalog_list, crontab: '* * * * *'});
 			SET('common.form2', 'formcatalogfork');
 		};
 
@@ -113,7 +114,7 @@
 			exports.tapi('catalogs_read/{0} ERROR'.format(id), function(response) {
 				if(fork){
 					response.tab = 'default';
-					response.catalog_list = GET('catalog_list');
+					response.catalog_list = GET('catalog_list').filter(item => Boolean(item?.forkable));
 					
 					SET('formcatalogfork @reset @hideloading', response);
 					SET('common.form2', 'formcatalogfork');

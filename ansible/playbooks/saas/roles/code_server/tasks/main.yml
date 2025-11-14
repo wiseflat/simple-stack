@@ -15,9 +15,6 @@
     - "{{ software_path }}/home/coder/.ssh"
     - "{{ software_path }}/projects"
 
-- debug:
-    msg: "{{ size}}" 
-
 - name: Copy nomad job
   ansible.builtin.template:
     src: nomad.hcl
