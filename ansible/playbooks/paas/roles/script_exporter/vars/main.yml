@@ -22,3 +22,4 @@ script_exporter_scripts:
       armv7: armhf
       amd64: amd64
       x86_64: x86_64
+      aarch64: aarch64
