@@ -223,7 +223,7 @@ scrape_configs:
 
   - job_name: 'mimir_exporter'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -262,7 +262,7 @@ scrape_configs:
 
   - job_name: 'traefik'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -297,7 +297,7 @@ scrape_configs:
     metrics_path: /minio/v2/metrics/cluster
     scheme: http
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -324,7 +324,7 @@ scrape_configs:
 
   - job_name: 'caddy'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -356,7 +356,7 @@ scrape_configs:
 
   - job_name: 'vllm'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -388,7 +388,7 @@ scrape_configs:
 
   - job_name: 'mysql_exporter'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -419,7 +419,7 @@ scrape_configs:
 
   - job_name: 'nginx_exporter'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -450,7 +450,7 @@ scrape_configs:
 
   - job_name: 'phpfpm_exporter'
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
@@ -484,7 +484,7 @@ scrape_configs:
     metrics_path: /api/prometheus
     scheme: http
     nomad_sd_configs:
-      - server: "https://{{ nomad_primary_master_address | default(inventory_hostname) }}:4646"
+      - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
         region: "{{ fact_instance.region }}"
         tls_config:
           insecure_skip_verify: true
