@@ -10,7 +10,7 @@
     - "{{ software_path }}"
   delegate_to: "{{ software.instance }}"
 
-- name: Copy Grafana content files
+- name: Copy files
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ software_path }}/"
@@ -22,7 +22,7 @@
     - provisioning
   delegate_to: "{{ software.instance }}"
 
-- name: Copy Grafana content templates
+- name: Copy templates
   ansible.builtin.template:
     src: "provisioning/{{ item.path }}/{{ item.file }}.j2"
     dest: "{{ software_path }}/provisioning/{{ item.path }}/{{ item.file }}"
