@@ -56,8 +56,6 @@ NEWSCHEMA('Infrastructures', function (schema) {
 					}
 				}
 			}
-
-			console.log(instances);
 			$.callback(instances);
 		}
 	});

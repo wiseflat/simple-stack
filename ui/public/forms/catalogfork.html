@@ -1,0 +1,99 @@
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:600;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-code-branch;zindex:30" plugin="~PATH~" class="hidden">
+	<div class="padding">
+		<ui-bind path="?" config="template;show" class="block fs12 m">
+			<script type="text/html">
+				<div class="monospace">ID: <b>{{ value.id }}</b></div>
+			</script>
+		</ui-bind>
+		<ui-component name="tabs" path="?.tab" class="invisible">
+			<section data-id="default" title="Default" data-icon="ti ti-code-branch">
+			<div class="padding">
+				<div>
+					<div class="grid-2">
+						<div class="m">
+							<ui-component name="input" path="?.origin" config="required:1;dirsource:?.catalog_list">Origin</ui-component>
+						</div>
+						<div class="m">
+							<ui-component name="input" path="?.suffix" config="required:1">@(Suffix)</ui-component>
+						</div>
+					</div>
+					<div class="grid-2">
+						<div class="m">
+							<ui-component name="input" path="?.alias" config="required:1">@(Alias)</ui-component>
+						</div>
+						<div class="m">
+							<ui-component name="input" path="?.description" config="required:1">@(Description)</ui-component>
+						</div>
+					</div>
+				</div>
+			</div>
+			<hr class="nmt nmb" />
+			<div class="padding">
+				<div class="grid-2">
+					<div class="m">
+						<ui-component name="input" path="?.cron" config="type:checkbox" class="b">@(Periodic build)</ui-component>
+					</div>
+					<div class="m">
+						<ui-component name="input" path="?.crontab" config="required:1">@(Crontab)</ui-component>
+					</div>
+				</div>
+			</div>			
+			</section>
+			<section data-id="dockerfile" title="Dockerfile" data-icon="ti ti-docker">
+				<div class="padding">
+					<div>
+						<ui-component name="codemirror" path="?.dockerfile_root" config="type:htmlmixed;required:true;height:200">Add extra commands in your dockerfile as a root user</ui-component>
+					</div>
+					<div>
+						<ui-component name="codemirror" path="?.dockerfile_nonroot" config="type:htmlmixed;required:true;height:200">Add extra commands in your dockerfile as a non root user</ui-component>
+					</div>
+				</div>
+			</section>
+		</ui-component>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(header) {
+			var model = exports.model;
+			header.reconfigure({ title: model.id ? '@(Update catalog fork)' : '@(Add catalog fork)' });
+			caller = exports.caller;
+		};
+
+		exports.submit = function(hide) {
+			var form = exports.form;
+
+			console.log(form.origin);
+			const catalog_item = exports.model.catalog_list.find(item => item.id === form.origin);
+			console.log(catalog_item);
+			const payload = {
+				origin: catalog_item.name,
+				version: catalog_item.version,
+				suffix: form.suffix,
+				alias: form.alias,
+				description: form.description,
+				cron: form.cron,
+				crontab: form.crontab,
+				dockerfile_root: form.dockerfile_root,
+				dockerfile_nonroot: form.dockerfile_nonroot
+			};
+
+			exports.tapi('catalogs_fork_{0} ERROR'.format(form.id ? ('update/' + form.id) : 'create'), payload, function() {
+				hide();
+				CLRELOAD('cl');
+				SETTER('notify/success', '@(Done)');
+				caller.exec('refresh');
+			});
+		};
+	});
+</script>

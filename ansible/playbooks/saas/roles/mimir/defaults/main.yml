@@ -1,1 +1,2 @@
 ---
+mimir_install_node: "{{ software.install_node |default('singlenode') }}"

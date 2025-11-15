@@ -29,7 +29,7 @@ job "{{ domain }}" {
 
     service {
       name = "{{ service_name }}"
-      port = "zigbee2mqtt"
+      port = "http"
       provider = "nomad"
       tags = [
         {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}

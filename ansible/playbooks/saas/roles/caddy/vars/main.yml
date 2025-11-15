@@ -1,6 +1,7 @@
 ---
 image:
   build: true
+  forkable: false
   upstream:
     source: github
     user: caddyserver

@@ -106,7 +106,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "catalogs",
-			"name": " of catalog items"
+			"name": "List of catalog items"
 		},
 		{
 			"method": "API",
@@ -121,7 +121,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "catalogs_create",
-			"input": "*name:String, *version:String",
+			"input": "*name:String, *version:String, *forkable:Boolean",
 			"name": "Create catalog item"
 		},
 		{
@@ -132,6 +132,30 @@
 			"id": "catalogs_update",
 			"input": "*alias:String, *description:String, documentation:String, *cron:Boolean, *crontab:String",
 			"name": "Update catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "catalogs_fork_create",
+			"input": "*origin:String, *version:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String",
+			"name": "Fork catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "catalogs_fork_update",
+			"input": "*origin:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String",
+			"name": "Fork catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "catalogs_fork_remove",
+			"error": "Action not found"
 		},
 		{
 			"method": "API",
@@ -356,7 +380,18 @@
 		},
 		{
 			"name": "Catalogs/create",
-			"input": "*name:String, *version:String",
+			"input": "*name:String, *version:String, *forkable:Boolean",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/fork_create",
+			"input": "*origin:String, *version:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String",
+			"permissions": "catalogs"
+		},
+		{
+			"name": "Catalogs/fork_update",
+			"params": "*id:UID",
+			"input": "*origin:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String",
 			"permissions": "catalogs"
 		},
 		{

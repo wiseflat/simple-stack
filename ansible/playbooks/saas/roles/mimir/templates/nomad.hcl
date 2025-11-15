@@ -50,7 +50,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "minio/minio:{{ softwares.minio.version }}"
+        image = "{{ docker_private_registry.url_project | default(docker_private_registry.url) }}/minio:{{ softwares.minio.version }}"
         volumes = [
           "{{ software_path }}/data/minio:/data:rw"
         ]
@@ -68,7 +68,7 @@ job "{{ domain }}" {
   }
 
   group "{{ domain }}-mimir" {
-    count = 3
+    count = "{{ (mimir_install_node == 'singlenode') | ternary(1, 3) }}"
 
 {% if software.constraints is defined and software.constraints.distinct_hosts is defined %}
     constraint {
@@ -88,7 +88,6 @@ job "{{ domain }}" {
       }
       port "mimir_8080" {
         to = 8080
-        static = 8080
       }
     }
 
@@ -123,13 +122,13 @@ job "{{ domain }}" {
 
       config {
         image = "grafana/mimir:{{ softwares.mimir.version }}"
-        network_mode = "host"
+        # network_mode = "host"
         volumes = [
           "{{ software_path }}/mimir-${NOMAD_ALLOC_INDEX}:/data",
         ]
         args = [
           "-config.file=/local/mimir.yaml",
-          "-memberlist.join=dnssrv+mimir.default.service.nomad"
+          # "-memberlist.join=dnssrv+mimir.default.service.nomad"
         ]
         ports = ["mimir_7946", "mimir_9095", "mimir_8080"]
       }
@@ -138,7 +137,7 @@ job "{{ domain }}" {
         change_mode = "restart"
         destination = "local/mimir.yaml"
         data = <<EOH
-{{ lookup('ansible.builtin.template', 'templates/mimir.yaml.j2') }}
+{{ lookup('ansible.builtin.template', 'templates/mimir.yaml-' + mimir_install_node + '.j2') }}
   EOH
       }
 

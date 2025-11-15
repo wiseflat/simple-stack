@@ -30,6 +30,8 @@ log_rotate_max_files = {{ nomad_log_rotate_max_files }}
 leave_on_terminate = {{ nomad_leave_on_terminate | lower }}
 leave_on_interrupt = {{ nomad_leave_on_interrupt | lower }}
 
+consul {}
+
 tls {
     http = true
     rpc = true

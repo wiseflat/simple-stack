@@ -1,4 +1,4 @@
-<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:400;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-folder;zindex:30" plugin="~PATH~" class="hidden">
+<ui-component name="miniform" path="common.form2" config="if:~PATH~;width:600;submit:?/submit;reload:?/reload;autofocus:1;icon:ti ti-folder;zindex:30" plugin="~PATH~" class="hidden">
 	<div class="padding">
 		<ui-bind path="?" config="template;show" class="block fs12 m">
 			<script type="text/html">
@@ -19,11 +19,8 @@
 					<ui-component name="input" path="?.description" config="required:1">@(Description)</ui-component>
 				</div>
 				<div class="m">
-					<ui-component name="input" path="?.version" config="disabled:true">@(Version)</ui-component>
+					<ui-component name="input" path="?.documentation" config="required:0">@(Documentation)</ui-component>
 				</div>
-			</div>
-			<div class="m">
-				<ui-component name="input" path="?.documentation" config="required:0">@(Documentation)</ui-component>
 			</div>
 		</div>
 	</div>

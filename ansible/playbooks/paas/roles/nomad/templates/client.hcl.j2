@@ -40,7 +40,7 @@ client {
     }
 {% endif %}
 
-{% if nomad_client_meta_list%}
+{% if nomad_client_meta_list %}
     meta = {
     {% for key, value in nomad_client_meta_list.items() %}
     "{{ key }}" = "{{ value }}"

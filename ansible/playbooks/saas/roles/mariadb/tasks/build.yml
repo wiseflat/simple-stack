@@ -2,10 +2,8 @@
 - name: Set custom variables
   ansible.builtin.set_fact:
     image_version: "{{ mariadb_version }}"
-    image_name: "{{ image.name }}"
-    image_labels: "{{ image.labels }}"
-    image_build: "{{ image.build }}"
+    image_definition: "{{ image }}"
 
 - name: End playbook if no new version
   ansible.builtin.meta: end_host
-  when: softwares[image.name] is defined and softwares[image.name].version == image_version
+  when: softwares[catalog_image_name] is defined and softwares[catalog_image_name].version == image_version

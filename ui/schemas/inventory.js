@@ -63,12 +63,12 @@ NEWSCHEMA('Inventory', function (schema) {
 		}
 
 		const softwares = await DATA.find('nosql/catalogs')
-			.fields('name,version')
+			.fields('name,version,fork')
 			// .error('@(Error)')
 			.promise();
 
 		inventory.infrastructure.vars.softwares = softwares.reduce((acc, cur) => {
-			acc[cur.name] = { version: cur.version };
+			acc[cur.name] = { version: cur.version, fork: cur.fork || false };
 			return acc;
 		}, {});
 

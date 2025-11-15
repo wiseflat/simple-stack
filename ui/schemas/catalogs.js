@@ -27,12 +27,12 @@ NEWSCHEMA('Catalogs', function(schema) {
 	});
 
 	schema.action('list', {
-		name: ' of catalog items',
+		name: 'List of catalog items',
 		permissions: 'catalogs',
 		action: async function($) {
 			const [catalogs, settings] = await Promise.all([
 				DATA.list('nosql/catalogs')
-					.fields('id,name,alias,description,version,cron,crontab')
+					.fields('id,name,origin,picto,suffix,alias,description,version,cron,crontab,forkable,fork')
 					.error('@(Error loading catalogs)')
 					.promise($),
 				DATA.read('nosql/variables')
@@ -51,10 +51,11 @@ NEWSCHEMA('Catalogs', function(schema) {
 	schema.action('create', {
 		name: 'Create catalog item',
 		permissions: 'catalogs',
-		input: '*name:String, *version:String',
+		input: '*name:String, *version:String, *forkable:Boolean',
 		action: async function($, model) {
 			model.id = UID();
 			model.dtcreated = NOW;
+			model.fork = false;
 
 			const existing = await DATA.read('nosql/catalogs')
 				.where('name', model.name)
@@ -67,6 +68,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 			} else {
 				await DATA.update('nosql/catalogs', {
 						version: model.version,
+						forkable: model.forkable,
 						dtupdated: NOW
 					})
 					.id(existing.id)
@@ -76,6 +78,64 @@ NEWSCHEMA('Catalogs', function(schema) {
 			$.success();
 		}
 	});
+
+	schema.action('fork_create', {
+		name: 'Fork catalog item',
+		permissions: 'catalogs',
+		input: '*origin:String, *version:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String',
+		action: async function($, model) {
+
+			const name = '{0}-{1}'.format(model.origin, model.suffix);
+			const existing = await DATA.read('nosql/catalogs')
+				.where('name', model.name)
+				.where('suffix', model.suffix)
+				.promise($);
+
+			if (existing) {
+				$.invalid('Catalog item already exists');
+				return;
+			}
+
+			model.id = UID();
+			model.dtcreated = NOW;
+			model.fork = true;
+			model.name = name;
+			model.picto = model.origin;
+
+			await DATA.insert('nosql/catalogs', model)
+				.error('@(Error creating catalog)')
+				.promise($);
+			$.success();
+		}
+	});
+
+	schema.action('fork_update', {
+		name: 'Fork catalog item',
+		params: '*id:UID',
+		permissions: 'catalogs',
+		input: '*origin:String, *suffix:String, *alias:String, *description:String, *cron:Boolean, *crontab:String, *dockerfile_root:String, *dockerfile_nonroot:String',
+		action: async function($, model) {
+
+			await DATA.update('nosql/catalogs', {
+					name: '{0}-{1}'.format(model.origin, model.suffix),
+					origin: model.origin,
+					picto: model.origin,
+					suffix: model.suffix,
+					alias: model.alias,
+					description: model.description,
+					cron: model.cron,
+					crontab: model.crontab,
+					dockerfile_root: model.dockerfile_root,
+					dockerfile_nonroot: model.dockerfile_nonroot,
+					dtupdated: NOW
+				})
+				.id($.params.id)
+				.error('@(Error updating catalog)')
+				.promise($);
+			$.success();
+		}
+	});
+
 
 	schema.action('read', {
 		name: 'Read a catalog item',
@@ -161,7 +221,7 @@ NEWSCHEMA('Catalogs', function(schema) {
 			const payload = {
 				meta: { hosts: decrypted.instance },
 				type: 'saas-image',
-				catalog: item.name
+				catalog_id: id
 			};
 
 			RESTBuilder.make(builder => {

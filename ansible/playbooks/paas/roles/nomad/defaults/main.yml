@@ -146,10 +146,10 @@ nomad_client_host_network_cluster:
   name: cluster
   interface: "{{ nomad_cluster_bridge }}"
 
-nomad_client_meta_list: >-
-  {"arch": "{{ architecture_map[ansible_facts.architecture] }}",
-   "location": "{{ fact_instance.location }}",
-   "instance": "{{ inventory_hostname }}"}
+nomad_client_meta_list:
+  arch: "{{ architecture_map[ansible_facts.architecture] }}"
+  location: "{{ fact_instance.location }}"
+  instance: "{{ inventory_hostname }}"
 
 nomad_server_join: >-
   "{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ (groups[nomad_deploy_cluster_name] |
@@ -195,8 +195,7 @@ nomad_tls_ca_provider: ownca
 nomad_tls_host_certificate_dir: /etc/ssl/simplestack
 
 nomad_tls_common_name: nomad
-# IP range for 192.168.0.0/24 (all 256 addresses)
-nomad_tls_ip_range: "{{ range(0,256) | map('regex_replace', '^', 'IP:192.168.0.') | list | join(',') }}"
+nomad_tls_ip_range: "{{ ((range(0,256) | map('regex_replace', '^', 'IP:192.168.0.')) + (range(0,256) | map('regex_replace', '^', 'IP:10.0.0.')) ) | list | join(',') }}"
 nomad_tls_check_delay: "+2w"
 
 # TLS Server

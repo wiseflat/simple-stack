@@ -98,6 +98,7 @@ NEWSCHEMA('Graphs', schema => {
 				const variable = await DATA
 					.read('nosql/variables')
 					.where('key', node.id)
+					.where('type', '!=', 'secret')
 					.promise($);
 
 				if (variable) {

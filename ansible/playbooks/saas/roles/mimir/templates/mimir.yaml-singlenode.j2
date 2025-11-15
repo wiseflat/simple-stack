@@ -1,0 +1,61 @@
+---
+target: all,alertmanager,overrides-exporter
+
+limits:
+  compactor_blocks_retention_period: 90d
+  # ingestion_rate: 20000
+  ingestion_burst_size: 40000
+  max_label_names_per_series: 100
+  max_label_value_length: 2048
+
+common:
+  storage:
+    backend: s3
+    s3:
+      endpoint: minio-{{ service_name }}.default.service.nomad:9000
+      access_key_id: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='access_key_id', missing='error') }}"
+      secret_access_key: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='secret_access_key', missing='error') }}"
+      insecure: true
+
+memberlist:
+  join_members: []
+
+blocks_storage:
+  s3:
+    bucket_name: mimir-blocks
+
+ruler:
+  alertmanager_url: http://127.0.0.1:8080/alertmanager
+  ring:
+    heartbeat_period: 2s
+    heartbeat_timeout: 10s
+    instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
+
+ruler_storage:
+  s3:
+    bucket_name: ruler
+
+alertmanager_storage:
+  s3:
+    bucket_name: mimir
+
+alertmanager:
+  fallback_config_file: /local/alertmanager-fallback-config.yaml
+  external_url: http://127.0.0.1:8080/alertmanager
+
+
+compactor:
+
+distributor: 
+  ring:
+    instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
+
+server:
+  log_level: warn
+
+ingester: 
+  ring:
+    replication_factor: 1
+
+usage_stats:
+  enabled: false

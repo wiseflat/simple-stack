@@ -1,6 +1,7 @@
 ---
 image:
   build: false
+  forkable: true
   upstream:
     source: github
     user: codercom
