@@ -60,7 +60,7 @@
       notify: Nomad_restart
 
 - name: Nomad | Copy certificate on client nodes
-  when: nomad_node_role in ['client']
+  when: nomad_node_role in ['client', 'both']
   block:
     - name: "Nomad | Check if TLS cert exists for Client"
       ansible.builtin.stat:
