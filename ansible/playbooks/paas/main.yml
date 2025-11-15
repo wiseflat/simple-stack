@@ -27,6 +27,7 @@
           - unzip
           - make
           - jq
+          - dnsutils
 
         state: present
         install_recommends: false
