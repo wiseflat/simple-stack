@@ -4,10 +4,6 @@
   hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
-  vars_prompt:
-    - name: project
-      prompt: project name
-      private: false
   tasks:
     - name: End the play for hosts that are not in admins group
       ansible.builtin.meta: end_host

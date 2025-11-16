@@ -60,16 +60,16 @@
 			"method": "API",
 			"url": "/api/",
 			"auth": 1,
-			"id": "settings_read",
-			"name": "Read a user information"
+			"id": "profile_read",
+			"name": "Read user profile"
 		},
 		{
 			"method": "API",
 			"url": "/api/",
 			"auth": 1,
-			"id": "settings_update",
+			"id": "profile_update",
 			"input": "*first_name:String, *last_name:String, *email:Email, *language:String",
-			"name": "Save settings"
+			"name": "Save user profile"
 		},
 		{
 			"method": "API",
@@ -532,10 +532,10 @@
 			"input": "*email:Email,*password:String"
 		},
 		{
-			"name": "Users/settings_read"
+			"name": "Users/profile_read"
 		},
 		{
-			"name": "Users/settings_update",
+			"name": "Users/profile_update",
 			"input": "*first_name:String, *last_name:String, *email:Email, *language:String"
 		},
 		{

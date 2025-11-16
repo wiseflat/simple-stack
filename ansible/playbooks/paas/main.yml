@@ -24,6 +24,7 @@
       ansible.builtin.apt:
         pkg:
           - python3-debian
+          - python3-venv
           - unzip
           - make
           - jq
@@ -38,7 +39,10 @@
 
   roles:
     - unattended-upgrades
+    - ansible-ufw
 
+- name: Configure timesyncd
+  ansible.builtin.import_playbook: timesyncd.yml
 - name: Configure systemd resolved
   ansible.builtin.import_playbook: systemd-resolved.yml
 - name: Configure docker

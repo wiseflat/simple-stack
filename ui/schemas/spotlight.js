@@ -13,7 +13,7 @@ NEWACTION('Spotlight/search', {
             ORIGIN.push({ id: 'users', form: 'formusers', search: 'users', name: TRANSLATE($.user.language || '', '@(Users)'), icon: 'users', color: '#EB73F8' });
             ORIGIN.push('-');
         }
-        ORIGIN.push({ id: 'settings',   form: 'formsettings',        search: 'settings',       name: TRANSLATE($.user.language || '', '@(Your profile)'),    icon: 'settings',     color: '#EB73F8' });
+        ORIGIN.push({ id: 'profile',   form: 'formprofile',        search: 'profile',       name: TRANSLATE($.user.language || '', '@(Your profile)'),    icon: 'user',     color: '#EB73F8' });
         ORIGIN.push({ id: 'password',   form: 'formpassword',        search: 'user password',  name: TRANSLATE($.user.language || '', '@(Your password)'),   icon: 'key',          color: '#EB73F8' });
         ORIGIN.push('-');
         ORIGIN.push({ id: 'logout',     form: 'logout',              search: 'logout',         name: TRANSLATE($.user.language || '', '@(Logout)'),          icon: 'power-off',    color: '#EA71B0' });

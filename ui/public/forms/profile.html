@@ -1,4 +1,4 @@
-<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:cog;title:@(User settings);autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:400" class="hidden ~PATH~" plugin="~PATH~">
+<ui-component name="miniform" path="common.form" config="if:~PATH~;icon:cog;title:@(User profile);autofocus:true;reload:?/reload;scrollbar:1;submit:?/submit;width:400" class="hidden ~PATH~" plugin="~PATH~">
 	<div>
 		<div class="padding">
 			<div class="grid-2">
@@ -30,14 +30,14 @@
 <script>
 	PLUGIN(function(exports) {
 		exports.reload = function() {
-			exports.tapi('settings_read ERROR', function(result) {
+			exports.tapi('profile_read ERROR', function(result) {
 				exports.set(result);
 			});
 		};
 
 		exports.submit = function(hide) {
 			var model = exports.form;
-			exports.tapi('settings_update ERROR', model, function(result) {
+			exports.tapi('profile_update ERROR', model, function(result) {
 				hide();
 				SETTER('notify/success', '@(Done)');
 			});
