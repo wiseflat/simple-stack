@@ -48,6 +48,7 @@
 	<ui-component name="importer" path="common.form" config="if:formprofile;url:/forms/profile.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formpassword;url:/forms/password.html"></ui-component>
 	<ui-component name="importer" path="common.form" config="if:formsettings;url:/forms/settings.html"></ui-component>
+	<ui-component name="importer" path="common.form2" config="if:formsettingsExport;url:/forms/settings_export.html"></ui-component>
 
 	@{json(model, 'pluginsdata')}
 
@@ -92,6 +93,9 @@
 
 		ROUTE('/', function() {
 			SET('common.page', 'graph');
+
+			SET('formupgrade @reset @hideloading', { version: DEF.versionhtml, currentstep: 'step1' });
+			SET('common.form', 'formupgrade');
 		}, 'init');
 
 		SETTER(true, 'shortcuts/register', 'esc', function(e) {

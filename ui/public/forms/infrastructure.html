@@ -16,21 +16,6 @@
 	</div>
 	<hr class="nmt nmb" />
 	<div class="padding">
-		<div>
-			<div class="m">
-				<ui-component name="input" path="?.admin_login" config="required:1">@(Admin login)</ui-component>
-			</div>
-			<div class="m">
-				<ui-component name="input" path="?.admin_pass" config="camouflage:1;placeholder:Sensible variable hidden after submission">@(Admin password)</ui-component>
-				<div class="help exec link" data-exec="?/generate"><i class="ti ti-key mr5"></i>@(Generate password)</div>
-			</div>
-			<div class="m">
-				<ui-component name="input" path="?.admin_ip" config="required:1">@(Admin ip address)</ui-component>
-			</div>
-		</div>
-	</div>
-	<hr class="nmt nmb" />
-	<div class="padding">
 		<div class="grid-2">
 			<div class="m">
 				<ui-component name="input" path="?.color" config="type:color" default="'#4285F4'">@(Color)</ui-component>
@@ -58,10 +43,6 @@
 			var model = exports.model;
 			header.reconfigure({ title: model.id ? '@(Update infrastructure)' : '@(Add infrastructure)' });
 			caller = exports.caller;
-		};
-
-		exports.generate = function() {
-			exports.set('admin_pass', GUID(10));
 		};
 
 		exports.submit = function(hide) {

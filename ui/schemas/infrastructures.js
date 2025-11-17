@@ -62,15 +62,12 @@ NEWSCHEMA('Infrastructures', function (schema) {
 
 	schema.action('create', {
 		name: 'Create project',
-		input: '*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, *admin_pass:String',
+		input: '*name:String, *icon:Icon, *color:Color, *description:String',
 		action: async function ($, model) {
 			// Input validation – early exit on first failure
 			const validators = [
 				{ fn: REGEX_PROJECTS.name, field: 'name' },
-				{ fn: REGEX_PROJECTS.description, field: 'description' },
-				{ fn: REGEX_PROJECTS.admin_ip, field: 'admin_ip' },
-				{ fn: REGEX_PROJECTS.admin_login, field: 'admin_login' },
-				{ fn: REGEX_PROJECTS.admin_pass, field: 'admin_pass' }
+				{ fn: REGEX_PROJECTS.description, field: 'description' }
 			];
 			for (const v of validators) {
 				if (v.optional && (model[v.field] === '' || model[v.field] == null)) continue;
@@ -83,7 +80,6 @@ NEWSCHEMA('Infrastructures', function (schema) {
 			// Populate system fields
 			model.id = UID();
 			model.uid = $.user.id;
-			model.admin_pass = model.admin_pass.sha256(process.env.AUTH_SECRET);
 			model.dtcreated = new Date();
 			model.isarchived = false;
 			model.tfstate = { version: 4 };
@@ -102,7 +98,7 @@ NEWSCHEMA('Infrastructures', function (schema) {
 				.read('nosql/infrastructures')
 				.where('uid', $.user.id)
 				.where('id', id)
-				.fields('id,name,description,admin_login,admin_ip,icon,color')
+				.fields('id,name,description,icon,color')
 				.error('@(Error)')
 				.promise($);
 			$.callback(result);
@@ -112,7 +108,7 @@ NEWSCHEMA('Infrastructures', function (schema) {
 	schema.action('update', {
 		name: 'Update project',
 		params: '*id:UID',
-		input: '*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, admin_pass:String',
+		input: '*name:String, *icon:Icon, *color:Color, *description:String',
 		action: async function ($, model) {
 			const { id } = $.params;
 
@@ -120,33 +116,12 @@ NEWSCHEMA('Infrastructures', function (schema) {
 			const validators = [
 				{ fn: REGEX_PROJECTS.name, field: 'name' },
 				{ fn: REGEX_PROJECTS.description, field: 'description' },
-				{ fn: REGEX_PROJECTS.admin_ip, field: 'admin_ip' },
-				{ fn: REGEX_PROJECTS.admin_login, field: 'admin_login' }
 			];
 			for (const v of validators) {
 				if (!FUNC.regex(v.fn, model[v.field])) {
 					$.invalid(`${v.fn.comment}`);
 					return;
 				}
-			}
-			
-			// Password handling – only hash when a new password is supplied
-			if (model.admin_pass) {
-				if (!FUNC.regex(REGEX_PROJECTS.admin_pass, model.admin_pass)) {
-					$.invalid(`${REGEX_PROJECTS.admin_pass.comment}`);
-					return;
-				}
-				model.admin_pass = model.admin_pass.sha256(process.env.AUTH_SECRET);
-			} else {
-				// Preserve existing hash
-				const existing = await DATA
-					.read('nosql/infrastructures')
-					.where('uid', $.user.id)
-					.where('id', id)
-					.fields('admin_pass')
-					.error('@(Error)')
-					.promise($);
-				model.admin_pass = existing.admin_pass;
 			}
 
 			model.dtupdated = new Date();
@@ -199,6 +174,37 @@ NEWSCHEMA('Infrastructures', function (schema) {
 				.where('id', id)
 				.error('@(Error)')
 				.promise($);
+			$.success();
+		}
+	});
+
+	schema.action('export', {
+		name: 'Export all infrastructures',
+		params: '*ids:String',
+		action: async function ($) {
+			const result = await DATA
+				.list('nosql/infrastructures')
+				.where('uid', $.user.id)
+				.in('id', $.params.ids.split(','))
+				.error('@(Error)')
+				.promise($);
+			$.callback(result.items);
+		}
+	});
+
+	schema.action('import', {
+		name: 'Import an infrastructure',
+		params: '*id:UID',
+		input: '*color:Color, *description:String, *dtcreated:String, *icon:Icon, isarchived:Boolean, *name:String, *tfstate:Json',
+		action: async function ($, model) {
+			const { id } = $.params;
+			model.tfstate = JSON.parse(model.tfstate);
+			
+			DATA.modify('nosql/infrastructures', model, true).where('id', id).insert(function(doc) {
+				doc.uid = $.user.id;
+				doc.id = id;
+				doc.dtupdated = NOW;
+			});
 			$.success();
 		}
 	});

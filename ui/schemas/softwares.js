@@ -242,4 +242,20 @@ NEWSCHEMA('Softwares', function (schema) {
 			});
 		}
 	});
+
+	schema.action('import', {
+		name: 'Import a software',
+		params: '*id:UID',
+		input: '*domain:String,domain_alias:String,*exposition:String,*instance:String,*size:String,*software:String,*version:String',
+		action: async function ($, model) {
+
+			const { id } = $.params;
+			DATA.modify('nosql/softwares', model, true).where('id', id).insert(function(doc) {
+				doc.uid = $.user.id;
+				doc.id = id;
+				doc.dtupdated = NOW;
+			});
+			$.success();
+		}
+	});
 });
