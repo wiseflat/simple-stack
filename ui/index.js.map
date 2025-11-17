@@ -193,7 +193,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "infrastructures_create",
-			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, *admin_pass:String",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String",
 			"name": "Create project"
 		},
 		{
@@ -202,7 +202,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "infrastructures_update",
-			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, admin_pass:String",
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String",
 			"name": "Update project"
 		},
 		{
@@ -459,7 +459,7 @@
 		},
 		{
 			"name": "Infrastructures/create",
-			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, *admin_pass:String"
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String"
 		},
 		{
 			"name": "Infrastructures/read",
@@ -468,7 +468,7 @@
 		{
 			"name": "Infrastructures/update",
 			"params": "*id:UID",
-			"input": "*name:String, *icon:Icon, *color:Color, *description:String, *admin_ip:String, *admin_login:String, admin_pass:String"
+			"input": "*name:String, *icon:Icon, *color:Color, *description:String"
 		},
 		{
 			"name": "Infrastructures/remove",
