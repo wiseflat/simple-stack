@@ -7,4 +7,4 @@ wordpress_actions:
     - "{{ software_path }}/var/backup:/var/backup:rw"
     - "/usr/local/bin/wordpress-backup:/usr/local/bin/wordpress-backup:ro"
     - "/usr/local/bin/wordpress-restore:/usr/local/bin/wordpress-restore:ro"
-  image: "wordpress:{{ softwares.wordpress.version }}"
+  image: "{{ docker_private_registry.url }}/wordpress:{{ softwares.wordpress.version }}"
