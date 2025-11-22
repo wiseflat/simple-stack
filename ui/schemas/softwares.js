@@ -9,10 +9,9 @@ NEWSCHEMA('Softwares', function (schema) {
 	];
 
 	const EXPOSITIONS = [
-		{ id: 'public',          name: 'Public domain managed' },
-		{ id: 'public-unmanaged',name: 'Public domain created manually' },
-		{ id: 'private',         name: 'Local domain' },
-		{ id: 'none',            name: 'None' }
+		{ id: 'public', name: 'Public' },
+		{ id: 'local',  name: 'Local' },
+		{ id: 'none',   name: 'None' }
 	];
 
 	// Helper to validate model fields against the predefined regexes
