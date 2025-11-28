@@ -17,9 +17,6 @@
 		</ui-bind>
 	</div>
 	<div class="padding">
-		<div class="m">
-			<ui-component name="input" path="?.status" config="type:checkbox" class="b">@(Use this key in inventory)</ui-component>
-		</div>
 		<ui-bind path="?" config="track:id;template" class="meta listing">
 			<script type="text/html">
 				<ui-component name="codemirror" path="?.value" config="type:htmlmixed;height:400" class="m">@(Default Yaml variables)</ui-component>

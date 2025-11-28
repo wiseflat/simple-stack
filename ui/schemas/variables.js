@@ -105,13 +105,12 @@ NEWSCHEMA('Variables', function (schema) {
 	schema.action('update', {
 		name: 'Update a variable set',
 		params: '*id:UID',
-		input: '*type:String, *key:String, status:Boolean, value:String',
+		input: '*type:String, *key:String, value:String',
 		action: async function ($, model) {
 			const { id } = $.params;
 			const key2 = model.key.replace(/\./g, '_');
 
 			const updatePayload = {
-				status: model.status,
 				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), process.env.AUTH_SECRET),
 				dtupdated: NOW,
 				key2

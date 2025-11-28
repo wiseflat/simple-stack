@@ -308,7 +308,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "variables_update",
-			"input": "*type:String, *key:String, status:Boolean, value:String",
+			"input": "*type:String, *key:String, value:String",
 			"name": "Update a variable set"
 		},
 		{
@@ -608,7 +608,7 @@
 		{
 			"name": "Variables/update",
 			"params": "*id:UID",
-			"input": "*type:String, *key:String, status:Boolean, value:String"
+			"input": "*type:String, *key:String, value:String"
 		},
 		{
 			"name": "Variables/remove",
