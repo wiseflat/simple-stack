@@ -4,7 +4,7 @@ service.nomad.:1053 {
     #debug
     #log
     nomad {
-        address https://{{ hostvars[nomad_primary_master_node | default(inventory_hostname)]['ansible_' + nomad_iface].ipv4.address | default('127.0.0.1') }}:4646
+        address https://{{ hostvars[nomad_primary_master_node | default(inventory_hostname)]['ansible_' + hostvars[nomad_primary_master_node | default(inventory_hostname)].nomad_iface].ipv4.address | default('127.0.0.1') }}:4646
         token {{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }}
         ttl 10
     }
