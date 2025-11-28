@@ -22,6 +22,12 @@ docker_dns_servers:
 
 docker_metrics_addr: "{{ docker_tcp_listen_address }}:9323"
 
+docker_runtimes: []
+  # - key: nvidia
+  #   value:
+  #     args: {}
+  #     path: nvidia-container-runtime
+
 # TLS
 # CA
 docker_ca_install_tls_ca_host: localhost

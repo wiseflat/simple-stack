@@ -1,4 +1,8 @@
 {
     "metrics-addr" : "{{ docker_metrics_addr }}",
-    "dns": [{% for item in docker_dns_servers %}"{{ item }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    "dns": [{% for item in docker_dns_servers %}"{{ item }}"{% if not loop.last %},{% endif %}{% endfor %}],
+    "runtimes": {
+    {%- for runtime in docker_runtimes | default([]) -%}
+        "{{ runtime.key }}": {{ runtime.value | to_json }}{% if not loop.last %},{% endif %}{% endfor %}
+    }
 }
