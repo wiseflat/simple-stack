@@ -17,8 +17,7 @@ NEWSCHEMA('Settings', function (schema) {
 				// Infrastructure
 				project.infrastructure.tfstate = JSON.stringify(project.infrastructure.tfstate);
 
-				await ACTION('Infrastructures/import', project.infrastructure)
-					.params({ id: project.infrastructure.id })
+				let iid = await ACTION('Infrastructures/import', project.infrastructure)
 					.user($.user)
 					.promise($);
 
@@ -26,7 +25,7 @@ NEWSCHEMA('Settings', function (schema) {
 				await Promise.all(
 					(project.softwares ?? []).map(software =>
 						ACTION('Softwares/import', software)
-							.params({ id: software.id })
+							.params({ iid: iid })
 							.user($.user)
 							.promise($)
 					)
@@ -43,7 +42,7 @@ NEWSCHEMA('Settings', function (schema) {
 					variable.value = JSON.stringify(variable.value);
 
 					return ACTION('Variables/import', variable)
-						.params({ id: variable.id })
+						.params({ iid: iid })
 						.user($.user)
 						.promise($);
 					})
@@ -191,7 +190,8 @@ NEWSCHEMA('Settings', function (schema) {
 				logError(err, 'settings schema execution');
 			}
 
-			$.callback(ENCRYPT(output, model.password));
+			// $.callback(ENCRYPT(output, model.password));
+			$.callback(output);
 		}
 	});
 });
