@@ -1,7 +1,6 @@
 ---
 docker_user: root
 firewall: true
-docker_conf_dir: "/etc/docker"
 
 docker_gateway_ip: 172.17.0.1
 

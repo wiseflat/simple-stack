@@ -68,19 +68,22 @@
   loop:
     - /root/.docker
     
-- name: Copy config.json to root directory
+- name: Copy config.json
   ansible.builtin.template:
     src: config.json.j2
-    dest: /root/.docker/config.json
+    dest: "{{ item }}"
     owner: root
     group: root
     mode: '0600'
+  loop:
+    - /root/.docker/config.json
+    - /etc/docker/config.json
   notify: Docker_restart
 
-- name: Copy daemon.json for DNS resolution
+- name: Copy daemon.json
   ansible.builtin.template:
     src: daemon.json.j2
-    dest: "{{ docker_conf_dir }}/daemon.json"
+    dest: /etc/docker/daemon.json
     owner: root
     group: root
     mode: '0600'
