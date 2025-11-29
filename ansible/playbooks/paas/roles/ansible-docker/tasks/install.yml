@@ -63,21 +63,18 @@
 - name: Create home docker directory
   ansible.builtin.file:
     path: "{{ item }}"
-    recurse: true
     state: directory
     mode: '0755'
   loop:
     - /root/.docker
     
-- name: Copy config.json
+- name: Copy config.json to root directory
   ansible.builtin.template:
     src: config.json.j2
-    dest: "{{ item }}"
+    dest: /root/.docker/config.json
     owner: root
     group: root
     mode: '0600'
-  when: docker_private_registry_state
-  loop: "{{ docker_private_registry_config }}"
   notify: Docker_restart
 
 - name: Copy daemon.json for DNS resolution

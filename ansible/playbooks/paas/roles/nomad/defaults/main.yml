@@ -18,6 +18,7 @@ nomad_group: simplestack
 nomad_dc_name: dc1
 
 nomad_project: "{{ fact_instance.project }}"
+nomad_provider: "{{ fact_instance.provider }}"
 nomad_region: "{{ fact_instance.region }}"
 nomad_location: "{{ fact_instance.region }}"
 
@@ -199,8 +200,8 @@ nomad_tls_ip_range: "{{ ((range(0,256) | map('regex_replace', '^', 'IP:192.168.0
 nomad_tls_check_delay: "+2w"
 
 # TLS Server
-nomad_tls_cert_server: "{{ nomad_dc_name }}-server-nomad.pem"
-nomad_tls_privatekey_server: "{{ nomad_dc_name }}-server-nomad.key"
+nomad_tls_cert_server: "{{ nomad_region }}-{{ nomad_provider }}-{{ nomad_dc_name }}-server-nomad.pem"
+nomad_tls_privatekey_server: "{{ nomad_region }}-{{ nomad_provider }}-{{ nomad_dc_name }}-server-nomad.key"
 
 nomad_tls_common_name_server: "*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }}"
 nomad_tls_subject_alt_name_server: "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,{{ nomad_tls_ip_range }},DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad"

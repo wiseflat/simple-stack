@@ -194,18 +194,16 @@ NEWSCHEMA('Infrastructures', function (schema) {
 
 	schema.action('import', {
 		name: 'Import an infrastructure',
-		params: '*id:UID',
 		input: '*color:Color, *description:String, *dtcreated:String, *icon:Icon, isarchived:Boolean, *name:String, *tfstate:Json',
 		action: async function ($, model) {
-			const { id } = $.params;
+			model.id = UID();
+			model.uid = $.user.id;
 			model.tfstate = JSON.parse(model.tfstate);
+			model.dtupdated = NOW;
 			
-			DATA.modify('nosql/infrastructures', model, true).where('id', id).insert(function(doc) {
-				doc.uid = $.user.id;
-				doc.id = id;
-				doc.dtupdated = NOW;
-			});
-			$.success();
+			await DATA.insert('nosql/infrastructures', model).error('@(Error)').promise($);
+
+			$.callback(model.id);
 		}
 	});
 });

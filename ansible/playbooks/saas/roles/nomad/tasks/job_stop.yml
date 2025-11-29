@@ -4,9 +4,10 @@
   environment:
     NOMAD_ADDR: "https://{{ nomad_http_ip }}:4646"
     NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
-    NOMAD_CLIENT_CERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
-    NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
-    NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
+    NOMAD_SKIP_VERIFY: true
+    # NOMAD_CLIENT_CERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_server }}"
+    # NOMAD_CLIENT_KEY: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
+    # NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
   register: nomad_job_stop
   failed_when: |
     nomad_job_stop.rc >=1 and

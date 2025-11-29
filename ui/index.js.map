@@ -308,7 +308,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "variables_update",
-			"input": "*type:String, *key:String, status:Boolean, value:String",
+			"input": "*type:String, *key:String, value:String",
 			"name": "Update a variable set"
 		},
 		{
@@ -488,7 +488,6 @@
 		},
 		{
 			"name": "Infrastructures/import",
-			"params": "*id:UID",
 			"input": "*color:Color, *description:String, *dtcreated:String, *icon:Icon, isarchived:Boolean, *name:String, *tfstate:Json"
 		},
 		{
@@ -541,7 +540,7 @@
 		},
 		{
 			"name": "Softwares/import",
-			"params": "*id:UID",
+			"params": "*iid:UID",
 			"input": "*domain:String,domain_alias:String,*exposition:String,*instance:String,*size:String,*software:String,*version:String"
 		},
 		{
@@ -609,7 +608,7 @@
 		{
 			"name": "Variables/update",
 			"params": "*id:UID",
-			"input": "*type:String, *key:String, status:Boolean, value:String"
+			"input": "*type:String, *key:String, value:String"
 		},
 		{
 			"name": "Variables/remove",
@@ -621,7 +620,7 @@
 		},
 		{
 			"name": "Variables/import",
-			"params": "*id:UID",
+			"params": "*iid:UID",
 			"input": "*key:String, *key2:String, *type:String, *value:Json"
 		}
 	]

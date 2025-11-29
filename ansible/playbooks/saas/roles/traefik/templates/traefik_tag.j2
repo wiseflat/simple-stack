@@ -5,7 +5,7 @@
 "traefik.http.routers.{{ service_name }}.tls.certresolver=myresolver",
 "traefik.http.routers.{{ service_name }}.tls.options=mintls12@file",
 "traefik.http.routers.{{ service_name }}.entrypoints=https",
-"traefik.http.routers.{{ service_name }}.rule=Host(`{{ domain }}`){% if software.domain_alias is defined and software.domain_alias != "" %} || Host(`{{ software.domain_alias }}`){% endif %}",
+"traefik.http.routers.{{ service_name }}.rule=Host(`{{ domain }}`){% if software.domain_alias is defined and software.domain_alias != "" %}{% for alias in (software.domain_alias | split(',')) %} || Host(`{{ alias }}`){% endfor %}{% endif %}",
 "traefik.http.middlewares.{{ service_name }}.redirectscheme.scheme=https",
 "traefik.http.middlewares.{{ service_name }}.redirectscheme.permanent=true",
 "traefik.http.middlewares.{{ service_name }}-headers.headers.customResponseHeaders.Strict-Transport-Security=max-age=63072000",

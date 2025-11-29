@@ -79,12 +79,14 @@ telemetry {
     circonus_broker_select_tag = ""
 }
 
+{% if nomad_servers | length >= 3 %}
 autopilot {
     cleanup_dead_servers      = {{ nomad_autopilot_cleanup_dead_servers | lower }}
     last_contact_threshold    = "{{ nomad_autopilot_last_contact_threshold }}"
     max_trailing_logs         = {{ nomad_autopilot_max_trailing_logs }}
     server_stabilization_time = "{{ nomad_autopilot_server_stabilization_time }}"
 }
+{% endif %}
 
 limits {
   http_max_conns_per_client = 300

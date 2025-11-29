@@ -38,6 +38,7 @@
     owner: nomad
     group: nomad
     mode: "0644"
+  notify: Nomad_restart
 
 - name: "Nomad Install | Copy configurations files for servers"
   ansible.builtin.template:

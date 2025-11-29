@@ -9,10 +9,9 @@ NEWSCHEMA('Softwares', function (schema) {
 	];
 
 	const EXPOSITIONS = [
-		{ id: 'public',          name: 'Public domain managed' },
-		{ id: 'public-unmanaged',name: 'Public domain created manually' },
-		{ id: 'private',         name: 'Local domain' },
-		{ id: 'none',            name: 'None' }
+		{ id: 'public', name: 'Public' },
+		{ id: 'local',  name: 'Local' },
+		{ id: 'none',   name: 'None' }
 	];
 
 	// Helper to validate model fields against the predefined regexes
@@ -245,16 +244,17 @@ NEWSCHEMA('Softwares', function (schema) {
 
 	schema.action('import', {
 		name: 'Import a software',
-		params: '*id:UID',
+		params: '*iid:UID',
 		input: '*domain:String,domain_alias:String,*exposition:String,*instance:String,*size:String,*software:String,*version:String',
 		action: async function ($, model) {
 
-			const { id } = $.params;
-			DATA.modify('nosql/softwares', model, true).where('id', id).insert(function(doc) {
-				doc.uid = $.user.id;
-				doc.id = id;
-				doc.dtupdated = NOW;
-			});
+			model.iid = $.params.iid;
+			model.id = UID();
+			model.uid = $.user.id;
+			model.dtupdated = NOW;
+			
+			await DATA.insert('nosql/softwares', model).error('@(Error)').promise($);
+
 			$.success();
 		}
 	});

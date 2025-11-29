@@ -105,13 +105,12 @@ NEWSCHEMA('Variables', function (schema) {
 	schema.action('update', {
 		name: 'Update a variable set',
 		params: '*id:UID',
-		input: '*type:String, *key:String, status:Boolean, value:String',
+		input: '*type:String, *key:String, value:String',
 		action: async function ($, model) {
 			const { id } = $.params;
 			const key2 = model.key.replace(/\./g, '_');
 
 			const updatePayload = {
-				status: model.status,
 				value: ENCRYPT(JSON.stringify(yamlToJson(model.value)), process.env.AUTH_SECRET),
 				dtupdated: NOW,
 				key2
@@ -247,15 +246,17 @@ NEWSCHEMA('Variables', function (schema) {
 
 	schema.action('import', {
 		name: 'Import a variable',
-		params: '*id:UID',
+		params: '*iid:UID',
 		input: '*key:String, *key2:String, *type:String, *value:Json',
 		action: async function ($, model) {
-			const { id } = $.params;
+			model.iid = $.params.iid;
+			model.id = UID();
+			model.uid = $.user.id;
+			model.dtupdated = NOW;
 			model.value = ENCRYPT(model.value, process.env.AUTH_SECRET);
-			DATA.modify('nosql/variables', model, true).where('id', id).insert(function(doc) {
-				doc.id = id;
-				doc.dtupdated = NOW;
-			});
+
+			await DATA.insert('nosql/variables', model).error('@(Error)').promise($);
+
 			$.success();
 		}
 	});

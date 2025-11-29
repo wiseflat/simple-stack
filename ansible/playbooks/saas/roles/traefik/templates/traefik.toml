@@ -2,9 +2,9 @@
   checkNewVersion = false
   sendAnonymousUsage = false
 
-[api]
-  dashboard = true
-  insecure = true
+#[api]
+#  dashboard = true
+#  insecure = true
   
 [entryPoints]
   [entryPoints.http]
