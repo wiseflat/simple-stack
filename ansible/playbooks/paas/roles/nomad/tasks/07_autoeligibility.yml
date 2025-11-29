@@ -17,10 +17,6 @@
         return_content: true
       register: nomad_policies_list_raw
 
-    - name: Debug nomad_policies_list_raw (for auto eligibility)
-      ansible.builtin.debug:
-        msg: "{{ nomad_policies_list_raw.json }}"
-
     - name: "Nomad Policy | Set policies list fact"
       ansible.builtin.set_fact:
         nomad_policies_list: "{{ nomad_policies_list_raw.json | community.general.json_query('[*].Name') | string }}"

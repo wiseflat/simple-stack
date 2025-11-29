@@ -1,11 +1,11 @@
 ---
-- name: "Certificate | Create TLS directory on target"
+- name: "Nomad | Create TLS directory on target"
   ansible.builtin.file:
     path: "{{ nomad_tls_host_certificate_dir }}"
     state: directory
     mode: '0755'
 
-- name: "Certificate | Copy Public certs on nodes - {{ nomad_tls_ca_pubkey }}"
+- name: "Nomad | Copy Public certs on nodes - {{ nomad_tls_ca_pubkey }}"
   ansible.builtin.copy:
     src: "{{ nomad_tls_ca_host_dir }}/{{ nomad_tls_ca_pubkey }}"
     dest: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
@@ -42,7 +42,7 @@
         certificate_client_privatekey: "{{ nomad_tls_privatekey_server }}"
         certificate_common_name: "{{ nomad_tls_common_name_server }}"
         certificate_subject_alt_name: "{{ nomad_tls_subject_alt_name_server }}"
-      run_once: true
+      # run_once: true
       when: not cert_tls_server_present.stat.exists or (cert_tls_server_present.stat.exists and not tls_check_server.valid_at.delay)
 
     - name: "Nomad | Copy certificates on server nodes"
@@ -64,7 +64,7 @@
   block:
     - name: "Nomad | Check if TLS cert exists for Client"
       ansible.builtin.stat:
-        path: "{{ nomad_tls_ca_host_dir }}{{ nomad_tls_cert_client }}"
+        path: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_cert_client }}"
       register: cert_tls_client_present
 
     - name: "Nomad | Get information on generated certificate for Clients"
@@ -88,7 +88,7 @@
         certificate_client_privatekey: "{{ nomad_tls_privatekey_client }}"
         certificate_common_name: "{{ nomad_tls_common_name_client }}"
         certificate_subject_alt_name: "{{ nomad_tls_subject_alt_name_client }}"
-      run_once: true
+      # run_once: true
       when: not cert_tls_client_present.stat.exists or (cert_tls_client_present.stat.exists and not tls_check_client.valid_at.delay)
 
 

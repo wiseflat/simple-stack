@@ -3,8 +3,8 @@
   ansible.builtin.uri:
     url: "https://{{ nomad_http_ip }}:4646/v1/acl/policies"
     ca_path: "/etc/ssl/simplestack/simplestack-ca.pem"
-    client_cert: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
-    client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    client_cert: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.pem"
+    client_key: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.key"
     method: GET
     headers:
       X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
@@ -18,8 +18,8 @@
   ansible.builtin.uri:
     url: "https://{{ nomad_http_ip }}:4646/v1/acl/policy/traefik"
     ca_path: "/etc/ssl/simplestack/simplestack-ca.pem"
-    client_cert: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
-    client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    client_cert: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.pem"
+    client_key: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.key"
     method: POST
     headers:
       X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
@@ -41,8 +41,8 @@
   ansible.builtin.uri:
     url: "https://{{ nomad_http_ip }}:4646/v1/acl/tokens"
     ca_path: "/etc/ssl/simplestack/simplestack-ca.pem"
-    client_cert: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
-    client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    client_cert: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.pem"
+    client_key: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.key"
     method: GET
     headers:
       X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
@@ -56,8 +56,8 @@
   ansible.builtin.uri:
     url: "https://{{ nomad_http_ip }}:4646/v1/acl/token"
     ca_path: "/etc/ssl/simplestack/simplestack-ca.pem"
-    client_cert: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.pem"
-    client_key: "/etc/ssl/simplestack/{{ fact_instance.datacenter }}-server-nomad.key"
+    client_cert: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.pem"
+    client_key: "/etc/ssl/simplestack/{{ fact_instance.region }}-{{ fact_instance.provider }}-dc1-server-nomad.key"
     method: PUT
     headers:
       X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
