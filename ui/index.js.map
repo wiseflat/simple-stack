@@ -249,7 +249,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "softwares_update",
-			"input": "*size:String, domain_alias:String, *exposition:String",
+			"input": "*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String",
 			"name": "Update software"
 		},
 		{
@@ -522,7 +522,7 @@
 		{
 			"name": "Softwares/update",
 			"params": "*id:UID",
-			"input": "*size:String, domain_alias:String, *exposition:String"
+			"input": "*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String"
 		},
 		{
 			"name": "Softwares/update_version",

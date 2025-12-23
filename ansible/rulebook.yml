@@ -91,6 +91,7 @@
             name: playbooks/saas/operate.yml
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
+              project: "{{ event.payload.project }}"
               catalog: "{{ event.payload.catalog }}"
               domain: "{{ event.payload.domain }}"
               task: "{{ event.payload.task }}"

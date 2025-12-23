@@ -144,7 +144,7 @@ NEWSCHEMA('Softwares', function (schema) {
 	schema.action('update', {
 		name: 'Update software',
 		params: '*id:UID',
-		input: '*size:String, domain_alias:String, *exposition:String',
+		input: '*instance:String, *software:UID, *size:String, *domain:String, domain_alias:String, *exposition:String',
 		action: async function ($, model) {
 			const rules = {
 				size: 			{ regex: REGEX_SOFTWARES.size, 			comment: REGEX_SOFTWARES.size.comment },
@@ -220,6 +220,7 @@ NEWSCHEMA('Softwares', function (schema) {
 
 			const payload = {
 				meta: { hosts: item.instance },
+				project: item.instance.split('.').pop(),
 				type: 'saas-operate',
 				catalog: catalogName,
 				domain: item.domain,
