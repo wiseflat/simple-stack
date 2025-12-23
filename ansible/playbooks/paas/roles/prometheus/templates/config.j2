@@ -66,12 +66,19 @@ scrape_configs:
         regex: "^(__tmp_keep_me)$"
 
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project  %}
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
+      - targets: ['127.0.0.1:9100']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9100']
         labels:
           instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
+{% endif %}
     scrape_interval: 60s
     scrape_timeout: 59s
 
@@ -91,7 +98,7 @@ scrape_configs:
     params:
       script: [speedtest]
     static_configs:
-      - targets: ['127.0.0.1:9469']
+      - targets: ['{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9469']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
@@ -104,7 +111,7 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     static_configs:
-      - targets: ['127.0.0.1:9469']
+      - targets: ['{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9469']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
@@ -115,7 +122,7 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     static_configs:
-      - targets: ['127.0.0.1:15353']
+      - targets: ['{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:15353']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
@@ -135,7 +142,7 @@ scrape_configs:
       - source_labels: ["__address__"]
         target_label: "instance"
       - target_label: "__address__"
-        replacement: "127.0.0.1:15353"
+        replacement: "{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:15353"
       - target_label: "monitor"
         replacement: "{{ inventory_hostname }}"
     static_configs:
@@ -150,10 +157,19 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     static_configs:
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
       - targets: ['127.0.0.1:9323']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
+      - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9323']
+        labels:
+          instance: "{{ item }}"
+          project: "{{ prometheus_project }}"
+{% endfor %}
+{% endif %}
 
   - job_name: "scan_exporter"
     metric_relabel_configs:
@@ -161,7 +177,7 @@ scrape_configs:
         regex: "^(go_|prometheus_|promhttp_).*"
         source_labels: [__name__]
     static_configs:
-      - targets: ['127.0.0.1:2112']
+      - targets: ['{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:2112']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"
@@ -178,13 +194,19 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
+      - targets: ['127.0.0.1:9558']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9558']
         labels:
           instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
-
+{% endif %}
   - job_name: "nvidia_gpu_exporter"
     metric_relabel_configs:
       - action: drop
@@ -194,13 +216,19 @@ scrape_configs:
       format: ['prometheus']
     metrics_path: /metrics
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
+      - targets: ['127.0.0.1:9835']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9835']
         labels:
           instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
-
+{% endif %}
   - job_name: "nomad_exporter"
     metric_relabel_configs:
       - action: drop
@@ -214,13 +242,19 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
+      - targets: ['127.0.0.1:4646']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:4646']
         labels:
           instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
-
+{% endif %}
   - job_name: 'mimir_exporter'
     nomad_sd_configs:
       - server: "https://{{ nomad_primary_master_address | default(hostvars[inventory_hostname]['ansible_' + hostvars[inventory_hostname].nomad_iface]['ipv4']['address']) }}:4646"
@@ -246,16 +280,22 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project %}
+{% if hostvars[inventory_hostname].nomad_mode == 'single' %}
+      - targets: ['127.0.0.1:9080']
+        labels:
+          instance: "{{ inventory_hostname }}"
+          project: "{{ prometheus_project }}"
+{% elif hostvars[inventory_hostname].nomad_mode == 'cluster' %}
+{% for item in groups['infrastructure'] | default([]) if item.split('.')[4] == prometheus_project and item != inventory_hostname %}
       - targets: ['{{ hostvars[item]['ansible_' + hostvars[item].nomad_iface]['ipv4']['address'] }}:9080']
         labels:
           instance: "{{ item }}"
           project: "{{ prometheus_project }}"
 {% endfor %}
-
+{% endif %}
   - job_name: 'blackbox'
     static_configs:
-      - targets: ['127.0.0.1:9115']
+      - targets: ['{% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9115']
         labels:
           instance: "{{ inventory_hostname }}"
           project: "{{ prometheus_project }}"

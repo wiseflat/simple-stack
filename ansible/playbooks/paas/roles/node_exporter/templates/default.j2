@@ -1,5 +1,5 @@
 ARGS="--log.level=info \
---web.listen-address={{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}:9100 \
+--web.listen-address={% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9100 \
 --web.telemetry-path=/metrics \
 --collector.diskstats.ignored-devices='^(ram|loop|fd|(h|s|v|xv)d[a-z]|nbd|nvme[0-9]+n[0-9]+p|md|dm-)[0-9]+$' \
 --collector.filesystem.mount-points-exclude='^/(dev(/shm)?|proc|run(/.+)?|sys|var/tmp|(var/lib|home)/(docker|kubelet)/.+)($|/)' \
