@@ -45,7 +45,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ software }}:{{ softwares.adguard.version }}"
+        image = "{{ docker_private_registry.url }}/adguard:{{ softwares.adguard.version }}"
         network_mode = "host"
         privileged = "true"
         volumes = [
