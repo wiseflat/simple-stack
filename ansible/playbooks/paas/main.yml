@@ -16,9 +16,26 @@
       ansible.builtin.file:
         path: /etc/ansible/facts.d
         state: directory
-        owner: "root"
-        group: "root"
+        owner: root
+        group: root
         mode: '0755'
+
+    - name: Save Public IP as local fact
+      when: fact_instance.location == 'frontends'
+      block:
+        - name: Get ipinfo.io (if backend instance, delegate_to the first frontend)
+          ansible.builtin.uri:
+            url: https://ipinfo.io
+            http_agent: curl/7.81.0
+          register: register_uri
+          check_mode: false
+
+        - name: Set ipinfo local_fact
+          ansible.builtin.copy:
+            content: |
+              {{ register_uri.json | to_nice_json }}
+            dest: /etc/ansible/facts.d/ipinfo.fact
+            mode: '0644'
 
     - name: Install mandatories packages
       ansible.builtin.apt:
