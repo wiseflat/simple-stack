@@ -1,0 +1,32 @@
+---
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: '0755'
+  loop:
+    - "{{ software_path }}/db"
+  delegate_to: "{{ software.instance }}"
+
+- name: Checkout user data configurations
+  ansible.builtin.git:
+    repo: "{{ (lookup('simple-stack-ui', type='secret', key=domain, subkey='git_user_data', missing='error') | from_json).repo }}"
+    dest: "{{ software_path }}/freqtrade"
+  delegate_to: "{{ software.instance }}"
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  delegate_to: "{{ software.instance }}"
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_run.yml
