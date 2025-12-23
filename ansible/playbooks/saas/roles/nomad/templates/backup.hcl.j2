@@ -49,17 +49,16 @@ job "{{ nomad_job_name }}" {
       }
     }
 
-{% if restic_backup is defined and restic_backup %}
     task "{{ domain }}-export" {
       driver = "docker"
       env {
-        RESTIC_SERVER = "{{ restic_server }}"
-        RESTIC_HOST = "{{ restic_host }}"
-        RESTIC_SNAPSHOTS = "{{ restic_snapshots }}"
+        RESTIC_SERVER = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_server', missing='error') }}"
+        RESTIC_HOST = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_host', missing='error') }}"
+        RESTIC_SNAPSHOTS = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_snapshots', missing='error') }}"
         RESTIC_REPOSITORY = "{{ domain | lower }}"
-        RESTIC_PASSWORD = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='passwd', missing='error') }}"
-        AWS_ACCESS_KEY_ID = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='user', missing='error') }}"
-        AWS_SECRET_ACCESS_KEY = "{{ lookup('simple-stack-ui', type='secret', key=restic_server, subkey='passwd', missing='error') }}"
+        RESTIC_PASSWORD = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_passwd', missing='error') }}"
+        AWS_ACCESS_KEY_ID = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_user', missing='error') }}"
+        AWS_SECRET_ACCESS_KEY = "{{ lookup('simple-stack-ui', type='project', key=project, subkey='restic_passwd', missing='error') }}"
       }
       config {
         image = "alpine:latest"
@@ -73,7 +72,6 @@ job "{{ nomad_job_name }}" {
         memory_max = 1024
       }
     }
-{% endif %}
 
     task "{{ domain }}-clean" {
       lifecycle {
