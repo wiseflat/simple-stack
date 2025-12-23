@@ -25,7 +25,7 @@
 			<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
 				<script type="text/html">
 				{{ foreach m in value }}
-					<figure data-alias="{{ m.alias }}" data-id="{{ m.id }}" data-fork="{{ m.fork }}" class="exec items" data-exec="?/update">
+					<figure data-alias="{{ m.alias }}" data-id="{{ m.id }}" class="exec items" data-exec="?/update">
 						<section>
 							<div class="buttons">
 								<span class="gray fs11 ml5">{{ m.version | empty }}</span>
@@ -110,12 +110,10 @@
 
 		exports.update = function(el) {
 			var id = ATTRD(el);
-			var fork = ATTRD(el, 'fork');
 			exports.tapi('catalogs_read/{0} ERROR'.format(id), function(response) {
-				if(fork){
+				if(response.fork){
 					response.tab = 'default';
 					response.catalog_list = GET('catalog_list').filter(item => Boolean(item?.forkable));
-					
 					SET('formcatalogfork @reset @hideloading', response);
 					SET('common.form2', 'formcatalogfork');
 				}

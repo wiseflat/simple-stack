@@ -3,9 +3,6 @@
 		<ui-bind path="?" config="template;show" class="block fs12 m">
 			<script type="text/html">
 				<div class="monospace">ID: <b>{{ value.item.id }}</b></div>
-				<div class="monospace">Instance: <b>{{ value.item.instance }}</b></div>
-				<div class="monospace">Software: <b>{{ value.item.software | getSoftware }}</b></div>
-				<div class="monospace">Domain: <b>{{ value.item.domain }}</b></div>
 			</script>
 		</ui-bind>		
 	</div>
@@ -56,15 +53,9 @@
 			var model = exports.model;
 			if(typeof model.item.id == 'undefined'){
 				$('#info').attr('hidden', true);
-				$('#instance').attr('hidden', false);
-				$('#software').attr('hidden', false);
-				$('#domain').attr('hidden', false);
 			}
 			else {
 				$('#info').attr('hidden', false);
-				$('#instance').attr('hidden', true);
-				$('#software').attr('hidden', true);
-				$('#domain').attr('hidden', true);
 			}
 
 			header.reconfigure({ title: model.item.id ? '@(Update software)' : '@(Add software)' });
@@ -78,7 +69,6 @@
 				CLRELOAD('cl');
 				SETTER('notify/success', '@(Done)');
 				caller.exec('refresh');
-				caller.exec('refreshGraph');
 			});
 		};
 	});
