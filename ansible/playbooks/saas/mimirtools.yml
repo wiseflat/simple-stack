@@ -23,6 +23,10 @@
         state: directory
         mode: '0755'
 
+    - name: Get alertmanager configuration
+      set_fact:
+        alertmanager: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='alertmanager', missing='warn') | from_json }}"
+
   tasks:
     - name: Deploy configuration
       ansible.builtin.include_role:
