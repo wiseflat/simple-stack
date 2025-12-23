@@ -61,7 +61,7 @@ job "{{ domain }}" {
       }
     }
 
-    task "traefik" {
+    task "{{ domain }}" {
 
       driver = "docker"
 
