@@ -1,1 +1,1 @@
-ARGS="-L 127.0.0.1 -c /etc/dns_exporter/config.yml"
+ARGS="-L {% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %} -c /etc/dns_exporter/config.yml"

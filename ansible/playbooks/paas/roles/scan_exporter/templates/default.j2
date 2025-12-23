@@ -1,1 +1,1 @@
-ARGS="-metric.addr 127.0.0.1:2112 -config /etc/scan_exporter/config.yml"
+ARGS="-metric.addr {% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:2112 -config /etc/scan_exporter/config.yml"

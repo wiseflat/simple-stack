@@ -10,7 +10,7 @@ tcp_period: 6h
 targets: []
 {% else %}
 targets:
-{% for host in groups['infrastructure'] if (fact_instance.location in ['frontends', 'frontends_vrack'] and host != inventory_hostname) %}
+{% for host in groups['infrastructure'] if (host.split(".")[1] == 'frontends' and host != inventory_hostname) %}
   - name: "{{ host }}"
     ip: "{{ hostvars[host].ansible_local.ipinfo.ip }}"
     queries_per_sec: 500

@@ -1,1 +1,1 @@
-ARGS="--config.files=/etc/script_exporter/config.yml"
+ARGS="--config.files=/etc/script_exporter/config.yml --web.listen-address={% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9469"

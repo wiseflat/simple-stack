@@ -1,2 +1,2 @@
 ARGS="--config.file=/etc/blackbox_exporter/config.yaml \
---web.listen-address=127.0.0.1:9115"
+--web.listen-address={% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}:9115"

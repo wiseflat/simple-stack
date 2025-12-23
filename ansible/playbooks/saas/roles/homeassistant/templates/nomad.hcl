@@ -67,9 +67,14 @@ job "{{ domain }}" {
       config {
         image = "homeassistant/home-assistant:{{ softwares.homeassistant.version }}"
 
+        privileged = "true"
         volumes = [
-          "/data/{{ domain }}/config:/config:rw"
+          "/data/{{ domain }}/config:/config:rw",
+          "/run/dbus:/run/dbus:ro"
         ]
+
+        cap_add = ["net_admin", "net_raw"]
+
         ports = ["homeassistant"]
       }
 

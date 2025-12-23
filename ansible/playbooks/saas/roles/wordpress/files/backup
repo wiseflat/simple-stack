@@ -6,3 +6,12 @@ tar -czf /var/backup/data.tgz -C /var/www/html .
 
 echo "Backup database..."
 /usr/bin/wp-cli db export --allow-root --path=/var/www/html /var/backup/dump.sql
+
+echo "Upgrade core..."
+/usr/bin/wp-cli core update --allow-root --path=/var/www/html
+
+echo "Upgrade plugins..."
+/usr/bin/wp-cli plugin update --all --allow-root --path=/var/www/html
+
+echo "Upgrade themes..."
+/usr/bin/wp-cli theme update --all --allow-root --path=/var/www/html

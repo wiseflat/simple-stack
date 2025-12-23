@@ -1,0 +1,11 @@
+---
+image:
+  build: false
+  forkable: false
+  upstream:
+    source: github
+    user: freqtrade
+    repo: freqtrade
+    type: release
+  labels: {}
+  name: freqtrade

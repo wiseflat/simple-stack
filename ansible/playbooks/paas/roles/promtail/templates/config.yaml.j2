@@ -1,5 +1,6 @@
 server:
-  http_listen_address: {{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}
+  http_listen_address: {% if hostvars[inventory_hostname].nomad_mode == 'single' %}127.0.0.1{% else %}{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}{% endif %}
+
   http_listen_port: 9080
   grpc_listen_port: 0
   log_level: warn

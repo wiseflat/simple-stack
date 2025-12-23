@@ -42,7 +42,6 @@
         - mongodb_exporter
         - blackbox_exporter
         - nginx_exporter
-        - scan_exporter
         - dns_exporter
         - script_exporter
         - nvidia_gpu_exporter

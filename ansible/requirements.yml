@@ -3,10 +3,10 @@ collections:
   - name: cloud.terraform
     version: 4.0.0
   - name: community.general
-    version: 10.2.0
+    version: 12.0.1
   - name: community.docker
-    version: 4.0.0
+    version: 5.0.1
   - name: community.postgresql
-    version: 3.12.0
+    version: 4.1.0
   - name: ansible.eda
-    version: 2.8.0
+    version: 2.10.0

@@ -7,6 +7,9 @@
     - name: catalog
       prompt: Catalog item
       private: false
+    - name: project
+      prompt: project name
+      private: false
     - name: domain
       prompt: Domain name
       private: false

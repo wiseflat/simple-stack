@@ -69,6 +69,7 @@
           schema: catalogs_create
           data:
             name: "{{ image_definition.name }}"
+            forkable: "{{ image_definition.forkable | default(false) }}"
             version: "{{ image_version }}"
         force_basic_auth: true
         status_code: 200

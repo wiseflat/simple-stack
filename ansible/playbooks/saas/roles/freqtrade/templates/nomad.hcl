@@ -15,7 +15,7 @@ job "{{ domain }}" {
     set_contains = "{{ software.instance }}"
   }
 
-  group "traefik" {
+  group "freqtrade" {
 
     count = 1
 
@@ -27,26 +27,17 @@ job "{{ domain }}" {
     }
 
     network {
-      port "traefik_ssl_ui" {
-        to = 443
-        static = 443
-      }
-      port "traefik_ui" {
-        to = 80
-        static = 80
-      }
-      port "traefik_api" {
+      port "http" {
         to = 8080
-        static = 8080
       }
     }
 
     service {
-      name = "traefik"
-      port = "traefik_ui"
+      name = "http"
+      port = "http"
       provider = "nomad"
       tags = [
-        "fqdn:{{ domain }}"
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
       ]
       check {
         name     = "traefik"
@@ -61,23 +52,33 @@ job "{{ domain }}" {
       }
     }
 
-    task "{{ domain }}" {
+    task "freqtrade" {
 
       driver = "docker"
 
-      config {
-        image = "traefik:{{ softwares.traefik.version }}"
-        network_mode = "host"
-        volumes = [
-          "{{ software_path }}/etc/traefik:/etc/traefik:rw",
-          "/var/log/traefik:/var/log/traefik:rw",
-          "/etc/ssl/simplestack:/etc/ssl/simplestack:ro"
-        ]
-        ports = ["traefik_ui", "traefik_ssl_ui", "traefik_api"]
+      kill_signal = "SIGTERM"
 
+      env {
+{% for env in (lookup('simple-stack-ui', type='secret', key=domain, subkey='additional_env', missing='warn') | from_json) | default(litellm_env) %}
+       {{ env.key }} = "{{ env.value }}"
+{% endfor %}
+      }
+      config {
+        image = "freqtradeorg/freqtrade:{{ softwares.freqtrade.version }}"
+        volumes = [
+          "{{ software_path }}/freqtrade/user_data:/freqtrade/user_data:rw",
+          "{{ software_path }}/db:/db:rw"
+        ]
+        ports = ["http"]
+
+        command = "trade"
         args = [
-          "--configfile",
-          "/etc/traefik/traefik.toml"
+          "--config",
+          "/freqtrade/user_data/{{ software.config }}.json",
+          "--db-url",
+          "sqlite:////db/tradesv3{{ software.strategy }}.sqlite",
+          "--strategy",
+          "{{ software.strategy }}"
         ]
       }
 
