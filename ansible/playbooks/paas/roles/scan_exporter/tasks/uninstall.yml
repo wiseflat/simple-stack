@@ -1,0 +1,20 @@
+---
+- name: Scan_exporter | Stopped scan_exporter
+  ansible.builtin.service:
+    name: scan_exporter
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Scan_exporter | Remove configuration
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop:
+    - path: /etc/default/scan_exporter
+    - path: /etc/scan_exporter/config.yml
+    - path: /etc/systemd/system/scan_exporter.service
+
+- name: Scan_exporter | Daemon reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
