@@ -1,0 +1,65 @@
+---
+- name: Setup Docker Buildx for multi-architecture builds
+  hosts: "{{ hosts_limit | default('infrastructure') }}"
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Ensure Docker is installed and running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Install QEMU user static binaries
+      ansible.builtin.package:
+        name:
+          - qemu-user-static
+          - binfmt-support
+        state: present
+
+    - name: Register QEMU binfmt handlers
+      ansible.builtin.command:
+        cmd: docker run --rm --privileged tonistiigi/binfmt --install all
+      register: binfmt_result
+      changed_when: "'installing' in binfmt_result.stdout"
+
+    - name: Check if buildx builder exists
+      ansible.builtin.command:
+        cmd: docker buildx inspect multiarch-builder
+      register: buildx_inspect
+      failed_when: false
+      changed_when: false
+
+    - name: Create buildx builder for multi-arch
+      ansible.builtin.command:
+        cmd: docker buildx create --name multiarch-builder --driver docker-container --use --bootstrap
+      when: buildx_inspect.rc != 0
+      register: buildx_create
+
+    - name: Set multiarch-builder as default
+      ansible.builtin.command:
+        cmd: docker buildx use multiarch-builder
+      when: buildx_inspect.rc == 0
+      changed_when: false
+
+    - name: Verify buildx platforms support
+      ansible.builtin.command:
+        cmd: docker buildx inspect --bootstrap
+      register: buildx_platforms
+      changed_when: false
+
+    - name: Display supported platforms
+      ansible.builtin.debug:
+        msg: "{{ buildx_platforms.stdout_lines }}"
+
+    - name: Verify multi-arch support is working
+      ansible.builtin.command:
+        cmd: docker buildx ls
+      register: buildx_ls
+      changed_when: false
+
+    - name: Show buildx configuration
+      ansible.builtin.debug:
+        var: buildx_ls.stdout_lines
+

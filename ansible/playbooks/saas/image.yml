@@ -45,13 +45,16 @@
     - name: Build
       when: image_definition.build
       block:
-        - name: Build and publish image
+        - name: Build and publish multi-arch image
           community.docker.docker_image_build:
             name: "{{ docker_private_registry.url }}/{% if docker_private_registry.project is defined %}{{ docker_private_registry.project }}/{% endif %}{{ image_definition.name }}:{{ image_version }}"
             tag: latest
             path: "{{ build_work_dir }}"
             dockerfile: Dockerfile
             labels: "{{ image_definition.labels }}"
+            platform:
+              - linux/amd64
+              - linux/arm64
             rebuild: always
             outputs:
               - type: image
