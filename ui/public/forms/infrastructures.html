@@ -18,40 +18,21 @@
 
 <ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-sitemap;title:@(Infrastructures);reload:?/reload;hide:?/close;" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
+		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i></button>
 		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 	</nav>
-	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
 	<ui-component name="empty" path="?.items" config="parent:auto;icon:ti ti-frown red">
 		<script type="text/html">
 			@(You don't have any infrastructures here)
 		</script>
-		<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:name;output:?.searchoutput">
-			<div class="padding">
-				<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
-					<script type="text/html">
-					{{ foreach m in value }}
-						<figure data-id="{{ m.id }}" class="exec items" data-exec="?/update">
-							<section>
-								<div class="buttons">
-									<span class="exec" data-exec="?/remove" data-prevent="true"><i class="ti ti-trash red"></i></span>
-								</div>
-								<div class="name">
-									<div class="picto">
-										<i class="{{ m.icon }}" style="color:{{ m.color }}"></i>
-									</div>
-									{{ m.name | empty }}
-
-									<div class="badges">
-										{{ if m.isprivate }}<span class="badge badge-small badge-green">@(Private)</span>{{ fi }}
-										{{ if m.isarchived }}<span class="badge badge-small badge-purple">@(Archived)</span>{{ fi }}
-									</div>
-								</div>
-							</section>
-						</figure>
-					{{ end }}
-					</script>
-				</ui-bind>
-			</div>
+		
+		<ui-component name="datagrid" path="?.items" config="height:fluid;minheight:fluid;numbering:false;sorting:true;dblclick:?/update;button:?/button;checked:?.checked;">
+			<script type="text/plain">
+				[
+				{ name: 'name', text: 'Name', template:'<span><i class="{{ icon }}" style="color:{{ color }}"></i></span>&nbsp;&nbsp;&nbsp;{{ name }}', width: 350 },
+				]
+			</script>
 		</ui-component>
 	</ui-component>
 
@@ -66,12 +47,7 @@
 
 		exports.refresh = function() {
 			exports.tapi('infrastructures ERROR', function(results){
-				var output = {
-					search: '',
-					searchoutput: [],
-					items: results
-				};
-				exports.set(output);
+				exports.set(results);
 			});
 		};
 		
@@ -84,16 +60,22 @@
 			SET('common.form2', 'forminfrastructure');
 		};
 
-		exports.remove = function(el) {
-			var id = ATTRD(el);
-			SETTER('approve/show', '@(Remove selected infrastructure?)', '"ti ti-trash" @(Remove)', function() {
-				exports.tapi('infrastructures_remove/{0} ERROR'.format(id),function() {
-					SETTER('notify/success', '@(Done)');
-					CLRELOAD('cl');
-					exports.refresh();
-					exports.refreshGraph();
+		exports.settings = function(el) {
+			const id = GET('?.settingsId');
+			console.log(id);
+			const type = 'settings';
+			const key = 'infrastructures';
+
+			if(!id){
+				SET('formvariable @reset @hideloading', { type: type, key: key });
+				SET('common.form2', 'formvariable');
+			}
+			else {
+				exports.tapi('variables_read/{0} ERROR'.format(id), { type: type, format: 'yaml', key: key}, function(response) {
+					SET('formvariable @reset @hideloading', response);
+					SET('common.form2', 'formvariable');
 				});
-			});
+			}
 		};
 
 		exports.update = function(el) {
@@ -102,6 +84,41 @@
 				SET('forminfrastructure @reset @hideloading', response);
 				SET('common.form2', 'forminfrastructure');
 			});
+		};
+
+		exports.operations = function(el) {
+
+			var model = GET('?');
+			var options = {};
+			options.align = 'center';
+			options.items = [];
+			options.element = el;
+			var icon = ATTRD(el, 'icon');
+
+			options.items.push({ action: 'main', path: 'execute', name: 'Run all playbooks', icon: 'ti ti-play green', comment: '@(Do you want to run all playbook ?)'});
+			options.items.push('-');
+			options.items.push({ action: 'docker', path: 'execute', name: 'docker', icon: 'ti ti-play', comment: '@(Do you want to run docker playbook ?)'});
+			options.items.push({ action: 'nomad', path: 'execute', name: 'nomad', icon: 'ti ti-play', comment: '@(Do you want to run nomad playbook ?)'});
+			options.items.push({ action: 'coredns', path: 'execute', name: 'coredns', icon: 'ti ti-play', comment: '@(Do you want to run coredns playbook ?)'});
+			options.items.push({ action: 'firewall', path: 'execute', name: 'firewall', icon: 'ti ti-play', comment: '@(Do you want to run firewall playbook ?)'});
+			options.items.push({ action: 'metrology', path: 'execute', name: 'metrology', icon: 'ti ti-play', comment: '@(Do you want to run metrology playbook ?)'});
+			options.items.push('-');
+			options.items.push({ action: 'nomad-clean-errors', path: 'execute', name: 'Clean nomad errors', icon: 'ti ti-play orange', comment: '@(Do you want to clean nomad errors ?)'});
+			options.items.push('-');
+			options.items.push({ action: 'remove', path: 'remove',  name: 'Remove', icon: 'ti ti-trash red', comment: '@(Remove selected infrastructures ?)'});
+
+			options.callback = function(item) {
+				SETTER('approve/show', item.comment, '"{0}"'.format(item.icon), function() {
+					model.checked.wait(function(value, next) {
+						exports.tapi('infrastructures_{0}/{1} ERROR'.format(item.path, value.id), { action: item.action }, function(result) {
+							next();
+						});
+					}, function(){
+						SETTER('notify/success', '@(Done)');
+					});
+				});
+			};
+			SETTER('menu', 'show', options);
 		};
 	});
 </script>

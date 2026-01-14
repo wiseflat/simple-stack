@@ -36,6 +36,7 @@ exports.install = function() {
 	ROUTE('+API    /api/       +infrastructures_create            --> Infrastructures/create');
 	ROUTE('+API    /api/       +infrastructures_update/{id}       --> Infrastructures/update');
 	ROUTE('+API    /api/       +infrastructures_remove/{id}       --> Infrastructures/remove');
+	ROUTE('+API    /api/       +infrastructures_execute/{id}      --> Infrastructures/execute');
 
 	ROUTE('+POST   /api/tfstates/{id}/                            --> Infrastructures/tfstates_update');
 	ROUTE('+GET    /api/tfstates/{id}/                            --> Infrastructures/tfstates_read');

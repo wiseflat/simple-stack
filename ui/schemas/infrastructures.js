@@ -24,13 +24,22 @@ NEWSCHEMA('Infrastructures', function (schema) {
 	schema.action('list', {
 		name: 'List of cloud infrastructures',
 		action: async function ($) {
-			const result = await DATA
-				.list('nosql/infrastructures')
-				.where('uid', $.user.id)
-				.fields('id,name,description,icon,color')
-				.error('@(Error)')
-				.promise($);
-			$.callback(result.items);
+			const [catalogs, settings] = await Promise.all([
+				DATA
+					.list('nosql/infrastructures')
+					.where('uid', $.user.id)
+					.fields('id,name,description,icon,color')
+					.error('@(Error)')
+					.promise($),
+				DATA.read('nosql/variables')
+					.where('key', 'infrastructures')
+					.where('type', 'settings')
+					.promise($)
+			]);
+			$.callback({
+				items: catalogs.items.quicksort('name'),
+				settingsId: settings?.id
+			});
 		}
 	});
 
@@ -175,6 +184,46 @@ NEWSCHEMA('Infrastructures', function (schema) {
 				.error('@(Error)')
 				.promise($);
 			$.success();
+		}
+	});
+
+	schema.action('execute', {
+		name: 'Execute playbook',
+		params: '*id:UID',
+		input: '*action:{main|timesyncd|systemd-resolved|docker|nomad|coredns|firewall|metrology|nomad-clean-errors|nvidia|scan_exporter}',
+		action: async function ($, model) {
+
+			const item = await DATA.read('nosql/infrastructures')
+				.where('uid', $.user.id)
+				.where('id', $.params.id)
+				.error('@(Error)')
+				.promise($);
+			const settingsRec = await DATA.read('nosql/variables')
+				.where('key', 'infrastructures')
+				.where('type', 'settings')
+				.error('@(Settings are undefined)')
+				.promise($);
+			const decryptedSettings = JSON.parse(DECRYPT(settingsRec.value, process.env.AUTH_SECRET));
+			const inventory = await ACTION('Inventory/read_hostnames').params({ id: item.id }).user($.user).promise($);
+
+			const payload = {
+				meta: { hosts: inventory.join(',') },
+				project: inventory[0].split('.').pop(),
+				type: 'paas-{0}'.format(model.action),
+				confirmation: 'yes'
+			};
+			RESTBuilder.make(function (builder) {
+				builder.method('POST');
+				builder.url(decryptedSettings.url);
+				builder.json(payload);
+				builder.insecure();
+				if (decryptedSettings.authentication) {
+					builder.auth(decryptedSettings.login, decryptedSettings.password);
+				}
+				builder.callback(function (err, response, output) {
+					$.success(!err);
+				});
+			});
 		}
 	});
 
