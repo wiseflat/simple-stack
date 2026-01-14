@@ -13,3 +13,17 @@ www.domain.com:
   ipfilter: []                # (list) List of allowed IPs for access control (empty for unrestricted access).
   basic_auth: False           # (bool) Enable/disable HTTP Basic Authentication (True/False).
   size: small
+```
+
+## variable
+
+```yaml
+static_port: 5432
+```
+
+## Secret
+
+```yaml
+passwd: 123456
+```
+
