@@ -30,12 +30,17 @@ exports.install = function() {
 	ROUTE('+API    /api/       +catalogs_remove/{id}       --> Catalogs/remove');
 	ROUTE('+API    /api/       +catalogs_execute/{id}      --> Catalogs/execute');
 
+	ROUTE('+API    /api/       +events_create              --> Events/create');
+	ROUTE('+API    /api/       +events_read                --> Events/read');
+	ROUTE('+API    /api/       +events_remove              --> Events/remove');
+
 	// infrastructures
 	ROUTE('+API    /api/       -infrastructures                   --> Infrastructures/list');
 	ROUTE('+API    /api/       +infrastructures_read/{id}         --> Infrastructures/read');
 	ROUTE('+API    /api/       +infrastructures_create            --> Infrastructures/create');
 	ROUTE('+API    /api/       +infrastructures_update/{id}       --> Infrastructures/update');
 	ROUTE('+API    /api/       +infrastructures_remove/{id}       --> Infrastructures/remove');
+	ROUTE('+API    /api/       +infrastructures_execute/{id}      --> Infrastructures/execute');
 
 	ROUTE('+POST   /api/tfstates/{id}/                            --> Infrastructures/tfstates_update');
 	ROUTE('+GET    /api/tfstates/{id}/                            --> Infrastructures/tfstates_read');

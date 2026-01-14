@@ -177,6 +177,30 @@
 			"method": "API",
 			"url": "/api/",
 			"auth": 1,
+			"id": "events_create",
+			"input": "*event:{build|saas|paas}, *type:{info|warning|error}, *body:String",
+			"name": "Create an event"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "events_read",
+			"input": "*event:{build|saas|paas}",
+			"name": "Read a catalog item"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"id": "events_remove",
+			"input": "*event:{build|saas|paas}",
+			"name": "Remove a type of event"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
 			"id": "infrastructures",
 			"name": "List of cloud infrastructures"
 		},
@@ -212,6 +236,15 @@
 			"params": "id:string",
 			"id": "infrastructures_remove",
 			"name": "Remove infrastructure"
+		},
+		{
+			"method": "API",
+			"url": "/api/",
+			"auth": 1,
+			"params": "id:string",
+			"id": "infrastructures_execute",
+			"input": "*action:{main|timesyncd|systemd-resolved|docker|nomad|coredns|firewall|metrology|nomad-clean-errors|nvidia|scan_exporter}",
+			"name": "Execute playbook"
 		},
 		{
 			"method": "API",
@@ -275,7 +308,7 @@
 			"auth": 1,
 			"params": "id:string",
 			"id": "softwares_execute",
-			"input": "*action:{start|stop|main|backup|restore|destroy}",
+			"input": "*action:{start|stop|main|backup|restore|destroy|destroy_force}",
 			"name": "Execute playbook"
 		},
 		{
@@ -445,6 +478,21 @@
 			"input": "*email:Email, *password:String"
 		},
 		{
+			"name": "Events/create",
+			"input": "*event:{build|saas|paas}, *type:{info|warning|error}, *body:String",
+			"permissions": "events"
+		},
+		{
+			"name": "Events/read",
+			"input": "*event:{build|saas|paas}",
+			"permissions": "events"
+		},
+		{
+			"name": "Events/remove",
+			"input": "*event:{build|saas|paas}",
+			"permissions": "events"
+		},
+		{
 			"name": "Graphs/list"
 		},
 		{
@@ -483,6 +531,11 @@
 			"params": "*id:UID"
 		},
 		{
+			"name": "Infrastructures/execute",
+			"params": "*id:UID",
+			"input": "*action:{main|timesyncd|systemd-resolved|docker|nomad|coredns|firewall|metrology|nomad-clean-errors|nvidia|scan_exporter}"
+		},
+		{
 			"name": "Infrastructures/export",
 			"params": "*ids:String"
 		},
@@ -492,6 +545,10 @@
 		},
 		{
 			"name": "Inventory/read"
+		},
+		{
+			"name": "Inventory/read_hostnames",
+			"params": "*id:UID"
 		},
 		{
 			"name": "Settings/import",
@@ -536,7 +593,7 @@
 		{
 			"name": "Softwares/execute",
 			"params": "*id:UID",
-			"input": "*action:{start|stop|main|backup|restore|destroy}"
+			"input": "*action:{start|stop|main|backup|restore|destroy|destroy_force}"
 		},
 		{
 			"name": "Softwares/import",
@@ -600,6 +657,10 @@
 		{
 			"name": "Variables/read2",
 			"input": "*key2:String"
+		},
+		{
+			"name": "Variables/read3",
+			"input": "*key:String,*type:String"
 		},
 		{
 			"name": "Variables/create",

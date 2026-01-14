@@ -196,13 +196,28 @@ NEWSCHEMA('Softwares', function (schema) {
 	schema.action('execute', {
 		name: 'Execute playbook',
 		params: '*id:UID',
-		input: '*action:{start|stop|main|backup|restore|destroy}',
+		input: '*action:{start|stop|main|backup|restore|destroy|destroy_force}',
 		action: async function ($, model) {
 			const item = await DATA.read('nosql/softwares')
 				.where('uid', $.user.id)
 				.where('id', $.params.id)
 				.error('@(Error)')
 				.promise($);
+
+			if(model.action == 'destroy_force'){
+	
+				let variable = await ACTION('Variables/read3', { key: item.domain, type: 'software' } ).user($.user).promise($);
+				if(variable.id !== undefined)
+					await ACTION('Variables/remove').params({ id: variable.id }).user($.user).promise($);
+
+				let secret = await ACTION('Variables/read3', { key: item.domain, type: 'secret' } ).user($.user).promise($);
+				if(secret.id !== undefined)
+					await ACTION('Variables/remove').params({ id: secret.id }).user($.user).promise($);
+
+				await ACTION('Softwares/remove').params({ id: $.params.id }).user($.user).promise($);
+				$.success();
+				return;
+			}
 
 			const settingsRec = await DATA.read('nosql/variables')
 				.where('key', 'softwares')

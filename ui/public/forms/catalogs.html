@@ -14,43 +14,29 @@
 	}
 </style>
 
-<ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-folders;title:@(Catalog);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
+<ui-component name="box" path="common.form" config="if:~PATH~;width:550;icon:ti ti-folders;title:@(Catalog);reload:?/reload;hide:?/close;;close:?/close" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
-		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i>@(Settings)</button>
+		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i></button>
 		<button class="exec" data-exec="?/fork"><i class="ti ti-code-branch green"></i>@(Fork)</button>
+		<button class="exec" data-exec="?/events"><i class="ti ti-comment purple"></i></button>
+		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 	</nav>
-	<ui-component name="textbox" path="?.search" config="type:search"></ui-component>
-	<ui-component name="searchdata" path="?.search" config="datasource:?.items;key:name;output:?.searchoutput">
-		<div class="padding">
-			<ui-bind path="?.searchoutput" config="track:id;template" class="meta listing">
-				<script type="text/html">
-				{{ foreach m in value }}
-					<figure data-alias="{{ m.alias }}" data-id="{{ m.id }}" class="exec items" data-exec="?/update">
-						<section>
-							<div class="buttons">
-								<span class="gray fs11 ml5">{{ m.version | empty }}</span>
-								<span class="exec"><span class="badge badge-small badge-green">{{ if m.fork }}<i class="ti ti-code-branch green">{{ else }}<i class="ti ti-code-branch grey"></i>{{ fi }}</i></span></span>
-								<span class="exec"><span class="badge badge-small badge-green">{{ if m.cron }}<i class="ti ti-clock orange">{{ else }}<i class="ti ti-clock grey"></i>{{ fi }}</i></span></span>
-								<span class="exec" data-exec="?/execute" data-prevent="true"><i class="ti ti-play green"></i></span>
-								<span class="exec version" data-exec="?/remove" data-prevent="true"><i class="ti ti-trash red"></i></span>
-							</div>
-							<div class="name">
-								<div class="picto">
-									<span><img src="/img/{{ m.picto | def(m.name) }}.png" width="15" heigth="15" /></span>
-								</div>
-								{{ m.alias | empty(m.name) }}
-							</div>
-						</section>
-					</figure>
-				{{ end }}
-				</script>
-			</ui-bind>
-		</div>
+	<ui-component name="datagrid" path="?.items" config="height:fluid;minheight:fluid;numbering:false;dblclick:?/update;button:?/button;checked:?.checked;">
+		<script type="text/plain">
+			[
+			{ name: 'name', text: 'Name', template:'<span><img src="/img/{{ name }}.png" width="15" heigth="15" /></span>&nbsp;&nbsp;&nbsp;{{ alias | empty(name) }}', width: 250 },
+			{ name: 'version', text: 'Version', classth: 'left', width: 150 },
+			{ name: 'name', text: 'Info', classth: 'left', template:'<span class="badge badge-small badge-green"><i class="ti ti-clock {{ if cron }}orange{{ else }}grey{{ fi }}"></i></span>&nbsp;&nbsp;&nbsp;<span class="badge badge-small badge-green"><i class="ti ti-code-branch {{ if fork }}green{{ else }}grey{{ fi }}"></i></span>', width: 100 }
+			]
+		</script>
 	</ui-component>
+	<ui-component name="console2" path="?.console_visible" config="autoshow:false;clear:?/clear_events;datasource:?.console_logs"></ui-component>
 </ui-component>
 
 <script>
 	PLUGIN(function(exports) {
+
+		var interval = '';
 
 		Thelpers.picto = function(val) {
 			return '<div style="padding:0px;border:0px solid #E0E0E0"><img src="/img/{0}.png" width="15" heigth="15" top="0" border="0" /></div>'.format(val);
@@ -62,13 +48,7 @@
 
 		exports.refresh = function() {
 			exports.tapi('catalogs ERROR', function(result){
-				var output = {
-					search: '',
-					searchoutput: [],
-					items: result.items,
-					settingsId: result.settingsId
-				};
-				exports.set(output);
+				exports.set(result);				
 				SET('catalog_list', result.items);
 			});
 		};
@@ -96,18 +76,6 @@
 			}
 		};
 
-		exports.remove = function(el) {
-			var id = ATTRD(el);
-			var alias = ATTRD(el, 'alias');
-			SETTER('approve/show', '@(Remove {0}?)'.format(alias), '"ti ti-trash" @(Remove)', function() {
-				exports.tapi('catalogs_remove/{0} ERROR'.format(id),function() {
-					SETTER('notify/success', '@(Done)');
-					CLRELOAD('cl');
-					exports.refresh();
-				});
-			});
-		};
-
 		exports.update = function(el) {
 			var id = ATTRD(el);
 			exports.tapi('catalogs_read/{0} ERROR'.format(id), function(response) {
@@ -124,14 +92,59 @@
 			});
 		};
 
-		exports.execute = function(el) {
-			var id = ATTRD(el);
-			var alias = ATTRD(el, 'alias');
-			SETTER('approve/show', '@(Build {0}?)'.format(alias), '"ti ti-play" @(Execute)', function() {
-				exports.tapi('catalogs_execute/{0} ERROR'.format(id),function() {
-					SETTER('notify/success', '@(Done)');
-				});
+		exports.refresh_events = function(el) {
+			exports.tapi('events_read ERROR', { event: 'build' }, function(result){
+				SET('?.console_logs', result);
 			});
+		};
+
+		exports.events = function(el) {
+			SET('?.console_visible', true);
+			exports.refresh_events();
+			interval = setInterval(function() {
+				exports.refresh_events();
+            }, 10000);
+		};
+
+		exports.close = function() {
+			console.log('close');
+            clearInterval(interval);
+		};
+
+		exports.clear_events = function(el) {
+			clearInterval(interval);
+			exports.tapi('events_remove ERROR', { event: 'build' }, function(){
+				SET('?.console_visible', false);
+			});
+		};
+
+		exports.operations = function(el) {
+			
+			var model = GET('?');
+			var options = {};
+			options.align = 'center';
+			options.items = [];
+			options.element = el;
+			var icon = ATTRD(el, 'icon');
+
+			options.items.push({ action: 'execute', name: 'Build', icon: 'ti ti-play green', comment: '@(Do you want to build selected items ?)'});
+			options.items.push({ action: 'remove', name: 'Remove', icon: 'ti ti-trash red', comment: '@(Do you want to remove selected items ?)'});
+
+			options.callback = function(item) {
+				SETTER('approve/show', item.comment, '"{0}"'.format(item.icon), function() {
+					model.checked.wait(function(value, next) {
+						exports.tapi('catalogs_{0}/{1} ERROR'.format(item.action, value.id), { action: item.action }, function(result) {
+							next();
+						});
+					}, function(){
+						SETTER('notify/success', '@(Done)');
+						exports.refresh();
+						if(item.action == 'remove')
+							exports.refreshGraph();
+					});
+				});
+			};
+			SETTER('menu', 'show', options);
 		};
 	});
 </script>

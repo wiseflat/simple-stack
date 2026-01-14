@@ -81,6 +81,33 @@ NEWSCHEMA('Variables', function (schema) {
 		}
 	});
 
+	schema.action('read3', {
+		name: 'Read a variable set based on domain name',
+		input: '*key:String,*type:String',
+		action: async function ($, model) {
+			const { id } = $.params;
+			const result = await DATA.read('nosql/variables')
+				.where('key', model.key)
+				.where('type', model.type)
+				.promise($);
+
+			if (!result) {
+				$.callback({});
+				return;
+			}
+
+			const decrypted = DECRYPT(result.value, process.env.AUTH_SECRET);
+			let value;
+			try {
+				value = JSON.parse(decrypted);
+			} catch (_) {
+				value = decrypted;
+			}
+			result.value = value ?? {};
+			$.callback(result);
+		}
+	});
+
 	schema.action('create', {
 		name: 'Create a variable set',
 		input: '*type:String, *key:String, value:String',

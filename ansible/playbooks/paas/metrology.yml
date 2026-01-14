@@ -5,9 +5,9 @@
   gather_facts: true
   become: true
   tasks:
-    - name: End the play for hosts that are not in admins group
-      ansible.builtin.meta: end_host
-      when: fact_instance.location != 'admins'
+    # - name: End the play for hosts that are not in admins group
+    #   ansible.builtin.meta: end_host
+    #   when: fact_instance.location != 'admins'
 
     - name: Install prometheus
       ansible.builtin.import_role:

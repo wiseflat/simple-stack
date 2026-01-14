@@ -97,4 +97,28 @@ NEWSCHEMA('Inventory', function (schema) {
 			$.callback(await buildInventory(dataset), null, 2);
 		}
 	});
+
+	schema.action('read_hostnames', {
+		name: 'Read hostnames from an inventory',
+		params: '*id:UID',
+		action: async function ($) {
+			const result = await DATA.list('nosql/infrastructures')
+				.where('uid', $.user.id)
+				.error('@(Error)')
+				.promise($);
+
+			const dataset = [];
+			for (const item of result.items) {
+				if(item.id !== $.params.id) continue;
+				if(!item.tfstate.resources) continue;
+				for (const resource of item.tfstate.resources) {
+					if(resource.type !== "ansible_host") continue;
+					for (const instance of resource.instances) {
+						dataset.push(instance.attributes.name);
+					}
+				}
+			}
+			$.callback(dataset);
+		}
+	});
 });

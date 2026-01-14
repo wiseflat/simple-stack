@@ -28,39 +28,19 @@
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
 
-    - name: paas
-      condition: event.payload.type == "paas/main"
+    - name: paas-main
+      condition: event.payload.type == "paas-main"
       actions:
         - run_playbook:
             name: playbooks/paas/main.yml
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
+
+    - name: paas-nomad-clean-errors
+      condition: event.payload.type == "paas-nomad-clean-errors"
+      actions:
         - run_playbook:
-            name: playbooks/paas/timesyncd.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/firewall.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/docker.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/nomad.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/coredns.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/metrology.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"
-        - run_playbook:
-            name: playbooks/paas/sshd.yml
+            name: playbooks/paas/nomad-clean-errors.yml
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
 

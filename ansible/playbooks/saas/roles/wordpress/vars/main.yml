@@ -5,10 +5,10 @@ image:
   upstream:
     source: apk
     repository: community
-    package: php83-fpm
+    package: php84-fpm
   labels:
-    version: 83
-    conf: /etc/php83
+    version: 84
+    conf: /etc/php84
   name: wordpress
   origin: alpine:latest
   dependances:
