@@ -58,10 +58,14 @@
     - unattended-upgrades
     - ansible-ufw
 
+- name: Configure sshd
+  ansible.builtin.import_playbook: sshd.yml
 - name: Configure timesyncd
   ansible.builtin.import_playbook: timesyncd.yml
 - name: Configure systemd resolved
   ansible.builtin.import_playbook: systemd-resolved.yml
+- name: Configure nvidia
+  ansible.builtin.import_playbook: nvidia.yml
 - name: Configure docker
   ansible.builtin.import_playbook: docker.yml
 - name: Configure nomad

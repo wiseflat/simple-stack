@@ -1,10 +1,10 @@
 ---
-- name: Uninstall scan_exporter
+- name: Install scan_exporter
   any_errors_fatal: true
   hosts: "{{ hosts_limit | default('infrastructure') }}"
   gather_facts: true
   become: true
   pre_tasks:
-    - name: Uninstall scan_exporter
+    - name: Install scan_exporter
       ansible.builtin.include_role:
         name: scan_exporter

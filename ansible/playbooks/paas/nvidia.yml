@@ -18,6 +18,10 @@
 
   pre_tasks:
 
+    - name: End the play for hosts that don't have nvidia gpu
+      ansible.builtin.meta: end_host
+      when: not nvidia_enable
+      
     - name: Créer le répertoire du keyring s'il n'existe pas
       ansible.builtin.file:
         path: "{{ nvidia_keyring_path | dirname }}"

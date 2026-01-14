@@ -27,6 +27,8 @@
 
     - name: Use RTC in UTC
       ansible.builtin.command: timedatectl set-local-rtc 0
+      register: timedatectl
+      changed_when: false
 
   handlers:
     - name: Restart timesyncd

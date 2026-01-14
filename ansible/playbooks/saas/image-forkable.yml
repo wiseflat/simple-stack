@@ -93,15 +93,15 @@
       failed_when: ui_update.status != 200
       become: false
 
+  post_tasks:
+    - name: Trigger cleanup on failure
+      ansible.builtin.meta: clear_host_errors
+      when: ansible_failed_result is defined
+      notify: Cleanup build directory
+
   handlers:
     - name: Cleanup build directory
       ansible.builtin.file:
         path: "{{ build_work_dir }}"
         state: absent
       listen: cleanup_build
-
-  post_tasks:
-    - name: Trigger cleanup on failure
-      ansible.builtin.meta: clear_host_errors
-      when: ansible_failed_result is defined
-      notify: Cleanup build directory
