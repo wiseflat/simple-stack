@@ -16,10 +16,11 @@
 	}
 </style>
 
-<ui-component name="box" path="common.form" config="if:~PATH~;width:620;icon:ti ti-sitemap;title:@(Infrastructures);reload:?/reload;hide:?/close;" class="hidden ~PATH~" plugin="~PATH~">
+<ui-component name="box" path="common.form" config="if:~PATH~;width:600;icon:ti ti-sitemap;title:@(Infrastructures);reload:?/reload;hide:?/close;;close:?/close" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
 		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i></button>
 		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+		<button class="exec" data-exec="?/events"><i class="ti ti-comment purple"></i></button>
 		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 	</nav>
 	<ui-component name="empty" path="?.items" config="parent:auto;icon:ti ti-frown red">
@@ -34,12 +35,15 @@
 				]
 			</script>
 		</ui-component>
+		<ui-component name="console2" path="?.console_visible" config="autoshow:false;clear:?/clear_events;datasource:?.console_logs"></ui-component>
 	</ui-component>
 
 </ui-component>
 
 <script>
 	PLUGIN(function(exports) {
+
+		var interval = '';
 
 		exports.reload = function() {
 			exports.refresh();
@@ -83,6 +87,32 @@
 			exports.tapi('infrastructures_read/{0} ERROR'.format(id), function(response) {
 				SET('forminfrastructure @reset @hideloading', response);
 				SET('common.form2', 'forminfrastructure');
+			});
+		};
+
+		exports.refresh_events = function(el) {
+			exports.tapi('events_read ERROR', { event: 'paas' }, function(result){
+				SET('?.console_logs', result);
+			});
+		};
+
+		exports.events = function(el) {
+			SET('?.console_visible', true);
+			exports.refresh_events();
+			interval = setInterval(function() {
+				exports.refresh_events();
+            }, 10000);
+		};
+
+		exports.close = function() {
+			console.log('close');
+            clearInterval(interval);
+		};
+
+		exports.clear_events = function(el) {
+			clearInterval(interval);
+			exports.tapi('events_remove ERROR', { event: 'paas' }, function(){
+				SET('?.console_visible', false);
 			});
 		};
 
