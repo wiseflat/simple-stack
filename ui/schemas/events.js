@@ -3,10 +3,8 @@ NEWSCHEMA('Events', function(schema) {
 	schema.action('create', {
 		name: 'Create an event',
 		permissions: 'events',
-
 		input: 'event_type, status, message, timestamp, playbook:Object, stats:Object, hosts_details:Object',
 		action: async function($, model) {
-			console.log(model);
 			model.id = UID();
 			model.dtcreated = NOW;
 			model.timestamp = new Date().format('dd/MM/yyyy HH:mm:ss');
