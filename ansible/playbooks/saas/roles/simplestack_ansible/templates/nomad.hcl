@@ -44,6 +44,8 @@ job "{{ domain }}" {
         SIMPLE_STACK_UI_URL = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='url', missing='error') }}"
         GITHUB_API_TOKEN = "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='github_api_token', missing='error') }}"
         ANSIBLE_LOOKUP_PLUGINS = "/ansible/plugins/lookup"
+        ANSIBLE_CALLBACK_PLUGINS = "/ansible/plugins/callback"
+        ANSIBLE_CALLBACKS_ENABLED = "minimal,webhook_notifier"
       }
 
       config {
