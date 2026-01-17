@@ -18,8 +18,9 @@
 <ui-component name="box" path="common.form" config="if:~PATH~;width:1100;icon:ti ti-cube;title:@(Softwares);reload:?/reload;" class="hidden ~PATH~" plugin="~PATH~">
 	<nav>
 		<button class="exec" data-exec="?/settings"><i class="ti ti-config"></i></button>
-		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 		<button class="exec" data-exec="?/add"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+		<button class="exec" data-exec="?/events"><i class="ti ti-comment purple"></i></button>
+		<button class="exec" data-exec="?/operations" data-bind="?__enabled:value&&(value.checked&&value.checked.length)__track:checked" disabled><i class="fa fa-check-circle"></i>@(Operate)</button>
 	</nav>
 	<ui-component name="datagrid" path="?.items" config="height:fluid;minheight:fluid;numbering:false;sorting:true;dblclick:?/update;button:?/button;checked:?.checked;">
 		<script type="text/plain">
@@ -34,6 +35,7 @@
 			]
 		</script>
 	</ui-component>
+	<ui-component name="console2" path="?.console_visible" config="autoshow:false;clear:?/clear_events;datasource:?.console_logs"></ui-component>
 </ui-component>
 
 <script>
@@ -72,8 +74,29 @@
 			}
 		};
 		
+		exports.refresh_events = function(el) {
+			exports.tapi('events_read ERROR', function(result){
+				SET('?.console_logs', result);
+			});
+		};
+
+		exports.events = function(el) {
+			SET('?.console_visible', true);
+			exports.refresh_events();
+			interval = setInterval(function() {
+				exports.refresh_events();
+            }, 10000);
+		};
+
 		exports.close = function() {
             clearInterval(interval);
+		};
+
+		exports.clear_events = function(el) {
+			clearInterval(interval);
+			exports.tapi('events_remove ERROR', function(){
+				SET('?.console_visible', false);
+			});
 		};
 
 		exports.add = async function() {

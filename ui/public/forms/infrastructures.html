@@ -91,7 +91,7 @@
 		};
 
 		exports.refresh_events = function(el) {
-			exports.tapi('events_read ERROR', { event: 'paas' }, function(result){
+			exports.tapi('events_read ERROR', function(result){
 				SET('?.console_logs', result);
 			});
 		};
@@ -105,13 +105,12 @@
 		};
 
 		exports.close = function() {
-			console.log('close');
             clearInterval(interval);
 		};
 
 		exports.clear_events = function(el) {
 			clearInterval(interval);
-			exports.tapi('events_remove ERROR', { event: 'paas' }, function(){
+			exports.tapi('events_remove ERROR', function(){
 				SET('?.console_visible', false);
 			});
 		};
