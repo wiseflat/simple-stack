@@ -91,7 +91,7 @@
 		};
 
 		exports.refresh_events = function(el) {
-			exports.tapi('events_read ERROR', { event: 'paas' }, function(result){
+			exports.tapi('events_read ERROR', function(result){
 				SET('?.console_logs', result);
 			});
 		};
@@ -105,13 +105,12 @@
 		};
 
 		exports.close = function() {
-			console.log('close');
             clearInterval(interval);
 		};
 
 		exports.clear_events = function(el) {
 			clearInterval(interval);
-			exports.tapi('events_remove ERROR', { event: 'paas' }, function(){
+			exports.tapi('events_remove ERROR', function(){
 				SET('?.console_visible', false);
 			});
 		};
@@ -132,6 +131,8 @@
 			options.items.push({ action: 'coredns', path: 'execute', name: 'coredns', icon: 'ti ti-play', comment: '@(Do you want to run coredns playbook ?)'});
 			options.items.push({ action: 'firewall', path: 'execute', name: 'firewall', icon: 'ti ti-play', comment: '@(Do you want to run firewall playbook ?)'});
 			options.items.push({ action: 'metrology', path: 'execute', name: 'metrology', icon: 'ti ti-play', comment: '@(Do you want to run metrology playbook ?)'});
+			options.items.push('-');
+			options.items.push({ action: 'scan_exporter', path: 'execute', name: 'Prometheus scan exporter', icon: 'ti ti-play', comment: '@(Do you want to run scan_exporter?)'});
 			options.items.push('-');
 			options.items.push({ action: 'nomad-clean-errors', path: 'execute', name: 'Clean nomad errors', icon: 'ti ti-play orange', comment: '@(Do you want to clean nomad errors ?)'});
 			options.items.push('-');
