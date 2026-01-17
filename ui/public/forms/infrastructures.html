@@ -132,6 +132,8 @@
 			options.items.push({ action: 'firewall', path: 'execute', name: 'firewall', icon: 'ti ti-play', comment: '@(Do you want to run firewall playbook ?)'});
 			options.items.push({ action: 'metrology', path: 'execute', name: 'metrology', icon: 'ti ti-play', comment: '@(Do you want to run metrology playbook ?)'});
 			options.items.push('-');
+			options.items.push({ action: 'scan_exporter', path: 'execute', name: 'Prometheus scan exporter', icon: 'ti ti-play', comment: '@(Do you want to run scan_exporter?)'});
+			options.items.push('-');
 			options.items.push({ action: 'nomad-clean-errors', path: 'execute', name: 'Clean nomad errors', icon: 'ti ti-play orange', comment: '@(Do you want to clean nomad errors ?)'});
 			options.items.push('-');
 			options.items.push({ action: 'remove', path: 'remove',  name: 'Remove', icon: 'ti ti-trash red', comment: '@(Remove selected infrastructures ?)'});
