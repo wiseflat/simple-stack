@@ -178,7 +178,7 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "events_create",
-			"input": "*event:{build|saas|paas}, *type:{info|warning|error}, *body:String",
+			"input": "event_type, status, message, timestamp, playbook:Object, stats:Object, hosts_details:Object",
 			"name": "Create an event"
 		},
 		{
@@ -186,7 +186,6 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "events_read",
-			"input": "*event:{build|saas|paas}",
 			"name": "Read a catalog item"
 		},
 		{
@@ -194,7 +193,6 @@
 			"url": "/api/",
 			"auth": 1,
 			"id": "events_remove",
-			"input": "*event:{build|saas|paas}",
 			"name": "Remove a type of event"
 		},
 		{
@@ -479,17 +477,15 @@
 		},
 		{
 			"name": "Events/create",
-			"input": "*event:{build|saas|paas}, *type:{info|warning|error}, *body:String",
+			"input": "event_type, status, message, timestamp, playbook:Object, stats:Object, hosts_details:Object",
 			"permissions": "events"
 		},
 		{
 			"name": "Events/read",
-			"input": "*event:{build|saas|paas}",
 			"permissions": "events"
 		},
 		{
 			"name": "Events/remove",
-			"input": "*event:{build|saas|paas}",
 			"permissions": "events"
 		},
 		{
