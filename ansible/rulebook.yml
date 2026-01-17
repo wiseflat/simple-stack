@@ -44,6 +44,14 @@
             extra_vars:
               hosts_limit: "{{ event.payload.meta.hosts }}"
 
+    - name: paas-scan_exporter
+      condition: event.payload.type == "paas-scan_exporter"
+      actions:
+        - run_playbook:
+            name: playbooks/paas/scan_exporter.yml
+            extra_vars:
+              hosts_limit: "{{ event.payload.meta.hosts }}"
+
     - name: saas-deploy
       condition: event.payload.type == "saas-deploy"
       actions:

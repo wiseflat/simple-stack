@@ -3,10 +3,11 @@ NEWSCHEMA('Events', function(schema) {
 	schema.action('create', {
 		name: 'Create an event',
 		permissions: 'events',
-		input: '*event:{build|saas|paas}, *type:{info|warning|error}, *body:String',
+		input: 'event_type, status, message, timestamp, playbook:Object, stats:Object, hosts_details:Object',
 		action: async function($, model) {
 			model.id = UID();
 			model.dtcreated = NOW;
+			model.timestamp = new Date().format('dd/MM/yyyy HH:mm:ss');
 			await DATA.insert('nosql/events', model)
 				.error('@(Error creating event)')
 				.promise($);
@@ -16,35 +17,35 @@ NEWSCHEMA('Events', function(schema) {
 
 	schema.action('read', {
 		name: 'Read a catalog item',
-		input: '*event:{build|saas|paas}',
 		permissions: 'events',
 		action: async function($, model) {
+
+			const status = {
+				success: 'info',
+				failure: 'warning'
+			};
+			
 			const result = await DATA.list('nosql/events')
-				.where('event', model.event)
 				.error('@(Error reading events)')
 				.promise($);
 
+			result.items = result.items.quicksort('timestamp', true);
 			var arr = [];
 			for(i=0; i<result.items.length; i++){
 				arr.push({
-					type: result.items[i].type,
-					body: '{0} - {1}'.format(result.items[i].dtcreated, result.items[i].body)
+					type: status[result.items[i].status],
+					body: '{0} - {1}'.format(result.items[i].timestamp, result.items[i].message)
 				});
 			}
-			console.log(arr);
-			console.log('---');
 			$.callback(arr);
 		}
 	});
 
 	schema.action('remove', {
 		name: 'Remove a type of event',
-		input: '*event:{build|saas|paas}',
 		permissions: 'events',
 		action: async function($, model) {
-			console.log('event, remove', model);
 			await DATA.remove('nosql/events')
-				.where('event', model.event)
 				.error('@(Error removing catalog)')
 				.promise($);
 			$.success();

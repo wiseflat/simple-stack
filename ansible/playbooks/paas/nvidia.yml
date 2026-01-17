@@ -20,7 +20,7 @@
 
     - name: End the play for hosts that don't have nvidia gpu
       ansible.builtin.meta: end_host
-      when: not nvidia_enable
+      when: not (nvidia_enable is defined and nvidia_enable)
       
     - name: Créer le répertoire du keyring s'il n'existe pas
       ansible.builtin.file:
