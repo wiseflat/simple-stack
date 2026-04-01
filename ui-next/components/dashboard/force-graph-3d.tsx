@@ -60,8 +60,37 @@ type InfrastructureItem = {
   name: string;
 };
 
+type LinkForce = {
+  distance: (accessor: (link: GraphLink) => number) => void;
+  strength: (accessor: (link: GraphLink) => number) => void;
+};
+
+type ChargeForce = {
+  strength: (value: number) => void;
+};
+
+type ForceGraphHandle = {
+  d3Force: (name: string) => LinkForce | ChargeForce | undefined;
+  d3ReheatSimulation: () => void;
+  zoomToFit: (transitionMs?: number, padding?: number) => void;
+};
+
 const palette = ["#79a6d2", "#e38627", "#6f4e7c", "#5f9e6e", "#d84b6a", "#2f80ed", "#8d6e63", "#5fb3b3"];
 const softwareNodeColor = "#f59e0b";
+
+function stripSimulationFields(node: GraphNode): GraphNode {
+  const copy = { ...(node as GraphNode & Record<string, unknown>) };
+  delete copy.x;
+  delete copy.y;
+  delete copy.z;
+  delete copy.vx;
+  delete copy.vy;
+  delete copy.vz;
+  delete copy.fx;
+  delete copy.fy;
+  delete copy.fz;
+  return copy as GraphNode;
+}
 
 function getEndpointId(endpoint: unknown) {
   if (typeof endpoint === "string") return endpoint;
@@ -76,7 +105,7 @@ function isSoftwareLink(link: GraphLink) {
 }
 
 export default function ForceGraph3DPanel() {
-  const graphRef = useRef<any>(null);
+  const graphRef = useRef<ForceGraphHandle | null>(null);
   const [GraphComponent, setGraphComponent] = useState<ComponentType<Record<string, unknown>> | null>(null);
   const [layoutMode, setLayoutMode] = useState<"compact" | "spaced">("spaced");
   const [selectedInfrastructureId, setSelectedInfrastructureId] = useState<string>("all");
@@ -134,13 +163,13 @@ export default function ForceGraph3DPanel() {
     const defaultStrength = isSpaced ? 0.7 : 0.82;
     const chargeStrength = isSpaced ? -200 : -145;
 
-    const linkForce = graphRef.current.d3Force("link");
+    const linkForce = graphRef.current.d3Force("link") as LinkForce | undefined;
     if (linkForce) {
       linkForce.distance((link: GraphLink) => (isSoftwareLink(link) ? softwareDistance : defaultDistance));
       linkForce.strength((link: GraphLink) => (isSoftwareLink(link) ? softwareStrength : defaultStrength));
     }
 
-    const chargeForce = graphRef.current.d3Force("charge");
+    const chargeForce = graphRef.current.d3Force("charge") as ChargeForce | undefined;
     if (chargeForce) {
       chargeForce.strength(chargeStrength);
     }
@@ -231,10 +260,7 @@ export default function ForceGraph3DPanel() {
   const graphDataForRender = useMemo<GraphData>(() => {
     return {
       // 3d-force-graph mutates node positions in place; strip them to avoid carrying DAG locks into Force mode.
-      nodes: filteredData.nodes.map((node) => {
-        const { x, y, z, vx, vy, vz, fx, fy, fz, ...rest } = node as GraphNode & Record<string, unknown>;
-        return { ...rest } as GraphNode;
-      }),
+      nodes: filteredData.nodes.map((node) => stripSimulationFields(node)),
       links: filteredData.links.map((link) => ({ ...link })),
     };
   }, [filteredData]);

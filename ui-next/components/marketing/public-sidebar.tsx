@@ -26,20 +26,9 @@ const docIcons = {
   users: Users,
 } as const;
 
-export default function PublicSidebar({ isAuthenticated, userName, collapsed, onToggle }: PublicSidebarProps) {
+export default function PublicSidebar({ isAuthenticated, collapsed, onToggle }: PublicSidebarProps) {
   const pathname = usePathname();
-
-  const getInitials = (name?: string) => {
-    if (!name) return "?";
-    return name
-      .split(" ")
-      .slice(0, 2)
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
-
-  const initials = getInitials(userName);
+  const sidebarNavId = "public-sidebar-nav";
 
   return (
     <>
@@ -64,16 +53,22 @@ export default function PublicSidebar({ isAuthenticated, userName, collapsed, on
             type="button"
             onClick={onToggle}
             className="rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            aria-label={collapsed ? "Expand menu" : "Collapse menu"}
+            aria-expanded={!collapsed}
+            aria-controls={sidebarNavId}
             title={collapsed ? "Expand menu" : "Collapse menu"}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
         </div>
 
-        <div className={[
+        <div
+          id={sidebarNavId}
+          className={[
           "flex-1 overflow-y-auto py-5",
           collapsed ? "px-2" : "px-4",
-        ].join(" ")}>
+        ].join(" ")}
+        >
           <div className="space-y-6">
             <div>
               {!collapsed && <p className="px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">Overview</p>}

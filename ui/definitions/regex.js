@@ -74,7 +74,7 @@ REGEX_USERS = {
 
 REGEX_CATALOGS = {
     name: {
-		regex: '^[a-zA-Z_0-9-]{3,50}$',
+        regex: '^[a-zA-Z_0-9-]{3,50}$',
         comment: '@(name: String of 3 characters min and 50 characters max)'
     },
     alias: {
@@ -94,7 +94,7 @@ REGEX_CATALOGS = {
         comment: '@(picto: String of 3 characters min and 30 characters max)'
     },
     version: {
-		regex: '^[A-Za-z0-9][A-Za-z0-9._:+-]{0,79}$',
+        regex: '^[A-Za-z0-9][A-Za-z0-9._:+-]{0,79}$',
         comment: '@(version: Invalid)'
     },
 	crontab: {

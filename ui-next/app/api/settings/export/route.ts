@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   if (!ids.length) return jsonError("projects is required", 400);
 
   const secret = process.env.AUTH_SECRET ?? "";
+  if (!secret) return jsonError("AUTH_SECRET is missing", 500);
 
   const infraRows = await db
     .select()

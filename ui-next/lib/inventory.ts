@@ -74,7 +74,7 @@ export async function buildInventory(hosts: HostEntry[], uid: string) {
     const parts = host.hostname.split(".");
     if (parts.length < 5) continue;
 
-    const [instance, location, region, provider, project] = parts;
+    const [, location, region, provider, project] = parts;
 
     const projectGroup = project;
     const providerGroup = `${provider}_${project}`;

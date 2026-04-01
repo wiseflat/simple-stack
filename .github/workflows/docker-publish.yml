@@ -30,19 +30,22 @@ jobs:
 
   quality:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui-next
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: ui-next/package-lock.json
       - name: Install dependencies
-        run: npm ci --prefix ui-next
+        run: npm install
       - name: Lint
-        run: npm run lint --prefix ui-next
+        run: npm run lint
       - name: Build check
-        run: npm run build --prefix ui-next
+        run: npm run build
         env:
           AUTH_SECRET: ci-placeholder
           DATABASE_URL: ":memory:"

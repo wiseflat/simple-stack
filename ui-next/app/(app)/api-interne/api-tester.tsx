@@ -437,11 +437,13 @@ export default function ApiTester() {
   }, [selectedRoute, selectedExampleCode]);
 
   useEffect(() => {
-    const defaults: Record<string, string> = {};
-    for (const key of selectedPathParamKeys) {
-      defaults[key] = pathParams[key] ?? "";
-    }
-    setPathParams(defaults);
+    setPathParams((prev) => {
+      const defaults: Record<string, string> = {};
+      for (const key of selectedPathParamKeys) {
+        defaults[key] = prev[key] ?? "";
+      }
+      return defaults;
+    });
     setRequestError("");
     setResponse(null);
     if (selectedRoute?.responseCodes?.length) {
@@ -450,7 +452,7 @@ export default function ApiTester() {
       setSelectedExampleCode("200");
     }
     setPayload(selectedExamplePayload);
-  }, [selectedPathParamKeys]);
+  }, [selectedPathParamKeys, selectedExamplePayload, selectedRoute]);
 
   const finalUrl = useMemo(() => {
     if (!selectedRoute) return "";

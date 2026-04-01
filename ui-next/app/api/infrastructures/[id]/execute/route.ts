@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { infrastructures, variables } from "@/lib/db/schema";
 import { decrypt } from "@/lib/crypto";

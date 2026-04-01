@@ -88,7 +88,7 @@ export async function PUT(request: Request, { params }: Params) {
       return jsonError(parsedVersion.error.issues[0]?.message ?? "Invalid payload", 400);
     }
 
-    const updateResult = await db
+    await db
       .update(softwares)
       .set({ version: parsedVersion.data.version, updatedAt: new Date() })
       .where(and(eq(softwares.uid, user!.id), eq(softwares.id, id)));

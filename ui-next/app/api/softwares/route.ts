@@ -22,23 +22,20 @@ export async function GET(request: Request) {
   // Support filtering by domain
   const url = new URL(request.url);
   const domainFilter = url.searchParams.get("domain");
-
-  let query: any = db.select().from(softwares).where(eq(softwares.uid, user!.id));
-
-  if (domainFilter) {
-    const normalizedDomain = domainFilter.trim().toLowerCase();
-    query = db.select().from(softwares).where(and(eq(softwares.uid, user!.id), eq(softwares.domain, normalizedDomain)));
-  }
+  const normalizedDomain = domainFilter?.trim().toLowerCase();
+  const whereClause = normalizedDomain
+    ? and(eq(softwares.uid, user!.id), eq(softwares.domain, normalizedDomain))
+    : eq(softwares.uid, user!.id);
 
   const [items, settings] = await Promise.all([
-    (query as any).orderBy(asc(softwares.instance)),
+    db.select().from(softwares).where(whereClause).orderBy(asc(softwares.instance)),
     db.query.variables.findFirst({
       where: and(eq(variables.key, "softwares"), eq(variables.type, "settings")),
     }),
   ]);
 
   const enriched = await Promise.all(
-    (items as any[]).map(async (item: any) => {
+    items.map(async (item) => {
       const softwareRec = item.softwareId
         ? await db.query.catalogs.findFirst({ where: eq(catalogs.id, item.softwareId) })
         : null;

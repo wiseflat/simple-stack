@@ -28,13 +28,6 @@ export async function GET(request: Request, { params }: Params) {
     return jsonError(parsedInput.error.issues[0]?.message ?? "Invalid query", 400);
   }
 
-  console.log("[variables][GET] start decrypt flow", {
-    id,
-    type: parsedInput.data.type,
-    key: parsedInput.data.key,
-    format: parsedInput.data.format,
-  });
-
   const row = await db.query.variables.findFirst({
     where: and(
       eq(variables.uid, user!.id),
@@ -47,25 +40,13 @@ export async function GET(request: Request, { params }: Params) {
   if (!row) return jsonError("Variable not found", 404);
   const secret = process.env.AUTH_SECRET ?? "";
   if (!secret) {
-    console.error("[variables][GET] AUTH_SECRET missing", { id });
     return jsonError("AUTH_SECRET is missing", 500);
   }
 
   const decrypted = decrypt(row.value, secret);
   if (decrypted === null) {
-    console.error("[variables][GET] decrypt failed", {
-      id,
-      type: row.type,
-      key: row.key,
-      encryptedLength: row.value.length,
-    });
     return jsonError("Unable to decrypt variable content", 500);
   }
-
-  console.log("[variables][GET] decrypt success", {
-    id,
-    decryptedLength: decrypted.length,
-  });
 
   let value: unknown = {};
   try {
@@ -138,12 +119,6 @@ export async function POST(request: Request, { params }: Params) {
   const body = (await request.json()) as { mode?: "read2" | "read3"; key2?: string; key?: string; type?: string };
   const secret = process.env.AUTH_SECRET ?? "";
 
-  console.log("[variables][POST] request", {
-    id,
-    mode: body.mode ?? "default",
-    hasSecret: Boolean(secret),
-  });
-
   if (body.mode === "read2") {
     const key2 = String(body.key2 ?? "");
     const rows = await db
@@ -151,33 +126,10 @@ export async function POST(request: Request, { params }: Params) {
       .from(variables)
       .where(eq(variables.key2, key2));
 
-    console.log("[variables][POST][read2] rows fetched", {
-      id,
-      key2,
-      count: rows.length,
-    });
-
     const merged: Record<string, unknown> = {};
     for (const row of rows) {
       const decrypted = decrypt(row.value, secret);
       const raw = decrypted ?? row.value;
-
-      if (decrypted === null) {
-        console.warn("[variables][POST][read2] decrypt fallback to raw value", {
-          rowId: row.id,
-          key: row.key,
-          type: row.type,
-          encryptedLength: row.value.length,
-        });
-      } else {
-        console.log("[variables][POST][read2] decrypt success", {
-          rowId: row.id,
-          key: row.key,
-          type: row.type,
-          decryptedLength: decrypted.length,
-        });
-      }
-
       try {
         Object.assign(merged, JSON.parse(raw));
       } catch {
@@ -196,23 +148,6 @@ export async function POST(request: Request, { params }: Params) {
 
     const decrypted = decrypt(row.value, secret);
     const raw = decrypted ?? row.value;
-
-    if (decrypted === null) {
-      console.warn("[variables][POST][read3] decrypt fallback to raw value", {
-        rowId: row.id,
-        key: row.key,
-        type: row.type,
-        encryptedLength: row.value.length,
-      });
-    } else {
-      console.log("[variables][POST][read3] decrypt success", {
-        rowId: row.id,
-        key: row.key,
-        type: row.type,
-        decryptedLength: decrypted.length,
-      });
-    }
-
     try {
       return NextResponse.json({ ...row, value: JSON.parse(raw) });
     } catch {

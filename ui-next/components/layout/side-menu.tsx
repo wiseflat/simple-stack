@@ -43,11 +43,10 @@ type SideMenuProps = {
   onToggle: () => void;
 };
 
-export default function SideMenu({ userName, userEmail, collapsed, onToggle }: SideMenuProps) {
+export default function SideMenu({ collapsed, onToggle }: SideMenuProps) {
   const pathname = usePathname();
   const t = useTranslations("menu");
   const tCommon = useTranslations("common");
-  const tUser = useTranslations("user");
   const [siteSettings, setSiteSettings] = useState<{ enablePublicLanding: boolean; enableDocumentation: boolean } | null>(null);
 
   useEffect(() => {
@@ -80,28 +79,19 @@ export default function SideMenu({ userName, userEmail, collapsed, onToggle }: S
     };
   }, [pathname]);
 
-  const fallbackName = tUser("fallbackName");
-  const fallbackEmail = tUser("fallbackEmail");
-  const initials = (userName ?? fallbackName)
-    .split(" ")
-    .map((chunk) => chunk[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   // Build menu sections
-  const overviewItems = [
+  const overviewItems: MenuSection["items"] = [
     ...(siteSettings?.enableDocumentation ? [{ href: "/docs", label: "documentation", icon: BookOpenText, badge: "Learn" }] : []),
     { href: "/dashboard", label: "dashboard", icon: LayoutDashboard, badge: "Home" },
   ];
 
-  const coreDomainsItems = [
+  const coreDomainsItems: MenuSection["items"] = [
     { href: "/infrastructures", label: "infrastructures", icon: Network, badge: "Ops" },
     { href: "/catalogs", label: "catalogs", icon: BookCopy, badge: "Model" },
     { href: "/softwares", label: "softwares", icon: Boxes, badge: "Deploy" },
   ];
 
-  const platformItems = [
+  const platformItems: MenuSection["items"] = [
     { href: "/profile", label: "profile", icon: Users, badge: "Me" },
     { href: "/users", label: "users", icon: Users, badge: "Team" },
     { href: "/api-interne", label: "internalApi", icon: FileCode2, badge: "API" },
@@ -247,12 +237,12 @@ export default function SideMenu({ userName, userEmail, collapsed, onToggle }: S
                   <Icon size={18} className="shrink-0" />
                 </Link>
               );
-            } else if ((item as any).onClick) {
+            } else if (item.onClick) {
               return (
                 <button
                   key={item.label}
                   type="button"
-                  onClick={(item as any).onClick}
+                  onClick={item.onClick}
                   aria-label={t(item.label)}
                   title={t(item.label)}
                   className={commonMobileClasses}

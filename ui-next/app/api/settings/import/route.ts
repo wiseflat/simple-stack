@@ -24,9 +24,30 @@ export async function POST(request: Request) {
   const secret = process.env.AUTH_SECRET ?? "";
   if (!secret) return jsonError("AUTH_SECRET is missing", 500);
 
+  function asOptionalString(value: unknown) {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : null;
+  }
+
+  function remapIdentifier(value: string, maps: Array<Map<string, string>>) {
+    for (const map of maps) {
+      const mapped = map.get(value);
+      if (mapped) return mapped;
+    }
+    return value;
+  }
+
   for (const project of body.projects) {
+    const infrastructureIdMap = new Map<string, string>();
+    const softwareIdMap = new Map<string, string>();
+
     const iid = randomUUID();
     const infra = project.infrastructure ?? {};
+    const oldInfrastructureId = asOptionalString(infra.id);
+    if (oldInfrastructureId) {
+      infrastructureIdMap.set(oldInfrastructureId, iid);
+    }
 
     await db.insert(infrastructures).values({
       id: iid,
@@ -41,8 +62,14 @@ export async function POST(request: Request) {
     });
 
     for (const sw of project.softwares ?? []) {
+      const sid = randomUUID();
+      const oldSoftwareId = asOptionalString(sw.id);
+      if (oldSoftwareId) {
+        softwareIdMap.set(oldSoftwareId, sid);
+      }
+
       await db.insert(softwares).values({
-        id: randomUUID(),
+        id: sid,
         uid: user!.id,
         softwareId: String(sw.softwareId ?? sw.software ?? ""),
         domain: String(sw.domain ?? ""),
@@ -58,12 +85,17 @@ export async function POST(request: Request) {
     }
 
     for (const variable of project.variables ?? []) {
+      const originalKey = String(variable.key ?? "");
+      const originalKey2 = String(variable.key2 ?? originalKey);
+      const mappedKey = remapIdentifier(originalKey, [infrastructureIdMap, softwareIdMap]);
+      const mappedKey2 = remapIdentifier(originalKey2, [infrastructureIdMap, softwareIdMap]);
       const rawValue = variable.value ?? {};
+
       await db.insert(variables).values({
         id: randomUUID(),
         uid: user!.id,
-        key: String(variable.key ?? ""),
-        key2: String(variable.key2 ?? String(variable.key ?? "")),
+        key: mappedKey,
+        key2: mappedKey2,
         type: String(variable.type ?? "project"),
         value: encrypt(JSON.stringify(rawValue), secret),
         createdAt: new Date(),

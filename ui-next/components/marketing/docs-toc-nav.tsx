@@ -39,7 +39,7 @@ export default function DocsTocNav({ contentRootId, mobileOnly = false, desktopO
         if (!title) return null;
 
         const level = heading.tagName.toLowerCase() === "h2" ? 2 : 3;
-        let id = heading.id || slugify(title);
+        const id = heading.id || slugify(title);
 
         if (!id) return null;
 

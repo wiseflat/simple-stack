@@ -126,10 +126,10 @@ export async function getDocPage(slugParts?: string[]) {
   const entry = docs.find((doc) => doc.slug === slug);
   if (!entry) return null;
 
-  const module = await entry.load();
+  const loadedDoc = await entry.load();
 
   return {
     entry,
-    Content: module.default,
+    Content: loadedDoc.default,
   };
 }

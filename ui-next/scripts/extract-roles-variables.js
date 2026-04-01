@@ -23,11 +23,23 @@ async function main() {
     for (const scope of scopes) {
       const rolesDir = path.join(projectRoot, "ansible", "playbooks", scope, "roles");
       const outputFile = path.join(outputDir, `roles-variables-${scope}.json`);
+      const rolesData = {};
 
       console.log(`\n📂 Scanning ${scope.toUpperCase()} roles directory: ${rolesDir}`);
 
-      const roleNames = await fs.readdir(rolesDir);
-      const rolesData = {};
+      let roleNames = [];
+      try {
+        roleNames = await fs.readdir(rolesDir);
+      } catch (error) {
+        if (error && error.code === "ENOENT") {
+          console.warn(`  ⚠ ${scope.toUpperCase()} roles directory not found, generating empty output`);
+          await fs.writeFile(outputFile, JSON.stringify(rolesData, null, 2), "utf-8");
+          console.log(`✅ Generated: ${outputFile}`);
+          console.log(`📊 ${scope.toUpperCase()} total roles: 0`);
+          continue;
+        }
+        throw error;
+      }
 
       for (const roleName of roleNames) {
         const defaultsPath = path.join(rolesDir, roleName, "defaults", "main.yml");
@@ -43,7 +55,7 @@ async function main() {
             rolesData[roleName] = {};
             console.log(`  ⚠ ${roleName} (empty or invalid)`);
           }
-        } catch (error) {
+        } catch {
           console.log(`  ✗ ${roleName} (no defaults/main.yml or parse error)`);
           rolesData[roleName] = null;
         }

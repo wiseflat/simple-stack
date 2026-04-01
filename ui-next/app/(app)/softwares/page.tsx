@@ -260,7 +260,6 @@ type VariableDialogProps = {
 
 function VariableDialog({ mode, softwareDomain, variableType, initialValues, saving, onCancel, onSubmit }: VariableDialogProps) {
   const {
-    control,
     register,
     handleSubmit,
     getValues,

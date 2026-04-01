@@ -9,10 +9,16 @@ export async function GET(request: Request) {
   const { response } = await requireApiUser(request);
   if (response) return response;
 
-  const rows = await db.select().from(events).orderBy(asc(events.timestamp));
+  const rows = await db.select().from(events).orderBy(asc(events.createdAt));
   const mapped = rows.reverse().map((item) => ({
     type: item.status === "success" ? "info" : "warning",
-    body: `${item.timestamp ?? ""} - ${item.message ?? ""}`,
+    body: `${
+      item.timestamp
+        ? new Date(item.timestamp).toLocaleString("fr-FR")
+        : item.createdAt
+          ? item.createdAt.toLocaleString("fr-FR")
+          : ""
+    } - ${item.message ?? ""}`,
   }));
   return NextResponse.json(mapped);
 }
@@ -35,14 +41,19 @@ export async function POST(request: Request) {
     return jsonError("status and message are required", 400);
   }
 
+  const eventDate = body.timestamp ? new Date(body.timestamp) : new Date();
+  if (Number.isNaN(eventDate.getTime())) {
+    return jsonError("timestamp must be a valid date", 400);
+  }
+
   await db.insert(events).values({
     id: randomUUID(),
     eventType: body.event_type ?? "",
     status: body.status,
     message: body.message,
-    timestamp: new Date().toLocaleString("fr-FR"),
+    timestamp: eventDate.toISOString(),
     payload: JSON.stringify(body),
-    createdAt: new Date(),
+    createdAt: eventDate,
   });
 
   return NextResponse.json({ ok: true }, { status: 201 });

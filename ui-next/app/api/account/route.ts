@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    { error: "The first account has been create, try to log in now" },
+    { ok: true, message: "The first account has been created, try to log in now" },
     { status: 201 },
   );
 }
