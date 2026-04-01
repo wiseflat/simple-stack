@@ -61,12 +61,12 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url }}/caddy:{{ softwares.caddy.version }}"
+        image = "{{ docker_private_registry.url }}/caddy:{{ catalogs.caddy.version }}"
         ports = ["caddy", "metrics"]
         command = "caddy"
         args  = [
           "run",
-          "--config", 
+          "--config",
           "/local/Caddyfile"
         ]
       }

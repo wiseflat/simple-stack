@@ -38,7 +38,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "grafana/loki:{{ softwares.loki.version }}"
+        image = "grafana/loki:{{ catalogs.loki.version }}"
         volumes = [
           "{{ software_path }}/var/lib/loki:/var/lib/loki:rw"
         ]

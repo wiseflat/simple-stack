@@ -249,7 +249,7 @@ NEWSCHEMA('Infrastructures', function (schema) {
 			model.uid = $.user.id;
 			model.tfstate = JSON.parse(model.tfstate);
 			model.dtupdated = NOW;
-			
+
 			await DATA.insert('nosql/infrastructures', model).error('@(Error)').promise($);
 
 			$.callback(model.id);

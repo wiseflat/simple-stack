@@ -54,7 +54,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "timberio/vector:{{ softwares.vector.version }}-alpine"
+        image = "timberio/vector:{{ catalogs.vector.version }}-alpine"
         volumes = [
           "{{ software_path }}/var/lib/vector:/var/lib/vector:rw"
         ]

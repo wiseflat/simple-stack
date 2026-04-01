@@ -32,7 +32,7 @@ job "{{ domain }}" {
       port = "http"
       provider = "nomad"
       tags = [
-        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | ansible.builtin.indent(8) }}
       ]
     }
 
@@ -52,7 +52,7 @@ job "{{ domain }}" {
       user = "1001:1001"
 
       config {
-        image = "koenkk/zigbee2mqtt:{{ softwares.zigbee2mqtt.version }}"
+        image = "koenkk/zigbee2mqtt:{{ catalogs.zigbee2mqtt.version }}"
 
         volumes = [
           "{{ software_path }}/app/data:/app/data:rw",

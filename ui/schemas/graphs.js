@@ -8,7 +8,7 @@ NEWSCHEMA('Graphs', schema => {
 		const LEVELS = Object.freeze(['project', 'provider', 'region', 'location', 'instance']);
 
 		for (const { index_key } of dataset) {
-			
+
 			if (!index_key) continue;                     // guard against missing data
 			const parts = index_key.split('.');           // e.g. ["instance001","frontends","region1","provider1","project1"]
 

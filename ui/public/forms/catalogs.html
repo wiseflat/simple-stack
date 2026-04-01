@@ -48,7 +48,7 @@
 
 		exports.refresh = function() {
 			exports.tapi('catalogs ERROR', function(result){
-				exports.set(result);				
+				exports.set(result);
 				SET('catalog_list', result.items);
 			});
 		};
@@ -118,7 +118,7 @@
 		};
 
 		exports.operations = function(el) {
-			
+
 			var model = GET('?');
 			var options = {};
 			options.align = 'center';

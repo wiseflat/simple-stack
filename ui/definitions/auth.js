@@ -24,8 +24,8 @@ opt.onauthorize = function($) {
 					id: user.id
 				}
 				$.success({ id: user.id, name: user.name, sa: user.sa, permissions: ['admin'] });
-			}			
-		});	
+			}
+		});
 		return true;
 	}
 };

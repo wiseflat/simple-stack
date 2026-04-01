@@ -46,7 +46,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url }}/kresus:{{ softwares.kresus.version }}"
+        image = "{{ docker_private_registry.url }}/kresus:{{ catalogs.kresus.version }}"
 
         volumes = [
           "{{ software_path }}/opt/kresus/data:/home/user/data:rw",

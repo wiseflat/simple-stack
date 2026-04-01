@@ -9,4 +9,4 @@ arangodb_actions:
     - "{{ software_path }}/run:/run:rw"
     - "/usr/local/bin/arangodb-backup:/usr/local/bin/arangodb-backup:ro"
     - "/usr/local/bin/arangodb-restore:/usr/local/bin/arangodb-restore:ro"
-  image: "arangodb:{{ softwares.arangodb.version }}"
+  image: "arangodb:{{ catalogs.arangodb.version }}"

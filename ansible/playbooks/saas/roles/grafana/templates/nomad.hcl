@@ -48,7 +48,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "grafana/grafana:{{ softwares.grafana.version }}"
+        image = "grafana/grafana:{{ catalogs.grafana.version }}"
         volumes = [
           "{{ software_path }}/provisioning:/etc/grafana/provisioning:ro",
           "{{ software_path }}/dashboards:/local/dashboards:ro"

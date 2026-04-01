@@ -64,7 +64,7 @@ job "{{ domain }}" {
 {% endfor %}
       }
       config {
-        image = "freqtradeorg/freqtrade:{{ softwares.freqtrade.version }}"
+        image = "freqtradeorg/freqtrade:{{ catalogs.freqtrade.version }}"
         volumes = [
           "{{ software_path }}/freqtrade/user_data:/freqtrade/user_data:rw",
           "{{ software_path }}/db:/db:rw"

@@ -49,7 +49,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "ghcr.io/wiseflat/simple-stack-ansible:v{{ softwares.simplestack_ui.version }}"
+        image = "ghcr.io/wiseflat/simple-stack-ansible:v{{ catalogs.simplestack_ui.version }}"
         ports = ["http"]
         volumes = [
           "/root/.ssh:/root/.ssh:ro"

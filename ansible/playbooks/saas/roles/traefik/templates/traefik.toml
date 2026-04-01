@@ -5,7 +5,7 @@
 #[api]
 #  dashboard = true
 #  insecure = true
-  
+
 [entryPoints]
   [entryPoints.http]
     address = ":80"

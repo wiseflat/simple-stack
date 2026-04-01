@@ -41,7 +41,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url }}/forgejo:{{ softwares.forgejo.version }}"
+        image = "{{ docker_private_registry.url }}/forgejo:{{ catalogs.forgejo.version }}"
         volumes =  [
           "/etc/timezone:/etc/timezone:ro",
           "/etc/localtime:/etc/localtime:ro",

@@ -62,4 +62,3 @@
     - name: Show buildx configuration
       ansible.builtin.debug:
         var: buildx_ls.stdout_lines
-

@@ -65,7 +65,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "homeassistant/home-assistant:{{ softwares.homeassistant.version }}"
+        image = "homeassistant/home-assistant:{{ catalogs.homeassistant.version }}"
 
         privileged = "true"
         volumes = [

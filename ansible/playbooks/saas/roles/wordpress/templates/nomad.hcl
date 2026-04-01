@@ -39,10 +39,10 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ docker_private_registry.url }}/wordpress:{{ softwares.wordpress.version }}"
+        image = "{{ docker_private_registry.url }}/wordpress:{{ catalogs.wordpress.version }}"
 
         volumes = [
-          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ softwares.wordpress.version.split('.')[:2] | join('') }}/php-fpm.d:ro",
+          "{{ software_path }}/etc/php-fpm.d:/etc/php{{ catalogs.wordpress.version.split('.')[:2] | join('') }}/php-fpm.d:ro",
           "{{ software_path }}/var/www/html:/var/www/html:rw",
           "{{ software_path }}/var/run/php-fpm:/run/php-fpm:rw",
           "{{ software_path }}/var/log/php-fpm:/var/log/php-fpm:rw",
@@ -140,7 +140,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ docker_private_registry.url }}/nginx:{{ softwares.nginx.version }}"
+        image = "{{ docker_private_registry.url }}/nginx:{{ catalogs.nginx.version }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/run/php-fpm:/var/run/php-fpm:ro",

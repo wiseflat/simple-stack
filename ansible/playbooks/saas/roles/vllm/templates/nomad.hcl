@@ -79,7 +79,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "vllm/vllm-openai:v{{ software.image_version | default(softwares.vllm.version) }}"
+        image = "vllm/vllm-openai:v{{ software.image_version | default(catalogs.vllm.version) }}"
         ports = ["vllm"]
         ipc_mode = "host"
 
@@ -99,7 +99,7 @@ job "{{ domain }}" {
       resources {
         cpu    = {{ size[software.size2 | default(software.size)].cpu }}
         memory = {{ size[software.size2 | default(software.size)].memory }}
-        
+
         device "nvidia/gpu" {
           count = 1
           affinity {

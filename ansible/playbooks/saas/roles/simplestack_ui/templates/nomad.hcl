@@ -46,7 +46,7 @@ job "{{ domain }}" {
       user = "nodejs"
 
       config {
-        image = "ghcr.io/wiseflat/simple-stack-ui:v{{ softwares.simplestack_ui.version }}"
+        image = "ghcr.io/wiseflat/simple-stack-ui:v{{ catalogs.simplestack_ui.version }}"
         ports = ["http"]
         volumes =  [
           "{{ software_path }}/databases:/www/databases:rw"

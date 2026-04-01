@@ -57,7 +57,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "dolibarr/dolibarr:{{ softwares.dolibarr.version }}"
+        image = "dolibarr/dolibarr:{{ catalogs.dolibarr.version }}"
 
         volumes = [
           "{{ software_path }}/var/www/html/documents:/var/www/html/documents:rw",

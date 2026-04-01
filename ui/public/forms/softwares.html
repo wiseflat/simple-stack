@@ -9,7 +9,7 @@
 	.CLASS figure .description { margin-left: 5px; }
 	.CLASS figure .name .badges { display: inline-block; border-left: 1px solid #e0e0e0; padding-left: 15px; }
 	.ui-box-icon { color: #7BB2F9 }
-	
+
 	@media(max-width:768px) {
 		.CLASS .name { margin-right: 46px; }
 	}
@@ -73,7 +73,7 @@
 				});
 			}
 		};
-		
+
 		exports.refresh_events = function(el) {
 			exports.tapi('events_read ERROR', function(result){
 				SET('?.console_logs', result);
@@ -156,7 +156,7 @@
 		};
 
 		exports.operations = function(el) {
-			
+
 			clearInterval(interval);
 
 			var model = GET('?');

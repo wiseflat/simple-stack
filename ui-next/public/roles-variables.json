@@ -1,0 +1,579 @@
+{
+  "ansible-docker": {
+    "docker_ca_install_tls_ca_host": "localhost",
+    "docker_ca_install_tls_ca_host_dir": "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls",
+    "docker_ca_install_tls_ca_privatekey": "docker-ca-key.pem",
+    "docker_ca_install_tls_ca_pubkey": "docker-ca.pem",
+    "docker_ca_install_tls_common_name": "docker",
+    "docker_ca_install_tls_host_certificate_dir": "/etc/ssl/docker",
+    "docker_client_dc_name": "dc1",
+    "docker_client_tls_ca_host": "localhost",
+    "docker_client_tls_ca_host_dir": "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls",
+    "docker_client_tls_ca_privatekey": "docker-ca-key.pem",
+    "docker_client_tls_ca_provider": "ownca",
+    "docker_client_tls_ca_pubkey": "docker-ca.pem",
+    "docker_client_tls_cert": "{{ docker_client_dc_name }}-client-docker.pem",
+    "docker_client_tls_check_delay": "+2w",
+    "docker_client_tls_common_name": "*.{{ docker_client_dc_name }}.docker",
+    "docker_client_tls_host_certificate_dir": "/etc/ssl/docker",
+    "docker_client_tls_privatekey": "{{ docker_client_dc_name }}-client-docker.key",
+    "docker_client_tls_subject_alt_name": "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,IP:{{ ansible_default_ipv4.address }},DNS:client.dc1.docker",
+    "docker_dns_configuration": true,
+    "docker_dns_servers": [
+      "172.17.0.1"
+    ],
+    "docker_gateway_ip": "172.17.0.1",
+    "docker_metrics_addr": "{{ docker_tcp_listen_address }}:9323",
+    "docker_private_registry": {
+      "password": "",
+      "url": "",
+      "username": ""
+    },
+    "docker_runtimes": [],
+    "docker_server_dc_name": "dc1",
+    "docker_server_tls_ca_host": "localhost",
+    "docker_server_tls_ca_host_dir": "{{ project_dir }}/env/host_vars/{{ inventory_hostname }}/tls",
+    "docker_server_tls_ca_privatekey": "docker-ca-key.pem",
+    "docker_server_tls_ca_provider": "ownca",
+    "docker_server_tls_ca_pubkey": "docker-ca.pem",
+    "docker_server_tls_cert": "{{ docker_server_dc_name }}-server-docker.pem",
+    "docker_server_tls_check_delay": "+2w",
+    "docker_server_tls_common_name": "*.{{ docker_server_dc_name }}.docker",
+    "docker_server_tls_host_certificate_dir": "/etc/ssl/docker",
+    "docker_server_tls_privatekey": "{{ docker_server_dc_name }}-server-docker.key",
+    "docker_server_tls_subject_alt_name": "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,IP:{{ ansible_default_ipv4.address }},DNS:server.dc1.docker",
+    "docker_tcp_listen_address": "127.0.0.1",
+    "docker_tcp_listen_port": 2376,
+    "docker_tls_configuration": false,
+    "docker_user": "root",
+    "firewall": true
+  },
+  "ansible-pull": {
+    "ansible_pull_timer": "OnBootSec=5m\nOnCalendar=*:0/10\nRandomizedDelaySec=30m\n",
+    "ansible_pull_url": "https://github.com/wiseflat/simple-stack.git"
+  },
+  "ansible-ufw": {
+    "ufw_applications": [],
+    "ufw_custom_rules": [],
+    "ufw_default_application_policy": "SKIP",
+    "ufw_default_forward_policy": "DROP",
+    "ufw_default_input_policy": "DROP",
+    "ufw_default_output_policy": "ACCEPT",
+    "ufw_ipv6": "yes",
+    "ufw_logging": "off",
+    "ufw_packages": [
+      "ufw"
+    ],
+    "ufw_reset": false,
+    "ufw_rules": [
+      {
+        "direction": "in",
+        "interface": "docker0",
+        "rule": "allow"
+      },
+      {
+        "port": 22,
+        "proto": "tcp",
+        "rule": "allow"
+      },
+      {
+        "direction": "in",
+        "port": 80,
+        "proto": "tcp",
+        "rule": "allow"
+      },
+      {
+        "direction": "out",
+        "port": 80,
+        "proto": "tcp",
+        "rule": "allow"
+      },
+      {
+        "direction": "in",
+        "port": 443,
+        "proto": "tcp",
+        "rule": "allow"
+      },
+      {
+        "direction": "out",
+        "port": 443,
+        "proto": "tcp",
+        "rule": "allow"
+      }
+    ],
+    "ufw_state": "enabled"
+  },
+  "blackbox_exporter": {},
+  "certificate": {
+    "certificate_ca_host": "localhost",
+    "certificate_ca_host_dir": "~/.simple-stack/tls",
+    "certificate_ca_privatekey": "simplestack-ca-key.pem",
+    "certificate_ca_pubkey": "simplestack-ca.pem",
+    "certificate_common_name": "nomad",
+    "certificate_host_certificate_dir": "/etc/ssl/simplestack"
+  },
+  "coredns": null,
+  "dns_exporter": {
+    "dns_exporter": {
+      "modules": {
+        "cf_doh": {
+          "protocol": "doh",
+          "query_name": "bornhack.dk",
+          "query_type": "NS",
+          "server": "1dot1dot1dot1.cloudflare-dns.com",
+          "validate_response_flags": {
+            "fail_if_any_absent": [
+              "AD"
+            ]
+          }
+        },
+        "cloudflare_dns1": {
+          "family": "ipv4",
+          "query_type": "A",
+          "server": "1.1.1.1"
+        },
+        "fail_additional_root": {
+          "validate_additional_rrs": {
+            "fail_if_all_match_regexp": [
+              "[a-m].root-servers.net.*"
+            ]
+          }
+        },
+        "fail_answer_root": {
+          "validate_answer_rrs": {
+            "fail_if_not_matches_regexp": [
+              "[a-m].root-servers.net.*"
+            ]
+          }
+        },
+        "fail_answer_root_none": {
+          "validate_answer_rrs": {
+            "fail_if_none_matches_regexp": [
+              ".*[a-m].root-servers.net.*"
+            ]
+          }
+        },
+        "fail_auth_k_root": {
+          "validate_answer_rrs": {
+            "fail_if_matches_regexp": [
+              ".*k.root-servers.net"
+            ]
+          }
+        },
+        "fail_not_auth": {
+          "validate_response_flags": {
+            "fail_if_all_absent": [
+              "AA",
+              "AD"
+            ]
+          }
+        },
+        "fail_recursive": {
+          "validate_response_flags": {
+            "fail_if_all_present": [
+              "QR",
+              "RA",
+              "RD"
+            ]
+          }
+        },
+        "gmail_mx_v4": {
+          "family": "ipv4",
+          "query_name": "gmail.com",
+          "query_type": "MX"
+        },
+        "google_dot": {
+          "protocol": "dot",
+          "query_name": "dns.google",
+          "query_type": "AAAA",
+          "server": "dns.google",
+          "validate_answer_rrs": {
+            "fail_if_count_ne": 2,
+            "fail_if_not_matches_regexp": [
+              ".*2001:4860:4860::8888",
+              ".*2001:4860:4860::8844"
+            ]
+          }
+        },
+        "google_tcp": {
+          "protocol": "tcp",
+          "query_name": "dns.google",
+          "query_type": "A",
+          "server": "dns.google",
+          "validate_answer_rrs": {
+            "fail_if_count_ne": 2,
+            "fail_if_not_matches_regexp": [
+              ".*8.8.8.8",
+              ".*8.8.4.4"
+            ]
+          }
+        },
+        "google_udp": {
+          "protocol": "udp",
+          "query_name": ".",
+          "query_type": "NS",
+          "server": "dns.google",
+          "validate_answer_rrs": {
+            "fail_if_count_ne": 13
+          }
+        },
+        "has_ad": {
+          "edns_do": true,
+          "validate_response_flags": {
+            "fail_if_any_absent": [
+              "AD"
+            ]
+          }
+        },
+        "has_no_ad": {
+          "edns_do": true,
+          "validate_response_flags": {
+            "fail_if_any_present": [
+              "AD"
+            ]
+          }
+        },
+        "quad9_dns1": {
+          "family": "ipv4",
+          "query_type": "A",
+          "server": "9.9.9.9"
+        },
+        "socks1080": {
+          "proxy": "socks5://127.0.0.1:1080"
+        }
+      }
+    }
+  },
+  "golang": {
+    "go_checksum": {
+      "amd64": "4741525e69841f2e22f9992af25df0c1112b07501f61f741c12c6389fcb119f3",
+      "arm64": "597acbd0505250d4d98c4c83adf201562a8c812cbcd7b341689a07087a87a541"
+    },
+    "go_version": "1.23.7"
+  },
+  "mongodb_exporter": null,
+  "mysqld_exporter": null,
+  "nginx_exporter": null,
+  "node_exporter": null,
+  "nomad": {
+    "nomad_acl_enabled": true,
+    "nomad_acl_policy_ttl": "30s",
+    "nomad_acl_replication_token": null,
+    "nomad_acl_token_ttl": "30s",
+    "nomad_advertise_address": "{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}",
+    "nomad_autopilot_cleanup_dead_servers": true,
+    "nomad_autopilot_last_contact_threshold": "200ms",
+    "nomad_autopilot_max_trailing_logs": 250,
+    "nomad_autopilot_server_stabilization_time": "10s",
+    "nomad_bin_dir": "/usr/bin",
+    "nomad_bind_address": "0.0.0.0",
+    "nomad_client_auto_join": true,
+    "nomad_client_cpu_total_compute": 0,
+    "nomad_client_disk_free_mb": 0,
+    "nomad_client_disk_total_mb": 0,
+    "nomad_client_drain_on_shutdown_deadline": "1m",
+    "nomad_client_drain_on_shutdown_force": true,
+    "nomad_client_drain_on_shutdown_ignore_system_jobs": true,
+    "nomad_client_enabled": true,
+    "nomad_client_gc_disk_usage_threshold": 80,
+    "nomad_client_gc_inode_usage_threshold": 70,
+    "nomad_client_gc_interval": "1m",
+    "nomad_client_gc_parallel_destroys": 2,
+    "nomad_client_host_network_cluster": {
+      "interface": "{{ nomad_cluster_bridge }}",
+      "name": "cluster"
+    },
+    "nomad_client_host_network_default": {
+      "interface": "{{ ansible_default_ipv4.interface }}",
+      "name": "public"
+    },
+    "nomad_client_max_kill_timeout": "30s",
+    "nomad_client_memory_total_mb": 0,
+    "nomad_client_meta_list": {
+      "arch": "{{ architecture_map[ansible_facts.architecture] }}",
+      "instance": "{{ inventory_hostname }}",
+      "location": "{{ fact_instance.location }}"
+    },
+    "nomad_client_network_interface": "{{ nomad_iface }}",
+    "nomad_client_no_host_uuid": false,
+    "nomad_client_node_class": "{{ inventory_hostname }}-client",
+    "nomad_client_node_pool": "default",
+    "nomad_client_reserved_cpu": 0,
+    "nomad_client_reserved_disk": 0,
+    "nomad_client_reserved_memory": 0,
+    "nomad_client_server_join_retry_interval": "15s",
+    "nomad_client_server_join_retry_max": 3,
+    "nomad_cluster_bridge": "ens3",
+    "nomad_config_dir": "/etc/nomad.d",
+    "nomad_config_file": "nomad.hcl",
+    "nomad_data_dir": "/opt/nomad",
+    "nomad_data_dir_server": "/opt/nomad/server",
+    "nomad_dc_name": "dc1",
+    "nomad_debug": false,
+    "nomad_deploy_cluster_name": "{{ nomad_cluster_name | default('default') }}",
+    "nomad_disable_anonymous_signature": false,
+    "nomad_disable_update_check": false,
+    "nomad_docker_allow_privileged": true,
+    "nomad_docker_client_allow_caps": [
+      "audit_write",
+      "chown",
+      "dac_override",
+      "fowner",
+      "fsetid",
+      "kill",
+      "mknod",
+      "net_bind_service",
+      "setfcap",
+      "setgid",
+      "setpcap",
+      "setuid",
+      "sys_chroot",
+      "sys_ptrace",
+      "sys_admin"
+    ],
+    "nomad_docker_client_dc_name": "{{ nomad_dc_name }}",
+    "nomad_docker_client_tls_ca_pubkey": "docker-ca.pem",
+    "nomad_docker_client_tls_cert": "{{ nomad_docker_client_dc_name }}-client-docker.pem",
+    "nomad_docker_client_tls_host_certificate_dir": "/etc/ssl/docker",
+    "nomad_docker_client_tls_privatekey": "{{ nomad_docker_client_dc_name }}-client-docker.key",
+    "nomad_docker_gc_container": true,
+    "nomad_docker_gc_dangling_containers_creation_grace": "5m",
+    "nomad_docker_gc_dangling_containers_dry_run": false,
+    "nomad_docker_gc_dangling_containers_enabled": true,
+    "nomad_docker_gc_dangling_containers_period": "5m",
+    "nomad_docker_gc_image": true,
+    "nomad_docker_gc_image_delay": "1h",
+    "nomad_docker_private_registry_config": "/etc/docker/config.json",
+    "nomad_docker_private_registry_state": true,
+    "nomad_docker_tcp_listen_address": "127.0.0.1",
+    "nomad_docker_tcp_listen_port": 2376,
+    "nomad_docker_tls_configuration": false,
+    "nomad_docker_volume_enable": true,
+    "nomad_group": "simplestack",
+    "nomad_http_ip": "127.0.0.1",
+    "nomad_http_port": 4646,
+    "nomad_http_scheme": "https",
+    "nomad_iface": "ens3",
+    "nomad_job_files_dir": "/var/tmp",
+    "nomad_leave_on_interrupt": true,
+    "nomad_leave_on_terminate": true,
+    "nomad_location": "{{ fact_instance.region }}",
+    "nomad_log_file": "/var/log/nomad/nomad.log",
+    "nomad_log_level": "WARN",
+    "nomad_log_rotate_bytes": 0,
+    "nomad_log_rotate_duration": "24h",
+    "nomad_log_rotate_max_files": 0,
+    "nomad_mode": "single",
+    "nomad_node_name": "{{ inventory_hostname }}",
+    "nomad_node_role": "both",
+    "nomad_num_schedulers": "{{ ansible_processor_vcpus }}",
+    "nomad_ports": {
+      "http": "{{ nomad_ports_http | default('4646', true) }}",
+      "rpc": "{{ nomad_ports_rpc | default('4647', true) }}",
+      "serf": "{{ nomad_ports_serf | default('4648', true) }}"
+    },
+    "nomad_project": "{{ fact_instance.project }}",
+    "nomad_provider": "{{ fact_instance.provider }}",
+    "nomad_region": "{{ fact_instance.region }}",
+    "nomad_s3_storage_enabled": false,
+    "nomad_serer_retry_interval": "30s",
+    "nomad_server_auto_join": true,
+    "nomad_server_deployment_gc_threshold": "1h",
+    "nomad_server_enabled": true,
+    "nomad_server_enabled_schedulers": [
+      "service",
+      "batch",
+      "system"
+    ],
+    "nomad_server_eval_gc_threshold": "1h",
+    "nomad_server_event_buffer_size": 100,
+    "nomad_server_failover_heartbeat_ttl": "5m",
+    "nomad_server_heartbeat_grace": "10s",
+    "nomad_server_job_gc_threshold": "4h",
+    "nomad_server_join": "\"{% if nomad_mode == 'single' %}127.0.0.1{% else %}{{ (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) or (groups[nomad_deploy_cluster_name] | map('extract', hostvars) | selectattr('nomad_node_role', 'equalto', 'both') | map(attribute='ansible_br0.ipv4.address')) | unique | list }}{% endif %}\"",
+    "nomad_server_join_retry_interval": "15s",
+    "nomad_server_join_retry_max": 3,
+    "nomad_server_max_heartbeats_per_second": 50,
+    "nomad_server_min_heartbeat_ttl": "10s",
+    "nomad_server_node_gc_threshold": "24h",
+    "nomad_server_num_schedulers": 1,
+    "nomad_server_raft_protocol": 3,
+    "nomad_server_rejoin_after_leave": true,
+    "nomad_server_retry_join": false,
+    "nomad_server_retry_max": 0,
+    "nomad_servers": "{% set nomad_servers = [] %}{% if nomad_mode == 'single' %}{% set _ = nomad_servers.append(inventory_hostname) %}{% else %}{% for host in groups[nomad_deploy_cluster_name] %}{% if hostvars[host].nomad_node_role in ['server', 'both'] %}{% set _ = nomad_servers.append(host) %}{% endif %}{% endfor %}{% endif %}{{ nomad_servers }}",
+    "nomad_servers_advertise_address": "{% set nomad_servers_advertise_address = [] %}{% if nomad_mode == 'single' %}{% set _ = nomad_servers_advertise_address.append(hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address']) %}{% else %}{% for host in groups[nomad_deploy_cluster_name] %}{% if hostvars[host].nomad_node_role in ['server', 'both'] %}{% set _ = nomad_servers_advertise_address.append(hostvars[host]['ansible_' + hostvars[host].nomad_iface]['ipv4']['address']) %}{% endif %}{% endfor %}{% endif %}{{ nomad_servers_advertise_address }}",
+    "nomad_state_dir_client": "/opt/nomad/client",
+    "nomad_system_group": "{{ (nomad_node_role == 'server') | ternary('nomad', 'root') }}",
+    "nomad_system_user": "{{ (nomad_node_role == 'server') | ternary('nomad', 'root') }}",
+    "nomad_telemetry_circonus_api_app": "nomad",
+    "nomad_telemetry_circonus_api_url": "https://api.circonus.com/v2",
+    "nomad_telemetry_circonus_check_force_metric_activation": false,
+    "nomad_telemetry_circonus_submission_interval": "10s",
+    "nomad_telemetry_collection_interval": "5s",
+    "nomad_telemetry_disable_dispatched_job_summary_metrics": false,
+    "nomad_telemetry_disable_hostname": false,
+    "nomad_telemetry_filter_default": true,
+    "nomad_telemetry_prometheus_metrics": true,
+    "nomad_telemetry_publish_allocation_metrics": true,
+    "nomad_telemetry_publish_node_metrics": true,
+    "nomad_telemetry_use_node_name": false,
+    "nomad_timezone": "Europe/Paris",
+    "nomad_tls_ca_host": "localhost",
+    "nomad_tls_ca_host_dir": "~/.simple-stack/tls",
+    "nomad_tls_ca_privatekey": "simplestack-ca-key.pem",
+    "nomad_tls_ca_provider": "ownca",
+    "nomad_tls_ca_pubkey": "simplestack-ca.pem",
+    "nomad_tls_cert_client": "{{ inventory_hostname }}-{{ nomad_dc_name }}-client-nomad.pem",
+    "nomad_tls_cert_server": "{{ nomad_region }}-{{ nomad_provider }}-{{ nomad_dc_name }}-server-nomad.pem",
+    "nomad_tls_check_delay": "+2w",
+    "nomad_tls_common_name": "nomad",
+    "nomad_tls_common_name_client": "*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }}",
+    "nomad_tls_common_name_server": "*.{{ nomad_dc_name }}.{{ nomad_tls_common_name }}",
+    "nomad_tls_host_certificate_dir": "/etc/ssl/simplestack",
+    "nomad_tls_ip_range": "{{ ((range(0,256) | map('regex_replace', '^', 'IP:192.168.0.')) + (range(0,256) | map('regex_replace', '^', 'IP:10.0.0.')) ) | list | join(',') }}",
+    "nomad_tls_privatekey_client": "{{ inventory_hostname }}-{{ nomad_dc_name }}-client-nomad.key",
+    "nomad_tls_privatekey_server": "{{ nomad_region }}-{{ nomad_provider }}-{{ nomad_dc_name }}-server-nomad.key",
+    "nomad_tls_rpc_upgrade_mode": false,
+    "nomad_tls_subject_alt_name_client": "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,{{ nomad_tls_ip_range }},DNS:client.global.nomad,DNS:client.{{ nomad_region }}.nomad,DNS:client.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad",
+    "nomad_tls_subject_alt_name_server": "DNS:localhost,IP:127.0.0.1,IP:172.17.0.1,{{ nomad_tls_ip_range }},DNS:server.global.nomad,DNS:server.{{ nomad_region }}.nomad,DNS:server.{{ nomad_dc_name }}.nomad,DNS:*.{{ nomad_dc_name }}.nomad",
+    "nomad_tls_verify_https_client": false,
+    "nomad_tls_verify_server_hostname": true,
+    "nomad_ui_content_security_policy_connect_src": "*",
+    "nomad_ui_content_security_policy_default_src": "'none'",
+    "nomad_ui_content_security_policy_form_action": "'none'",
+    "nomad_ui_content_security_policy_frame_ancestors": "'none'",
+    "nomad_ui_content_security_policy_img_src": "",
+    "nomad_ui_content_security_policy_script_src": "'self'",
+    "nomad_ui_content_security_policy_style_src": "",
+    "nomad_ui_enabled": true,
+    "nomad_ui_label_background_color": "blue",
+    "nomad_ui_label_text": "{{ inventory_hostname }}",
+    "nomad_ui_label_text_color": "white"
+  },
+  "nvidia_gpu_exporter": {
+    "nvidia_gpu_exporter_enable": false
+  },
+  "phpfpm_exporter": null,
+  "prometheus": {
+    "prometheus_nodes_exporter": [],
+    "prometheus_project": "{{ fact_instance.project }}",
+    "prometheus_remote_login": null,
+    "prometheus_remote_password": null,
+    "prometheus_remote_url": null,
+    "prometheus_remote_write": false
+  },
+  "promtail": null,
+  "restic": null,
+  "scan_exporter": null,
+  "script_exporter": null,
+  "sshd": {
+    "network_ipv6_enable": true,
+    "sftp_chroot": true,
+    "sftp_chroot_dir": "/home/%u",
+    "sftp_enabled": true,
+    "sftp_umask": "0027",
+    "ssh_allow_agent_forwarding": false,
+    "ssh_allow_groups": "",
+    "ssh_allow_tcp_forwarding": "yes",
+    "ssh_allow_users": "",
+    "ssh_authorized_keys_file": "",
+    "ssh_authorized_principals": [],
+    "ssh_authorized_principals_file": "",
+    "ssh_banner": false,
+    "ssh_banner_path": "/etc/ssh/banner.txt",
+    "ssh_challengeresponseauthentication": false,
+    "ssh_client_alive_count": 3,
+    "ssh_client_alive_interval": 300,
+    "ssh_client_compression": false,
+    "ssh_client_config_file": "/etc/ssh/ssh_config",
+    "ssh_client_host_key_algorithms": [],
+    "ssh_client_password_login": false,
+    "ssh_client_port": "22",
+    "ssh_client_roaming": false,
+    "ssh_compression": false,
+    "ssh_custom_options": [],
+    "ssh_deny_groups": "",
+    "ssh_deny_users": "",
+    "ssh_gateway_ports": false,
+    "ssh_gssapi_delegation": false,
+    "ssh_gssapi_support": false,
+    "ssh_hardening_enabled": true,
+    "ssh_host_certificates": [],
+    "ssh_host_key_algorithms": [],
+    "ssh_host_rsa_key_size": 4096,
+    "ssh_listen_to": [
+      "0.0.0.0"
+    ],
+    "ssh_login_grace_time": "30s",
+    "ssh_max_auth_retries": 2,
+    "ssh_max_sessions": 10,
+    "ssh_max_startups": "10:30:60",
+    "ssh_permit_root_login": "no",
+    "ssh_permit_tunnel": "no",
+    "ssh_print_debian_banner": false,
+    "ssh_print_last_log": false,
+    "ssh_print_motd": false,
+    "ssh_print_pam_motd": false,
+    "ssh_ps59": "sandbox",
+    "ssh_pubkey_authentication": true,
+    "ssh_remote_hosts": [],
+    "ssh_server_accept_env_vars": "",
+    "ssh_server_config_file": "/etc/ssh/sshd_config",
+    "ssh_server_enabled": true,
+    "ssh_server_match_address": false,
+    "ssh_server_match_group": false,
+    "ssh_server_match_local_port": false,
+    "ssh_server_match_user": false,
+    "ssh_server_password_login": false,
+    "ssh_server_permit_environment_vars": "no",
+    "ssh_server_ports": [
+      "22"
+    ],
+    "ssh_server_revoked_keys": [],
+    "ssh_server_service_enabled": true,
+    "ssh_trusted_user_ca_keys": [],
+    "ssh_trusted_user_ca_keys_file": "",
+    "ssh_use_dns": false,
+    "ssh_use_pam": true,
+    "ssh_user": "ansible",
+    "ssh_x11_forwarding": false,
+    "sshd_authenticationmethods": "publickey",
+    "sshd_custom_options": [],
+    "sshd_log_level": "INFO",
+    "sshd_moduli_minimum": 2048,
+    "sshd_strict_modes": true,
+    "sshd_syslog_facility": "AUTH"
+  },
+  "systemd_exporter": null,
+  "unattended-upgrades": {
+    "unattended_allowed_origins": [
+      "\"${distro_id}:${distro_codename}\";",
+      "\"${distro_id}:${distro_codename}-security\";",
+      "\"${distro_id}:${distro_codename}-updates\";",
+      "//'\"${distro_id}:${distro_codename}-proposed\";'",
+      "//'\"${distro_id}:${distro_codename}-backports\";'"
+    ],
+    "unattended_auto_fix_interrupted_dpkg": "true",
+    "unattended_auto_upgrades": "APT::Periodic::Update-Package-Lists \"1\";\nAPT::Periodic::Unattended-Upgrade \"1\";\nAPT::Periodic::Unattended-Upgrade-Time \"4\";\nAPT::Periodic::RandomSleep \"60\";\n",
+    "unattended_automatic_reboot": "true",
+    "unattended_dev_releases": "false",
+    "unattended_install_on_shutdown": "false",
+    "unattended_mail": "root",
+    "unattended_mail_only_on_error": "false",
+    "unattended_minimal_steps": "false",
+    "unattended_package_blacklist": [
+      "//  \"linux-\";",
+      "//  \"libc6$\";",
+      "//  \"libc6-dev$\";",
+      "//  \"libc6-i686$\"",
+      "//  '\"docker-\";'"
+    ],
+    "unattended_reboot_time": "05:00",
+    "unattended_remove_unused_dependencies": "true",
+    "unattended_remove_unused_kernel_packages": "true",
+    "unattended_syslog_enable": "true",
+    "unattended_syslog_facility": "daemon"
+  },
+  "upstream": {}
+}

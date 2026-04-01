@@ -1,0 +1,54 @@
+{
+  "auth": {
+    "email": "Email",
+    "invalidCredentials": "Email ou mot de passe incorrect.",
+    "loggingIn": "Connexion...",
+    "loginTitle": "Connexion",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "subtitle": "Simple Stack UI"
+  },
+  "common": {
+    "appName": "Wiseflat concept",
+    "brand": "Simple Stack"
+  },
+  "dashboard": {
+    "description": "Base Next.js/Fumadocs initialisee. La visualisation 3D et les donnees seront branchees en phase 2/3.",
+    "title": "Tableau de bord"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Espanol",
+    "fr": "Francais",
+    "sk": "Slovencina"
+  },
+  "layout": {
+    "subtitle": "Migration TotalJS vers Next.js + Fumadocs"
+  },
+  "menu": {
+    "catalogs": "Catalogues",
+    "dashboard": "Tableau de bord",
+    "documentation": "Documentation",
+    "events": "Evenements",
+    "infrastructures": "Infrastructures",
+    "internalApi": "API interne",
+    "landing": "Page d'accueil",
+    "language": "Langue",
+    "logout": "Deconnexion",
+    "password": "Mot de passe",
+    "profile": "Profil",
+    "settings": "Parametres",
+    "softwares": "Softwares",
+    "users": "Utilisateurs",
+    "variables": "Variables"
+  },
+  "theme": {
+    "toDark": "Theme sombre",
+    "toLight": "Theme clair",
+    "toggleAria": "Changer le theme"
+  },
+  "user": {
+    "fallbackEmail": "admin@example.local",
+    "fallbackName": "Demo Admin"
+  }
+}

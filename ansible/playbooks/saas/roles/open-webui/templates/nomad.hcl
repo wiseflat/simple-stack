@@ -48,7 +48,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "ghcr.io/open-webui/open-webui:{{ softwares.open-webui.version }}"
+        image = "ghcr.io/open-webui/open-webui:{{ catalogs.open-webui.version }}"
 
         mount {
           type = "bind"

@@ -26,4 +26,3 @@ static_port: 5432
 ```yaml
 passwd: 123456
 ```
-

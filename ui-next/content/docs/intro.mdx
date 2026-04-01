@@ -1,0 +1,83 @@
+**Wiseflat Simple Stack** is an integrated platform for running your entire infrastructure, applications, and observability on your own hardware or cloud accounts - all from a single unified interface.
+
+<div id="the-problem" className="scroll-mt-24" />
+
+## The Problem
+
+You want to host your own infrastructure and applications, but you don't want to:
+
+- Manually manage Terraform state files and infrastructure versions
+- Write deployment scripts every time you add a new service
+- Cobble together monitoring solutions across multiple dashboards
+- Lose visibility into what's actually running on your servers
+
+<div id="the-solution" className="scroll-mt-24" />
+
+## The Solution
+
+Simple Stack unifies the entire deployment pipeline in one self-hosted interface:
+
+**Terraform States → Ansible Playbooks → Docker Registry → App Deployments → Full Observability**
+
+<div id="your-journey" className="scroll-mt-24" />
+
+## Your Journey
+
+<div id="infrastructures" className="scroll-mt-24" />
+
+### 1. Infrastructures - Define Your Foundation (IaaS)
+Import or provision cloud infrastructure using Terraform. Store state files directly in Simple Stack, track versions, and audit all changes. Support for any provider: AWS, OVHcloud, Scaleway, or on-premise.
+
+→ [Learn more about Infrastructures](/docs/infrastructures)
+
+<div id="infrastructures-setup" className="scroll-mt-24" />
+
+### 2. Infrastructures Setup - Configure Your Servers (PaaS)
+Once infrastructure is provisioned, Ansible playbooks install Docker, system services, and automatically deploy the observability stack (Prometheus, Loki, Grafana). Nomad handles orchestration.
+
+→ [Learn more about Infrastructures](/docs/infrastructures)
+
+<div id="catalogs" className="scroll-mt-24" />
+
+### 3. Catalogs - Build Your Applications
+Create reusable Docker container templates in your private registry. Define service dependencies and environment requirements once, share with your team.
+
+→ [Learn more about Catalogs](/docs/catalogs)
+
+<div id="softwares" className="scroll-mt-24" />
+
+### 4. Softwares - Deploy & Manage
+Deploy catalog applications onto your infrastructure. Configure variables, manage secrets, trigger deployments from the UI. Track deployment history and operational actions.
+
+→ [Learn more about Softwares](/docs/softwares)
+
+<div id="observability" className="scroll-mt-24" />
+
+### 5. Observability - See Everything (Built-in)
+Monitor your entire stack with automatically deployed observability:
+- **Prometheus / Mimir** – metrics from all infrastructure and services
+- **Loki** – log aggregation across containers and systems
+- **Grafana** – unified dashboards and alerting
+- **Alertmanager** – notifications of incidents
+
+<div id="why-simple-stack" className="scroll-mt-24" />
+
+## Why Simple Stack?
+
+✅ **Self-Hosted** – Full control. No external dependencies.
+✅ **Unified** – One interface for infrastructure, configuration, and deployments.
+✅ **Declarative** – All changes are version-controlled and auditable.
+✅ **Transparent** – Every decision is documented and understandable.
+
+<div id="getting-started-next-steps" className="scroll-mt-24" />
+
+## Getting Started
+
+**New to Simple Stack?** Start with [Installation](/docs/installation) for a step-by-step local setup and first deployment.
+
+**Want to dive deep?** Pick a domain:
+- [Infrastructures](/docs/infrastructures) – Manage cloud resources with Terraform
+- [Catalogs](/docs/catalogs) – Build and organize your application library
+- [Softwares](/docs/softwares) – Deploy and operate services
+
+**Operational questions?** See [Settings](/docs/settings), [API](/docs/api-interne), or [Events](/docs/events).

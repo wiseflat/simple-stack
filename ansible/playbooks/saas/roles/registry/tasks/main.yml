@@ -30,7 +30,7 @@
 
 # - debug:
 #     msg:
-#       - "{{ softwares.registry }}"
+#       - "{{ catalogs.registry }}"
 
 - name: Copy nomad job to destination
   ansible.builtin.template:

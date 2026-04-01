@@ -113,7 +113,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "mariadb:{{ softwares.mariadb.version }}"
+        image = "mariadb:{{ catalogs.mariadb.version }}"
         volumes = [
           "{{ software_path }}/var/lib/mysql:/var/lib/mysql:Z",
           "{{ software_path }}/etc/mysql/conf.d:/etc/mysql/conf.d:ro",

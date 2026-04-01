@@ -140,5 +140,5 @@ modules:  # this is the only key currently read from the config
 
   kitchensink:
     <<: *kitchensink
-    
+
   {{ dns_exporter.modules | to_nice_yaml | indent(2) }}

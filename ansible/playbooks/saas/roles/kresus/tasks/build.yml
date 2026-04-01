@@ -9,7 +9,7 @@
 
 - name: End playbook if no new version
   ansible.builtin.meta: end_host
-  when: softwares[catalog_image_name] is defined and softwares[catalog_image_name].version == image_version
+  when: catalogs[catalog_image_name] is defined and catalogs[catalog_image_name].version == image_version
 
 - name: Copy config file
   ansible.builtin.copy:

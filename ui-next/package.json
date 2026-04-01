@@ -1,0 +1,72 @@
+{
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.2.1",
+    "@scalar/nextjs-api-reference": "^0.10.3",
+    "@tailwindcss/typography": "^0.5.19",
+    "better-sqlite3": "^12.6.2",
+    "cmdk": "^1.1.1",
+    "drizzle-orm": "^0.45.1",
+    "fumadocs-core": "^16.6.17",
+    "fumadocs-ui": "^16.6.17",
+    "js-yaml": "^4.1.1",
+    "lucide-react": "^0.577.0",
+    "next": "^16.2.1",
+    "next-auth": "^5.0.0-beta.30",
+    "next-intl": "^4.8.3",
+    "next-themes": "^0.4.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-force-graph": "^1.29.3",
+    "react-force-graph-3d": "^1.29.1",
+    "react-hook-form": "^7.71.2",
+    "react-syntax-highlighter": "^16.1.1",
+    "shadcn-ui": "^0.9.5",
+    "yaml": "^2.8.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.2",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.5",
+    "typescript": "^5",
+    "vitest": "^4.1.0"
+  },
+  "name": "ui-next",
+  "overrides": {
+    "3d-force-graph": {
+      "three": "0.182.0"
+    },
+    "three-forcegraph": {
+      "three": "0.182.0"
+    },
+    "three-render-objects": {
+      "three": "0.182.0"
+    }
+  },
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "dev": "next dev",
+    "extract-roles": "node scripts/extract-roles-variables.js",
+    "lint": "eslint",
+    "prebuild": "npm run extract-roles",
+    "predev": "npm run extract-roles",
+    "start": "next start"
+  },
+  "version": "0.1.0"
+}

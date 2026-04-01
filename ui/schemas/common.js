@@ -9,7 +9,7 @@ NEWSCHEMA('Account', function(schema) {
 	schema.action('create', {
 		name: 'Create user account',
 		input: '*email:Email, *password:String',
-		action: async function($, model) {		
+		action: async function($, model) {
 			if(!FUNC.regex(REGEX_USERS.email, model.email)) {
 				$.invalid('{0}'.format(REGEX_USERS.email.comment));
 				return;
@@ -28,7 +28,7 @@ NEWSCHEMA('Account', function(schema) {
 				$.invalid('Registration is disabled, please try later');
 			}
 
-			
+
 		}
 	});
 

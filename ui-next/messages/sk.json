@@ -1,0 +1,54 @@
+{
+  "auth": {
+    "email": "Email",
+    "invalidCredentials": "Nespravny email alebo heslo.",
+    "loggingIn": "Prihlasovanie...",
+    "loginTitle": "Prihlasenie",
+    "password": "Heslo",
+    "signIn": "Prihlasit sa",
+    "subtitle": "Simple Stack UI"
+  },
+  "common": {
+    "appName": "Wiseflat concept",
+    "brand": "Simple Stack"
+  },
+  "dashboard": {
+    "description": "Zaklad Next.js/Fumadocs je pripraveny. 3D vizualizacia a data budu napojene vo faze 2/3.",
+    "title": "Prehlad"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Espanol",
+    "fr": "Francais",
+    "sk": "Slovencina"
+  },
+  "layout": {
+    "subtitle": "Migracia z TotalJS na Next.js + Fumadocs"
+  },
+  "menu": {
+    "catalogs": "Katalogy",
+    "dashboard": "Prehlad",
+    "documentation": "Dokument\u00e1cia",
+    "events": "Udalosti",
+    "infrastructures": "Infrastruktury",
+    "internalApi": "Interne API",
+    "landing": "\u00davodn\u00e1 str\u00e1nka",
+    "language": "Jazyk",
+    "logout": "Odhlasit sa",
+    "password": "Heslo",
+    "profile": "Profil",
+    "settings": "Nastavenia",
+    "softwares": "Softwares",
+    "users": "Pouzivatelia",
+    "variables": "Premenne"
+  },
+  "theme": {
+    "toDark": "Tmava tema",
+    "toLight": "Svetla tema",
+    "toggleAria": "Prepinat temu"
+  },
+  "user": {
+    "fallbackEmail": "admin@example.local",
+    "fallbackName": "Demo Admin"
+  }
+}

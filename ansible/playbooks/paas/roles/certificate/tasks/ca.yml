@@ -53,4 +53,3 @@
   delegate_to: "{{ certificate_ca_host }}"
   become: false
   when: not cert_ca_tls_priv_present.stat.exists
-

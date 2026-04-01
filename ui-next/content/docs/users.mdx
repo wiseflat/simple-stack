@@ -1,0 +1,107 @@
+**Users** is where administrators create and manage team member accounts, assign permissions, and control access to the platform.
+
+## Creating Users
+
+### Admin-Only Operation
+
+Only **Super Admins** (users with `SA` flag) can create and manage other users. This ensures security and prevents unauthorized account creation.
+
+### User Information
+
+When creating a new user, provide:
+
+- **First name** – User's given name
+- **Last name** – User's family name
+- **Email** – Unique identifier; used for sign-in (optional: can use token auth instead)
+- **Language** – Preferred UI language: French, English, Spanish, Slovak
+- **Password** – If using password auth (minimum 8 chars, at least one letter and one number)
+- **Token** – Optional: 64-character auth token instead of password
+- **Super Admin** – Checkbox to grant full system permissions
+- **Disabled** – Checkbox to temporarily deactivate account without deleting
+
+### Authentication Methods
+
+#### Password Authentication
+```
+Email: user@example.com
+Password: MyPassword123!
+```
+Standard email/password login via the sign-in page.
+
+#### Token Authentication
+```
+Email: user@example.com
+Token: ab1234cd5678ef9012gh3456ij7890kl1234mno5678pq9012rs3456tu7890vw
+```
+64-character token for:
+- Automation and CI/CD scripts
+- API-only access
+- Headless integrations
+
+---
+
+## User Roles
+
+### Super Admin (SA flag)
+Full system permissions:
+- Create, edit, and delete users
+- Access all infrastructure projects
+- Modify global settings
+- Export/import platform data
+- View all events and logs
+
+### Regular User
+Standard access:
+- View assigned infrastructure projects
+- Deploy and manage applications
+- Create and edit catalogs
+- View events for their actions
+- Cannot manage users or settings
+
+---
+
+## Best Practices
+
+- **Use tokens for automation** – Never embed passwords in scripts
+- **Limit Super Admins** – Minimize accounts with full permissions
+- **Rotate tokens regularly** – Regenerate tokens quarterly or before offboarding
+- **Disable instead of delete** – Use disable if you might re-enable the account
+- **Language preference** – Set to match team's primary language for better UX
+- **Review admins monthly** – Audit who has SA flag
+
+---
+
+## Troubleshooting
+
+<details>
+	<summary><strong>User can't sign in?</strong></summary>
+
+	- Check if account is disabled
+	- Verify email address is correct
+	- If using token, confirm it's exactly 64 characters
+	- Check browser cookies/localStorage for stale sessions
+</details>
+
+<details>
+	<summary><strong>Forgot password?</strong></summary>
+
+	- SA must reset password in User Management
+	- No self-service password reset available yet
+</details>
+
+<details>
+	<summary><strong>Multiple sign-in methods?</strong></summary>
+
+	- Users can have both password and token configured
+	- They can use either method to authenticate
+</details>
+
+---
+
+## Security Considerations
+
+- Tokens are stored securely (no copying to UI)
+- Passwords must meet minimum complexity requirements
+- All user management actions are logged in Events
+- Disabled users cannot create new sessions
+- Token auth is ideal for automated workflows with audit trail

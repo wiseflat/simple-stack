@@ -14,11 +14,11 @@
       armv7l: arm
       aarch64: arm64
       arm64: arm64
-    catalog: "{{ catalog_response.json.origin | default(catalog_response.json.name) }}"
+    catalog: "{{ (catalog_response.json.origin is not none) | ternary(catalog_response.json.origin, catalog_response.json.name) }}"
     build_work_dir: "/tmp/{{ catalog }}"
     download_dir: "{{ build_work_dir }}/download"
     arch_dir: "{{ build_work_dir }}/{{ upstream_default_arch }}"
-    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"    
+    upstream_default_arch: "{{ architecture_map[ansible_facts.architecture] }}"
     ui_url: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_URL') }}"
     ui_user: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_USER') }}"
     ui_password: "{{ lookup('ansible.builtin.env', 'SIMPLE_STACK_UI_PASSWORD') }}"
@@ -26,13 +26,10 @@
   pre_tasks:
     - name: Retrieve catalog item from UI
       ansible.builtin.uri:
-        url: "{{ ui_url }}/api"
+        url: "{{ ui_url }}/api/catalogs/{{ catalog_id }}"
         user: "{{ ui_user }}"
         password: "{{ ui_password }}"
-        method: POST
-        body_format: json
-        body:
-          schema: "catalogs_read/{{ catalog_id }}"
+        method: GET
         force_basic_auth: true
         status_code: 200
       delegate_to: localhost
@@ -49,14 +46,18 @@
         - "{{ arch_dir }}"
 
   tasks:
+    - name: Debug catalog
+      debug:
+        msg: "Build Catalog: {{ catalog }}"
+
     - name: Build assets
       ansible.builtin.include_role:
         name: "{{ catalog }}"
         tasks_from: build
       vars:
         catalog_image_name: "{{ catalog_response.json.name }}"
-        dockerfile_root: "{{ catalog_response.json.dockerfile_root | default('') }}"
-        dockerfile_nonroot: "{{ catalog_response.json.dockerfile_nonroot | default('') }}"
+        dockerfileRoot: "{{ catalog_response.json.dockerfileRoot | default('') }}"
+        dockerfileNonroot: "{{ catalog_response.json.dockerfileNonroot | default('') }}"
 
     - name: Build and push Docker image
       community.docker.docker_image_build:
@@ -75,17 +76,15 @@
 
     - name: Update catalog item version on UI
       ansible.builtin.uri:
-        url: "{{ ui_url }}/api"
+        url: "{{ ui_url }}/api/catalogs"
         user: "{{ ui_user }}"
         password: "{{ ui_password }}"
         method: POST
         body_format: json
         body:
-          schema: catalogs_create
-          data:
-            name: "{{ catalog_response.json.name }}"
-            version: "{{ image_version }}"
-            forkable: "{{ image_forkable | default(false) }}"
+          name: "{{ catalog_response.json.name }}"
+          version: "{{ image_version }}"
+          forkable: "{{ image_forkable | default(false) }}"
         force_basic_auth: true
         status_code: 200
       delegate_to: localhost

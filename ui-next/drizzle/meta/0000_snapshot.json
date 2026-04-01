@@ -1,0 +1,566 @@
+{
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "dialect": "sqlite",
+  "enums": {},
+  "id": "9caf9a27-bf7d-40d2-8113-bacf6400bc28",
+  "internal": {
+    "indexes": {}
+  },
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "catalogs": {
+      "checkConstraints": {},
+      "columns": {
+        "alias": {
+          "autoincrement": false,
+          "name": "alias",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "cron": {
+          "autoincrement": false,
+          "default": false,
+          "name": "cron",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "crontab": {
+          "autoincrement": false,
+          "name": "crontab",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "description": {
+          "autoincrement": false,
+          "name": "description",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "dockerfile_nonroot": {
+          "autoincrement": false,
+          "name": "dockerfile_nonroot",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "dockerfile_root": {
+          "autoincrement": false,
+          "name": "dockerfile_root",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "documentation": {
+          "autoincrement": false,
+          "name": "documentation",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "fork": {
+          "autoincrement": false,
+          "default": false,
+          "name": "fork",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "forkable": {
+          "autoincrement": false,
+          "default": false,
+          "name": "forkable",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "origin": {
+          "autoincrement": false,
+          "name": "origin",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "suffix": {
+          "autoincrement": false,
+          "name": "suffix",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "version": {
+          "autoincrement": false,
+          "name": "version",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "catalogs",
+      "uniqueConstraints": {}
+    },
+    "events": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "event_type": {
+          "autoincrement": false,
+          "name": "event_type",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "message": {
+          "autoincrement": false,
+          "name": "message",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "payload": {
+          "autoincrement": false,
+          "name": "payload",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "status": {
+          "autoincrement": false,
+          "name": "status",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "timestamp": {
+          "autoincrement": false,
+          "name": "timestamp",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "events",
+      "uniqueConstraints": {}
+    },
+    "infrastructures": {
+      "checkConstraints": {},
+      "columns": {
+        "color": {
+          "autoincrement": false,
+          "name": "color",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "description": {
+          "autoincrement": false,
+          "name": "description",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "icon": {
+          "autoincrement": false,
+          "name": "icon",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "is_archived": {
+          "autoincrement": false,
+          "default": false,
+          "name": "is_archived",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "uid": {
+          "autoincrement": false,
+          "name": "uid",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "infrastructures",
+      "uniqueConstraints": {}
+    },
+    "softwares": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "domain": {
+          "autoincrement": false,
+          "name": "domain",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "domain_alias": {
+          "autoincrement": false,
+          "name": "domain_alias",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "exposition": {
+          "autoincrement": false,
+          "name": "exposition",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "instance": {
+          "autoincrement": false,
+          "name": "instance",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "size": {
+          "autoincrement": false,
+          "name": "size",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "software_id": {
+          "autoincrement": false,
+          "name": "software_id",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "state": {
+          "autoincrement": false,
+          "name": "state",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "status": {
+          "autoincrement": false,
+          "default": true,
+          "name": "status",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "uid": {
+          "autoincrement": false,
+          "name": "uid",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "version": {
+          "autoincrement": false,
+          "name": "version",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "softwares",
+      "uniqueConstraints": {}
+    },
+    "users": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "email": {
+          "autoincrement": false,
+          "name": "email",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "first_name": {
+          "autoincrement": false,
+          "name": "first_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "is_disabled": {
+          "autoincrement": false,
+          "default": false,
+          "name": "is_disabled",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "is_inactive": {
+          "autoincrement": false,
+          "default": false,
+          "name": "is_inactive",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "is_removed": {
+          "autoincrement": false,
+          "default": false,
+          "name": "is_removed",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "language": {
+          "autoincrement": false,
+          "default": "'fr'",
+          "name": "language",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "last_name": {
+          "autoincrement": false,
+          "name": "last_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "notifications": {
+          "autoincrement": false,
+          "default": false,
+          "name": "notifications",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "password_hash": {
+          "autoincrement": false,
+          "name": "password_hash",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "sa": {
+          "autoincrement": false,
+          "default": false,
+          "name": "sa",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "token_hash": {
+          "autoincrement": false,
+          "name": "token_hash",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {
+        "users_email_unique": {
+          "columns": [
+            "email"
+          ],
+          "isUnique": true,
+          "name": "users_email_unique"
+        }
+      },
+      "name": "users",
+      "uniqueConstraints": {}
+    },
+    "variables": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "key": {
+          "autoincrement": false,
+          "name": "key",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "key2": {
+          "autoincrement": false,
+          "name": "key2",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "type": {
+          "autoincrement": false,
+          "name": "type",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "uid": {
+          "autoincrement": false,
+          "name": "uid",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "value": {
+          "autoincrement": false,
+          "name": "value",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "variables",
+      "uniqueConstraints": {}
+    }
+  },
+  "version": "6",
+  "views": {}
+}

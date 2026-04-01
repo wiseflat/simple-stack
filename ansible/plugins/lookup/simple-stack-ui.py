@@ -2,6 +2,7 @@ from __future__ import (absolute_import, annotations, division, print_function)
 __metaclass__ = type
 
 import base64
+import json
 import os
 import string
 import random
@@ -42,7 +43,9 @@ class LookupModule(LookupBase):
 
         token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")
         headers = {}
-        headers["Authorization"] = f"Bearer {token}"
+        headers["Authorization"] = f"Basic {token}"
+        headers["Content-Type"] = "application/json"
+        headers["Accept"] = "application/json"
 
         display.vvvv(f"mylookup2: Authorization headers {headers}")
 
@@ -65,22 +68,25 @@ class LookupModule(LookupBase):
         if "delete" not in data:
             data["delete"] = False
 
+        if "missing" not in data:
+            data["missing"] = "error"
+
         if data['missing'] not in ['error', 'warn', 'create']:
             raise AnsibleError(f"{data['missing']} is not a valid option for missing")
 
         split_lines = kwargs.pop("split_lines", False)
 
         try:
-            data_bytes = urllib.parse.urlencode(data).encode("utf-8")
+            data_bytes = json.dumps(data).encode("utf-8")
         except Exception as exc:
-            raise AnsibleError(f"mylookup2: error encoding POST data: {to_native(exc)}")
+            raise AnsibleError(f"mylookup2: error encoding JSON POST data: {to_native(exc)}")
 
         display.vvvv(f"mylookup2: POSTing to {api_url} with data={data}")
 
 
         try:
             response = open_url(
-                f"{api_url}/api/secret",
+                f"{api_url}/api/variables/secret",
                 headers=headers,
                 data=data_bytes,
                 method="POST",
@@ -91,11 +97,20 @@ class LookupModule(LookupBase):
             body = e.read().decode(errors='replace')
 
             if status == 460:
-                display.warning("key or subkey does not exist")
+                display.warning(
+                    f"mylookup2: missing key/subkey (type={data.get('type')}, key={data.get('key')}, subkey={data.get('subkey')})"
+                )
                 return [{}]
 
             if status == 461:
-                raise AnsibleError("key or subkey does not exist")
+                raise AnsibleError(
+                    f"key or subkey does not exist (type={data.get('type')}, key={data.get('key')}, subkey={data.get('subkey')})"
+                )
+
+            if status == 401:
+                raise AnsibleError(
+                    "Unauthorized on simple-stack-ui API (expected Basic auth with email:password user credentials)"
+                )
 
             raise AnsibleError(f"HTTP {status} for {api_url}: {body}")
 

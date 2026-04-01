@@ -5,7 +5,7 @@
 - name: Create first user when email is defined
   community.docker.docker_container:
     name: "{{ domain }}-firstuser"
-    image: "forgejo:{{ softwares.forgejo.version }}"
+    image: "forgejo:{{ catalogs.forgejo.version }}"
     detach: false
     cleanup: true
     env:

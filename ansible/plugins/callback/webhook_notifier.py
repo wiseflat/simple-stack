@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import (absolute_import, annotations, division, print_function)
 __metaclass__ = type
 
@@ -39,7 +38,7 @@ class CallbackModule(CallbackBase):
     """
     Plugin de callback pour envoyer des notifications webhook
     lors des différentes étapes d'exécution d'un playbook Ansible.
-    
+
     Configuration via variables d'environnement ou variables Ansible:
         - SIMPLE_STACK_UI_URL / webhook_api_url
         - SIMPLE_STACK_UI_USER / webhook_user
@@ -110,36 +109,33 @@ class CallbackModule(CallbackBase):
                 return
 
             payload = {
-                "schema": "events_create",
-                "data": {
-                    "event_type": event_type,
-                    "status": status,
-                    "message": message,
-                    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-                    "playbook": {
-                        "name": self.playbook_name or "unknown",
-                        "path": self.playbook_path or "unknown",
-                    },
-                    "execution": {
-                        "hostname": socket.gethostname(),
-                        "user": os.environ.get("USER", "unknown"),
-                    }
+                "event_type": event_type,
+                "status": status,
+                "message": message,
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                "playbook": {
+                    "name": self.playbook_name or "unknown",
+                    "path": self.playbook_path or "unknown",
+                },
+                "execution": {
+                    "hostname": socket.gethostname(),
+                    "user": os.environ.get("USER", "unknown"),
                 }
             }
-            
+
             if self.start_time:
-                payload["data"]["execution"]["start_time"] = self.start_time.isoformat() + "Z"
-                payload["data"]["duration_seconds"] = (
+                payload["execution"]["start_time"] = self.start_time.isoformat() + "Z"
+                payload["duration_seconds"] = (
                     datetime.datetime.utcnow() - self.start_time
                 ).total_seconds()
 
             if self.hosts:
-                payload["data"]["hosts"] = [str(h) for h in self.hosts]
+                payload["hosts"] = [str(h) for h in self.hosts]
 
             if extra_data:
-                payload["data"].update(extra_data)
+                payload.update(extra_data)
 
-            webhook_endpoint = f"{api_url}/api"
+            webhook_endpoint = f"{api_url}/api/events"
             json_payload = json.dumps(payload)
 
             display.vvv(f"webhook_notifier: Envoi vers {webhook_endpoint}")
@@ -159,7 +155,7 @@ class CallbackModule(CallbackBase):
             # Ajouter l'authentification si configurée
             if username and password:
                 token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")
-                curl_cmd.extend(["-H", f"Authorization: Bearer {token}"])
+                curl_cmd.extend(["-H", f"Authorization: Basic {token}"])
 
             curl_cmd.append(webhook_endpoint)
 
@@ -270,7 +266,7 @@ class CallbackModule(CallbackBase):
         try:
             variable_manager = play.get_variable_manager()
             raw_vars = variable_manager.get_vars() or {}
-            
+
             self.play_vars = {}
             for key in ['webhook_api_url', 'webhook_user', 'webhook_password']:
                 if key in raw_vars:
@@ -288,7 +284,7 @@ class CallbackModule(CallbackBase):
                 self.hosts = [str(h) for h in hosts]
             else:
                 self.hosts = [str(play.hosts)]
-                
+
         except Exception as e:
             display.vvvv(f"webhook_notifier: Impossible de récupérer les variables: {e}")
             self.play_vars = {}

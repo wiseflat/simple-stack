@@ -40,7 +40,7 @@
 - name: Install wordpress
   community.docker.docker_container:
     name: "{{ domain }}-install"
-    image: "phpfpm-wordpress:{{ softwares.wordpress.version }}"
+    image: "phpfpm-wordpress:{{ catalogs.wordpress.version }}"
     detach: false
     cleanup: true
     command: "{{ item }}"

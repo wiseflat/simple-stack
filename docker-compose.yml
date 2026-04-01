@@ -1,0 +1,59 @@
+services:
+  ui-next:
+    build:
+      context: ./ui-next
+      dockerfile: Dockerfile
+    image: simple-stack/ui-next:local
+    container_name: simple-stack-ui-next
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXTAUTH_URL: http://localhost:${UI_NEXT_PORT:-3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-env}
+      AUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-env}
+      AUTH_TRUST_HOST: "true"
+      TEMP_ADMIN_EMAIL: ${TEMP_ADMIN_EMAIL}
+      TEMP_ADMIN_PASSWORD: ${TEMP_ADMIN_PASSWORD}
+      SIMPLE_STACK_UI_USER: ${TEMP_ADMIN_EMAIL}
+      SIMPLE_STACK_UI_PASSWORD: ${TEMP_ADMIN_PASSWORD}
+      DATABASE_URL: /app/data/simple-stack.db
+    ports:
+      - "${UI_NEXT_PORT:-3000}:3000"
+    volumes:
+      - ./ui-next/data:/app/data
+    restart: unless-stopped
+    networks:
+      - simple-stack-net
+
+  ansible:
+    build:
+      context: ./ansible
+      dockerfile: Dockerfile
+      args:
+        JAVA_VERSION: ${ANSIBLE_JAVA_VERSION:-21}
+    image: simple-stack/ansible:local
+    container_name: simple-stack-ansible
+    environment:
+      ANSIBLE_FORCE_COLOR: "true"
+      PYTHONUNBUFFERED: "1"
+      SIMPLE_STACK_UI_URL: ${SIMPLE_STACK_UI_URL}
+      SIMPLE_STACK_UI_USER: ${TEMP_ADMIN_EMAIL}
+      SIMPLE_STACK_UI_PASSWORD: ${TEMP_ADMIN_PASSWORD}
+      TF_HTTP_USERNAME: ${TEMP_ADMIN_EMAIL}
+      TF_HTTP_PASSWORD: ${TEMP_ADMIN_PASSWORD}
+      ANSIBLE_LOOKUP_PLUGINS: "/ansible/plugins/lookup"
+      ANSIBLE_CALLBACK_PLUGINS: "/ansible/plugins/callback"
+      ANSIBLE_CALLBACKS_ENABLED: "minimal,webhook_notifier"
+    depends_on:
+      - ui-next
+    volumes:
+      - ./terraform:/terraform
+      - ~/.ssh:/root/.ssh:ro
+    restart: unless-stopped
+    networks:
+      - simple-stack-net
+
+networks:
+  simple-stack-net:
+    driver: bridge

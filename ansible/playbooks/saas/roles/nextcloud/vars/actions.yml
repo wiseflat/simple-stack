@@ -10,4 +10,4 @@ nextcloud_actions:
     - "/data/{{ software.dbhost }}/root:/root:ro"
     - "/usr/local/bin/nextcloud-backup:/usr/local/bin/nextcloud-backup:ro"
     - "/usr/local/bin/nextcloud-restore:/usr/local/bin/nextcloud-restore:ro"
-  image: "nextcloud:{{ softwares.nextcloud.version }}"
+  image: "nextcloud:{{ catalogs.nextcloud.version }}"

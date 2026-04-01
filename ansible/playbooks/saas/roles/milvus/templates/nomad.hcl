@@ -58,7 +58,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "milvusdb/milvus:v{{ softwares.milvus.version }}"
+        image = "milvusdb/milvus:v{{ catalogs.milvus.version }}"
         security_opt = [
           "seccomp=unconfined"
         ]

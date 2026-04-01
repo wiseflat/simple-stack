@@ -13,4 +13,4 @@ forgejo_actions:
     - "/data/{{ software.dbhost }}/root:/root:ro"
     - "/usr/local/bin/forgejo-backup:/usr/local/bin/forgejo-backup:ro"
     - "/usr/local/bin/forgejo-restore:/usr/local/bin/forgejo-restore:ro"
-  image: "mariadb:{{ softwares.mariadb.version }}"
+  image: "mariadb:{{ catalogs.mariadb.version }}"

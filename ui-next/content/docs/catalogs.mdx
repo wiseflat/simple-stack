@@ -1,0 +1,106 @@
+**Catalogs** are your library of reusable applications. Each catalog item is a Docker container template with predefined configuration, variables, and deployment rules. Think of it as your private app marketplace.
+
+## What is a Catalog?
+
+A catalog is a collection of service definitions:
+
+- **Application templates** – Docker images with documented dependencies
+- **Configuration schemas** – Required variables, secrets, and defaults
+- **Deployment rules** – Port mappings, volume needs, resource requirements
+- **Documentation** – What the service does and how to use it
+
+## Catalog Structure
+
+Each catalog item contains:
+
+```yaml
+name: postgres
+version: "15.0"
+description: "PostgreSQL database server"
+docker_image: "postgres:15-alpine"
+
+environment_variables:
+  POSTGRES_DB:
+    required: true
+    description: "Initial database name"
+  POSTGRES_PASSWORD:
+    required: true
+    secret: true
+    description: "Database password"
+
+ports:
+  - internal: 5432
+    external: 5432
+    protocol: tcp
+
+volumes:
+  - name: postgres_data
+    mount_path: /var/lib/postgresql
+    size_gb: 20
+
+resources:
+  memory_mb: 512
+  cpu_cores: 1
+```
+
+## Creating a Catalog Item
+
+1. Click "New Catalog"
+2. Fill in metadata (name, version, description)
+3. Provide Docker image URI (from your private registry or public registry)
+4. Define required variables and secrets
+5. Specify port and volume requirements
+6. Document deployment assumptions
+7. Save
+
+## Catalog Items as Templates
+
+Each catalog item is a **template**, not an instance:
+
+- One catalog item can be deployed multiple times
+- Each deployment is independent with its own variables and configuration
+- Updates to the catalog don't affect existing deployments
+
+## Common Patterns
+
+### Single Service
+- nginx web server
+- Redis cache
+- PostgreSQL database
+
+### Bundled Stack
+- Full application (frontend + backend + database)
+- Monitoring agent + log shipper
+- Search engine + cache layer
+
+### Stateful vs Stateless
+- **Stateless**: nginx, reverse proxy (scale horizontally)
+- **Stateful**: PostgreSQL, MongoDB (limited scaling)
+
+## Versioning & Forks
+
+**Versions:**
+- Track catalog item changes over time
+- Existing deployments pin a specific version
+- New deployments default to latest
+
+**Forks:**
+- Copy a catalog item to create variants
+- Fork postgres "15.0" → postgres "15.0-prod" with increased resources
+- Maintain organization-specific versions
+
+## Building Your First Catalog
+
+1. **Create infrastructure** – (see [Infrastructures](/docs/infrastructures))
+2. **Create 3-5 basic items:**
+   - nginx (web server)
+   - PostgreSQL or MySQL (database)
+   - Redis (cache)
+   - Your main application
+3. **Test each deployment** – (see [Softwares](/docs/softwares))
+4. **Add more services** as your needs grow
+
+## Next Steps
+
+- [Deploy Services (Softwares)](/docs/softwares) – Use your catalog to create deployments
+- [Events & Auditing](/docs/events) – Track catalog changes

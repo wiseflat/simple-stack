@@ -1,0 +1,86 @@
+**Settings** is where administrators configure global platform behavior, manage data exports/imports, and control which features are available to users.
+
+## General Settings
+
+### Public Landing Page
+
+Toggle to enable or disable the public landing page (`/`). When disabled:
+- External visitors cannot access the marketing site
+- Only authenticated users see the dashboard
+- Documentation is still accessible if enabled
+
+Use this to:
+- Launch in stealth mode (private beta)
+- Hide public surface in development
+- Restrict access to team members only
+
+### Documentation
+
+Toggle to enable or disable the public documentation (`/docs`). When disabled:
+- Users cannot browse API docs, guides, or concepts
+- Dashboard remains accessible to authenticated users
+- Link to docs is hidden from sidebars
+
+Use this to:
+- Hide docs while editing or drafting
+- Keep documentation internal to your team
+
+---
+
+## Data Export
+
+Export your platform configuration and state as JSON for:
+- **Backup** – Save complete snapshots of your setup
+- **Migration** – Transfer configuration between environments
+- **Team sharing** – Share infrastructure templates
+
+### Export Process
+
+1. Go to **Settings** → **Export** tab
+2. Enter comma-separated project IDs (optional)
+   - Leave blank to export all projects
+   - Example: `project-1, project-2, project-3`
+3. Click **Export**
+4. JSON file downloads with all selected data
+
+### What Gets Exported
+
+- Infrastructure definitions and states
+- Catalog items and versions
+- Software deployments and configurations
+- User-defined variables and secrets
+- Metadata and timestamps
+
+---
+
+## Data Import
+
+Import previously exported configurations to:
+- **Restore** from a backup
+- **Migrate** between environments
+- **Clone** setups across teams
+- **Replicate** templates
+
+### Import Process
+
+1. Go to **Settings** → **Import** tab
+2. Paste exported JSON (or upload file)
+3. Review import summary
+4. Click **Import**
+5. Configuration is merged into current instance
+
+### Important Notes
+
+- Imports merge with existing data (not replace)
+- IDs are preserved if not conflicting
+- Timestamps reflect when data was imported
+- Always test imports in non-production first
+
+---
+
+## Site Administration Tips
+
+- **Backup regularly** – Export full configuration monthly
+- **Test imports carefully** – Use staging environment first
+- **Document settings** – Keep notes on why features are enabled/disabled
+- **Monitor exports** – Track which data has been exported for compliance
