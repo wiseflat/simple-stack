@@ -2,16 +2,10 @@ name: Docker
 
 on:
   push:
-    branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    branches: ["main"]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: [ "main" ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME_UI: ${{ github.repository }}-ui
-  IMAGE_NAME_ANSIBLE: ${{ github.repository }}-ansible
+    branches: ["main"]
 
 permissions:
   contents: write
@@ -19,136 +13,84 @@ permissions:
   id-token: write
 
 jobs:
-  build-ui:
+  setup:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.value }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Compute version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "value=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            echo "value=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          cosign-release: 'v2.2.4'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
-
-      - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set version (SemVer)
-        id: set_version
-        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
-
-      - name: Extract Docker UI metadata
-        id: meta-ui
-        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_UI }}
-          tags: ${{ env.VERSION }}
-
-      - name: Build and push UI Docker image
-        id: build-and-push-ui
-        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
-        with:
-          context: ui/.
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta-ui.outputs.tags }}
-          labels: ${{ steps.meta-ui.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Sign the published UI Docker image
-        if: ${{ github.event_name != 'pull_request' }}
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ui-next/package-lock.json
+      - name: Install dependencies
+        run: npm ci --prefix ui-next
+      - name: Lint
+        run: npm run lint --prefix ui-next
+      - name: Build check
+        run: npm run build --prefix ui-next
         env:
-          TAGS: ${{ steps.meta-ui.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push-ui.outputs.digest }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+          AUTH_SECRET: ci-placeholder
+          DATABASE_URL: ":memory:"
+
+  build-ui:
+    needs: [setup, quality]
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      image_name: ${{ github.repository }}-ui
+      context: ui/.
+      version: ${{ needs.setup.outputs.version }}
+      registry: ghcr.io
+      push: ${{ github.event_name != 'pull_request' }}
+    secrets:
+      registry_token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-ui-next:
+    needs: [setup, quality]
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      image_name: ${{ github.repository }}-ui-next
+      context: ui-next/.
+      version: ${{ needs.setup.outputs.version }}
+      registry: ghcr.io
+      push: ${{ github.event_name != 'pull_request' }}
+    secrets:
+      registry_token: ${{ secrets.GITHUB_TOKEN }}
 
   build-ansible:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
-        with:
-          cosign-release: 'v2.2.4'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
-
-      - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set version (SemVer)
-        id: set_version
-        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
-
-      - name: Extract Docker Ansible metadata
-        id: meta-ansible
-        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_ANSIBLE }}
-          tags: ${{ env.VERSION }}
-
-      - name: Build and push Ansible Docker image
-        id: build-and-push-ansible
-        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
-        with:
-          context: ansible/.
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta-ansible.outputs.tags }}
-          labels: ${{ steps.meta-ansible.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Sign the published Ansible Docker image
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          TAGS: ${{ steps.meta-ansible.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push-ansible.outputs.digest }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+    needs: [setup, quality]
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      image_name: ${{ github.repository }}-ansible
+      context: ansible/.
+      version: ${{ needs.setup.outputs.version }}
+      registry: ghcr.io
+      push: ${{ github.event_name != 'pull_request' }}
+    secrets:
+      registry_token: ${{ secrets.GITHUB_TOKEN }}
 
   release:
-    needs: [build-ui, build-ansible]
+    needs: [build-ui, build-ui-next, build-ansible]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
-      id-token: write
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - name: Set version (SemVer) for release
-        run: echo "VERSION=v0.0.${{ github.run_number }}" >> $GITHUB_ENV
-
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: Release ${{ env.VERSION }}
-          draft: false
-          prerelease: false
+          generate_release_notes: true
