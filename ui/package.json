@@ -1,17 +1,8 @@
 {
-  "name": "simplestack",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wiseflat/simplestack"
-  },
+  "author": "Mathieu Garcia / QWS",
   "dependencies": {
     "total5": "0.0.13",
     "yaml": "2.8.1"
-  },
-  "scripts": {
-    "start": "node index.js 8000"
   },
   "keywords": [
     "ansible",
@@ -19,6 +10,15 @@
     "cloud computing",
     "platform as a service"
   ],
-  "author": "Mathieu Garcia / QWS",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "index.js",
+  "name": "simplestack",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wiseflat/simplestack"
+  },
+  "scripts": {
+    "start": "node index.js 8000"
+  },
+  "version": "1.0.0"
 }

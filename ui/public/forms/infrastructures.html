@@ -27,7 +27,7 @@
 		<script type="text/html">
 			@(You don't have any infrastructures here)
 		</script>
-		
+
 		<ui-component name="datagrid" path="?.items" config="height:fluid;minheight:fluid;numbering:false;sorting:true;dblclick:?/update;button:?/button;checked:?.checked;">
 			<script type="text/plain">
 				[
@@ -54,7 +54,7 @@
 				exports.set(results);
 			});
 		};
-		
+
 		exports.refreshGraph = function() {
 			REDIRECT('/ @showloading @hideloading');
 		};

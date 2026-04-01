@@ -121,9 +121,9 @@
 				exports.set(output);
 			});
 		};
-		
+
 		exports.update = function(el) {
-			var id = ATTRD(el, 'id');	
+			var id = ATTRD(el, 'id');
 			var key = ATTRD(el, 'key');
 			var type = ATTRD(el, 'type');
 			exports.tapi('variables_read/{0} ERROR'.format(id), { key: key, type: type, format: 'yaml'}, function(response) {

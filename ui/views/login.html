@@ -48,7 +48,7 @@
 					<button name="landing_create" id="landing_create"><i class="fa fa-user white"></i>@(Create account)</button>
 					<br/><br/>
 				</div>
-	
+
 				<div id="landing_login2" hidden id="login">
 					<ui-bind path="common.type" config="show:value === 'login'" class="hidden">
 						<ui-plugin path="formlogin">
@@ -62,7 +62,7 @@
 						</ui-plugin>
 					</ui-bind>
 				</div>
-	
+
 				<div id="landing_create2" hidden id="createAccount">
 					<ui-bind path="common.type" config="show:value === 'login'" class="hidden">
 						<ui-plugin path="formlogin">
@@ -73,7 +73,7 @@
 									<button name="submit" class="exec" data-exec="?/submit_create" disabled><i class="ti ti-key orange"></i>@(Create account)</button>
 								</ui-component>
 							</ui-component>
-							
+
 						</ui-plugin>
 					</ui-bind>
 				</div>

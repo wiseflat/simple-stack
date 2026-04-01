@@ -40,7 +40,8 @@
             var model = exports.model;
 
 			exports.tapi('infrastructures ERROR', function(results){
-				model.projects = results;
+				console.log(results);
+				model.projects = results.items;
 				model.catalogs = [{ id: 1, name: 'All items' }];
 				exports.set(model);
 			});

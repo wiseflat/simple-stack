@@ -24,7 +24,7 @@ NEWSCHEMA('Events', function(schema) {
 				success: 'info',
 				failure: 'warning'
 			};
-			
+
 			const result = await DATA.list('nosql/events')
 				.error('@(Error reading events)')
 				.promise($);

@@ -159,7 +159,7 @@
 		var skip = 0;
 		var prevunread = 0;
 		var data = exports.model;
-		  
+
 		CACHEPATH('?.type__"pending"', '1 month');
 
 		exports.reload = function() {
@@ -185,7 +185,7 @@
 			});
 		};
 
-		exports.edit = function(node) {			
+		exports.edit = function(node) {
 			if(!node.vid){
 				SET('formvariable @reset @hideloading', { type: node.collection, key: node.key });
 				SET('common.form2', 'formvariable');

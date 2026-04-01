@@ -191,6 +191,7 @@ NEWSCHEMA('Settings', function (schema) {
 			}
 
 			// $.callback(ENCRYPT(output, model.password));
+			console.log(JSON.stringify(output));
 			$.callback(output);
 		}
 	});

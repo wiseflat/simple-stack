@@ -2,7 +2,7 @@ exports.install = function() {
 
 	ROUTE('GET    /api/ping', ping);
 
-	// Users 
+	// Users
 	ROUTE('+API    /api/       +users                 --> Users/list');
 	ROUTE('+API    /api/       +users_read/{id}       --> Users/read');
 	ROUTE('+API    /api/       +users_create          --> Users/create');
@@ -57,7 +57,7 @@ exports.install = function() {
 	ROUTE('+API    /api/       +softwares_update_version/{id}        --> Softwares/update_version');
 	ROUTE('+API    /api/       +softwares_remove/{id}                --> Softwares/remove');
 	ROUTE('+API    /api/       +softwares_execute/{id}               --> Softwares/execute');
-	
+
 	// Variables
 	ROUTE('+API    /api/       +variables		                     --> Variables/list');
 	ROUTE('+API    /api/       +variables_read/{id}                  --> Variables/read');

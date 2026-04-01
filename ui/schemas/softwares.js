@@ -65,7 +65,7 @@ NEWSCHEMA('Softwares', function (schema) {
 		action: async function ($) {
 			const result = await DATA.list('nosql/softwares')
 				.where('uid', $.user.id)
-				.fields('id,domain,version,software,size,instance')
+				// .fields('id,domain,version,software,size,instance')
 				.error('@(Error)')
 				.promise($);
 
@@ -205,7 +205,7 @@ NEWSCHEMA('Softwares', function (schema) {
 				.promise($);
 
 			if(model.action == 'destroy_force'){
-	
+
 				let variable = await ACTION('Variables/read3', { key: item.domain, type: 'software' } ).user($.user).promise($);
 				if(variable.id !== undefined)
 					await ACTION('Variables/remove').params({ id: variable.id }).user($.user).promise($);
@@ -268,7 +268,7 @@ NEWSCHEMA('Softwares', function (schema) {
 			model.id = UID();
 			model.uid = $.user.id;
 			model.dtupdated = NOW;
-			
+
 			await DATA.insert('nosql/softwares', model).error('@(Error)').promise($);
 
 			$.success();
