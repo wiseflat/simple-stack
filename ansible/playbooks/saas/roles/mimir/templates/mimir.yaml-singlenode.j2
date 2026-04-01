@@ -46,14 +46,14 @@ alertmanager:
 
 compactor:
 
-distributor: 
+distributor:
   ring:
     instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
 
 server:
   log_level: warn
 
-ingester: 
+ingester:
   ring:
     replication_factor: 1
 

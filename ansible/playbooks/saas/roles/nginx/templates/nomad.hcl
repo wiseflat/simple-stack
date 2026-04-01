@@ -63,7 +63,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "{{ docker_private_registry.url }}/nginx:{{ softwares.nginx.version }}"
+        image = "{{ docker_private_registry.url }}/nginx:{{ catalogs.nginx.version }}"
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:ro",
           "{{ software_path }}/var/log/nginx:/var/log/nginx:rw",

@@ -55,7 +55,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "ghcr.io/berriai/litellm:v{{ softwares.litellm.version }}"
+        image = "ghcr.io/berriai/litellm:v{{ catalogs.litellm.version }}"
         ports = ["litellm"]
         args = [
           "--config=/local/config.yaml"

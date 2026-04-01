@@ -3,7 +3,7 @@ job "jfs-controller" {
   type = "system"
 
   group "controller" {
-    
+
     constraint {
         attribute    = "${meta.instance}"
         set_contains = "{{ nomad_constraints_juicefs_controller_instance }}"

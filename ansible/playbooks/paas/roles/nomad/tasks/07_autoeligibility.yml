@@ -103,4 +103,3 @@
         - name: "Nomad Install | Save Nomad Autoeligibility token"
           ansible.builtin.set_fact:
             nomad_autoeligibility_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_autoeligibility_token', missing='create', userpass=nomad_new_token_name.json.SecretID) }}"
-

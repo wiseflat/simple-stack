@@ -26,4 +26,3 @@ inhibit_rules:
 receivers: {% if alertmanager.receivers is not defined %}[]{% endif %}
 
 {{ alertmanager.receivers | default('') | to_nice_yaml(indent=4) }}
-

@@ -48,7 +48,7 @@ compactor:
     instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
 
 
-distributor: 
+distributor:
   ring:
     instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
 
@@ -56,12 +56,12 @@ distributor:
 server:
   log_level: warn
 
-store_gateway: 
+store_gateway:
   sharding_ring:
     instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
 
 
-ingester: 
+ingester:
   ring:
     instance_addr: {% raw %}{{env "attr.unique.network.ip-address"}}{% endraw %}
 

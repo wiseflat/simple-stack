@@ -30,7 +30,7 @@ job "{{ domain }}" {
       port = "mosquitto"
       provider = "nomad"
       tags = [
-        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') }}
       ]
     }
 
@@ -53,7 +53,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "eclipse-mosquitto:{{ softwares.mosquitto.version }}"
+        image = "eclipse-mosquitto:{{ catalogs.mosquitto.version }}-alpine"
 
         volumes = [
           "{{ software_path }}/mosquitto/config:/mosquitto/config:rw",

@@ -12,4 +12,3 @@
   ansible.builtin.include_role:
     name: nomad
     tasks_from: job_run.yml
-

@@ -4,7 +4,7 @@ FROM {{ image.origin }}
 
 ARG TARGETARCH
 
-{{ dockerfile_root | default('') }}
+{{ dockerfileRoot | default('') }}
 
 COPY ./${TARGETARCH}/caddy /usr/local/bin/caddy
 
@@ -17,6 +17,6 @@ RUN mkdir -p /var/log/caddy /var/lib/caddy /etc/caddy \
 
 USER caddy
 
-{{ dockerfile_nonroot | default('') }}
+{{ dockerfileNonroot | default('') }}
 
 CMD ["caddy", "run"]

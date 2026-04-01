@@ -13,7 +13,7 @@ client {
         {%- for server in nomad_servers_advertise_address -%}
             {{ comma() }}"{{ server }}:{{ nomad_ports.rpc }}"
         {%- endfor -%} ]
-        
+
 {% if nomad_client_network_interface is defined %}
     network_interface = "{{ nomad_client_network_interface }}"
 {% endif %}

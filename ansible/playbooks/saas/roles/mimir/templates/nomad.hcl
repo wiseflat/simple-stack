@@ -50,7 +50,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "{{ docker_private_registry.url_project | default(docker_private_registry.url) }}/minio:{{ softwares.minio.version }}"
+        image = "{{ docker_private_registry.url_project | default(docker_private_registry.url) }}/minio:{{ catalogs.minio.version }}"
         volumes = [
           "{{ software_path }}/data/minio:/data:rw"
         ]
@@ -121,7 +121,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "grafana/mimir:{{ softwares.mimir.version }}"
+        image = "grafana/mimir:{{ catalogs.mimir.version }}"
         # network_mode = "host"
         volumes = [
           "{{ software_path }}/mimir-${NOMAD_ALLOC_INDEX}:/data",

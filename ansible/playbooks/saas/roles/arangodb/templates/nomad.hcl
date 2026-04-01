@@ -53,7 +53,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "arangodb:{{ softwares.arangodb.version }}"
+        image = "arangodb:{{ catalogs.arangodb.version }}"
 
         volumes = [
             "{{ software_path }}/var/lib/arangodb3:/var/lib/arangodb3:rw",

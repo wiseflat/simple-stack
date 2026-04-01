@@ -8,4 +8,4 @@ dolibarr_actions:
     - "{{ software_path }}/var/backup:/var/backup:rw"
     - "/usr/local/bin/dolibarr-backup:/usr/local/bin/dolibarr-backup:ro"
     - "/usr/local/bin/dolibarr-restore:/usr/local/bin/dolibarr-restore:ro"
-  image: "mariadb:{{ softwares.mariadb.version }}"
+  image: "mariadb:{{ catalogs.mariadb.version }}"

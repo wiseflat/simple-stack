@@ -49,7 +49,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "nextcloud:{{ softwares.nextcloud.version }}"
+        image = "nextcloud:{{ catalogs.nextcloud.version }}"
 
         volumes = [
           "{{ software_path }}/var/www/html:/var/www/html:rw",

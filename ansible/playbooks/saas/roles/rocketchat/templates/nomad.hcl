@@ -126,7 +126,7 @@ EOH
       }
 
       config {
-        image = "rocketchat/rocket.chat:{{ softwares.rocketchat.version }}"
+        image = "rocketchat/rocket.chat:{{ catalogs.rocketchat.version }}"
         ports = ["rocketchat"]
       }
       resources {

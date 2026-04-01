@@ -66,7 +66,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "traefik:{{ softwares.traefik.version }}"
+        image = "traefik:{{ catalogs.traefik.version }}"
         network_mode = "host"
         volumes = [
           "{{ software_path }}/etc/traefik:/etc/traefik:rw",

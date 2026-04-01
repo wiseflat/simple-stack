@@ -54,7 +54,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "freshrss/freshrss:{{ softwares.freshrss.version }}"
+        image = "freshrss/freshrss:{{ catalogs.freshrss.version }}"
         volumes = [
           "/data/{{ domain }}/data:/var/www/FreshRSS/data:rw",
           "/data/{{ domain }}/extensions:/var/www/FreshRSS/extensions:rw"

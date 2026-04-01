@@ -66,7 +66,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "registry:{{ softwares.registry.version }}"
+        image = "registry:{{ catalogs.registry.version }}"
         volumes = [
           "{{ software_path }}/data:/data",
           "{{ software_path }}/var/lib/registry:/var/lib/registry"

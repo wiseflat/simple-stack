@@ -11,7 +11,7 @@ strategy: MyCustomStrategy
 config: myconfig
 ```
 
-3. Configure your secret yaml configuration 
+3. Configure your secret yaml configuration
 
 ```
 git_user_data:

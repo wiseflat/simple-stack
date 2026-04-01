@@ -34,7 +34,7 @@ job "{{ domain }}" {
       port = "code_server"
       provider = "nomad"
       tags = [
-        {{ lookup('ansible.builtin.template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+        {{ lookup('ansible.builtin.template', '../../traefik/templates/traefik_tag.j2') }}
       ]
       check {
         type     = "http"
@@ -49,7 +49,7 @@ job "{{ domain }}" {
       port = "http_dev"
       provider = "nomad"
       tags = [
-        {{ lookup('ansible.builtin.template', 'templates/traefik_tag.j2', template_vars={'prefix': 'dev'}) | indent(8) }}
+        {{ lookup('ansible.builtin.template', 'templates/traefik_tag.j2', template_vars={'prefix': 'dev'}) }}
       ]
     }
 
@@ -67,7 +67,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "codercom/code-server:{{ softwares.code_server.version }}-ubuntu"
+        image = "codercom/code-server:{{ catalogs.code_server.version }}-ubuntu"
 
         volumes = [
           "/usr/bin/docker:/usr/bin/docker",
@@ -79,6 +79,10 @@ job "{{ domain }}" {
           "{{ software_path }}/home/coder/.cache:/home/coder/.local",
           "{{ software_path }}/home/coder/.ssh:/home/coder/.ssh",
           "{{ software_path }}/projects:/home/coder/projects",
+          {% if software.volumes is defined %}
+          {% for volume in software.volumes %}{{ volume | to_json }}{% if not loop.last %},{% endif %}
+          {% endfor %}
+          {% endif %}
         ]
         ports = ["code_server", "http_dev"]
       }

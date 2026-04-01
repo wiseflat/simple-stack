@@ -44,7 +44,7 @@ job "{{ domain }}" {
       }
 
       config {
-        image = "postgres:{{ softwares.postgresql.version }}"
+        image = "postgres:{{ catalogs.postgresql.version }}"
         ports = ["postgresql"]
         volumes = [
           "{{ software_path }}/var/lib/postgresql:/var/lib/postgresql:rw",

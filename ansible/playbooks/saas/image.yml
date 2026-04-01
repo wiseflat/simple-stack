@@ -35,8 +35,8 @@
         tasks_from: build
       vars:
         catalog_image_name: "{{ catalog }}"
-        dockerfile_root: ""
-        dockerfile_nonroot: ""
+        dockerfileRoot: ""
+        dockerfileNonroot: ""
 
     - name: Debug latest version
       ansible.builtin.debug:

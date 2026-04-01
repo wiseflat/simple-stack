@@ -38,7 +38,7 @@ job "{{ domain }}" {
       driver = "docker"
 
       config {
-        image = "valkey/valkey:{{ softwares.valkey.version }}"
+        image = "valkey/valkey:{{ catalogs.valkey.version }}"
         volumes = [
           "{{ software_path }}/data:/data:rw",
           "{{ software_path }}/etc/valkey:/etc/valkey:ro",
