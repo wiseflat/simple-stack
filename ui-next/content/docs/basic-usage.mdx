@@ -1,0 +1,271 @@
+## Local Installation for Testing
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Git (to clone the repository)
+- Basic familiarity with command-line tools
+
+### Step 1: Prepare Environment Variables
+
+Create a temporary admin account that will be used only for initial setup:
+
+```bash
+export TEMP_ADMIN_EMAIL="admin@example.com"
+export TEMP_ADMIN_PASSWORD="ChangeMe123!"
+```
+
+This temporary account allows you to log in and create a permanent admin user in the UI. You can delete it later.
+
+### Step 2: Start the Platform
+
+Simple Stack runs in Docker Compose with two services:
+
+```bash
+git clone https://github.com/your-repo/simple-stack.git
+cd simple-stack
+
+docker-compose up -d
+```
+
+This starts:
+- **simple-stack-ui-next** – The management UI on `http://localhost:3000`
+- **simple-stack-ansible** – The execution engine for playbooks and builds
+
+Check that both services are running:
+
+```bash
+docker-compose ps
+```
+
+### Step 3: Create Your First Admin User
+
+1. Open `http://localhost:3000`
+2. Click "Sign In"
+3. Use the temporary credentials:
+   - Email: `admin@example.com`
+   - Password: `ChangeMe123!`
+4. Create a permanent admin user account
+5. Once created, **unset the temporary credentials**:
+
+```bash
+unset TEMP_ADMIN_EMAIL
+unset TEMP_ADMIN_PASSWORD
+```
+
+You're now ready to start managing infrastructure!
+
+---
+
+## Running Your First Infrastructure Project
+
+### Step 1: Create Infrastructure in the UI
+
+1. Log in to `http://localhost:3000`
+2. Go to **Infrastructures**
+3. Click **"New Infrastructure"**
+4. Choose a provider (AWS, OVHcloud, Standalone, etc.)
+5. Fill in required variables (account credentials, region, etc.)
+6. Click **"Create"**
+
+The UI generates a Terraform project and shows you the ID and repository path.
+
+### Step 2: Configure Terraform Backend
+
+Navigate to your local terraform project folder:
+
+```bash
+cd terraform/demo-standalone-instances
+```
+
+Open `backend.tf` and configure your credentials:
+
+```hcl
+terraform {
+  backend "http" {
+    address = "http://127.0.0.1:8000/api/tfstates/<YOUR_PROJECT_ID>"
+  }
+}
+
+# Set these as environment variables before terraform plan/apply:
+# TF_HTTP_USERNAME=your-email@example.com
+# TF_HTTP_PASSWORD=your-password
+```
+
+### Step 3: Initialize and Deploy Infrastructure
+
+Set your credentials and run Terraform:
+
+```bash
+export TF_HTTP_USERNAME="admin@example.com"
+export TF_HTTP_PASSWORD="your-password"
+
+terraform init
+terraform plan
+terraform apply
+```
+
+Terraform provisions your infrastructure (compute, networking, storage) on your chosen provider.
+
+### Step 4: Monitor in the UI
+
+Once `terraform apply` completes:
+
+1. Return to the UI → **Infrastructures**
+2. Click your infrastructure name
+3. You'll see a **dependency graph** showing all provisioned resources
+4. View metadata, costs, and resource status
+
+**Note**: You'll need to configure several variables in the dependency graph nodes (database credentials, API keys, etc.). This step is currently manual and documented in each resource's metadata. [TODO: Better variable documentation and UI hints needed]
+
+---
+
+## Configure Your Infrastructure (Platform Setup)
+
+### Step 1: Select Infrastructure
+
+1. Go to **Infrastructures**
+2. Click your infrastructure project
+3. Click **"Operations"** → **"Configure"**
+
+### Step 2: Run Full Setup
+
+This executes Ansible playbooks to:
+- Install Docker and core packages
+- Setup networking and firewalls
+- Deploy observability stack (Prometheus, Loki, Grafana)
+- Configure SSH access and runners
+
+```bash
+# The UI triggers this automatically, but you can also run manually:
+ansible-playbook playbooks/configure-all.yml -i your-inventory
+```
+
+Once complete, all your servers are ready for containerized applications.
+
+---
+
+## Build Container Images
+
+### Step 1: Build Core Infrastructure Images
+
+Build essential images first:
+
+**Traefik** (reverse proxy and load balancer):
+1. Go to **Catalogs**
+2. Find "traefik" → Click **"Operations"** → **"Build"**
+
+**Docker Registry** (private image storage):
+1. Go to **Catalogs**
+2. Find "docker-registry" → Click **"Operations"** → **"Build"**
+
+These images are built on your infrastructure via simple-stack-ansible and pushed to your private registry.
+
+### Step 2: Build Application Images
+
+For any other catalog item:
+
+1. Go to **Catalogs**
+2. Select the application (e.g., "PostgreSQL", "nginx", your-app)
+3. Click **"Operations"** → **"Build"**
+4. Wait for the build to complete
+5. Image is automatically pushed to your registry
+
+---
+
+## Deploy Core Services
+
+### Step 1: Deploy Traefik
+
+Traefik handles all external traffic and routing:
+
+1. Go to **Softwares**
+2. Click **"New Deployment"**
+3. Catalog: "traefik"
+4. Infrastructure: Your created infrastructure
+5. Target servers: "gateway" nodes (or all, if single-node setup)
+6. Configure:
+   - Dashboard username/password
+   - External domain (optional)
+7. Click **"Deploy"**
+
+### Step 2: Deploy Docker Registry
+
+Your private image storage:
+
+1. Go to **Softwares**
+2. Click **"New Deployment"**
+3. Catalog: "docker-registry"
+4. Infrastructure: Your created infrastructure
+5. Target servers: "platform" nodes
+6. Configure:
+   - Registry authentication
+   - Storage path
+   - Backup settings (optional)
+7. Click **"Deploy"**
+
+Once done, Traefik and registry are running and visible in observability dashboards.
+
+---
+
+## Deploy Applications
+
+### Step 1: Build Your Application Image
+
+For any new application:
+
+1. Go to **Catalogs**
+2. Create or select your app
+3. Click **"Operations"** → **"Build"**
+4. Wait for completion
+
+### Step 2: Deploy the Application
+
+1. Go to **Softwares**
+2. Click **"New Deployment"**
+3. Choose your application
+4. Select infrastructure and target servers
+5. Configure variables, secrets, and exposure
+6. Click **"Deploy"**
+
+### Step 3: Monitor
+
+Your application is now running. Check:
+
+- **Logs** – Application output and errors
+- **Metrics** – CPU, memory, disk in Grafana
+- **Health** – Container status and uptime
+
+---
+
+## Next Steps
+
+- **Setup Authentication** – Configure auth provider (OIDC, SAML, etc.)
+- **Add Team Members** – Create additional user accounts
+- **Setup Backups** – Configure persistent volume snapshots
+- **Custom Applications** – Build and deploy your own services
+- **Advanced Networking** – Configure more complex routing and load balancing
+
+---
+
+## Troubleshooting
+
+**Docker Compose won't start?**
+- Check port 3000 and 8000 are not in use
+- Ensure Docker daemon is running
+- View logs: `docker-compose logs -f`
+
+**Terraform apply fails?**
+- Verify TF_HTTP_USERNAME and TF_HTTP_PASSWORD are set correctly
+- Check backend.tf address matches your infrastructure ID
+- Review Terraform error output for provider-specific issues
+
+**Services won't deploy?**
+- Verify infrastructure fully configured (all node variables set)
+- Check Traefik is running first
+- Review deployment logs in UI → Softwares → [app] → Logs
+
+**Images not building?**
+- Ensure Docker registry is deployed
+- Check registry credentials in Infrastructure settings
+- Review simple-stack-ansible container logs

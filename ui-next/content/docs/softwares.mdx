@@ -1,0 +1,142 @@
+import DocsRolesVariables from "@/components/marketing/docs-roles-variables";
+
+**Softwares** are the actual running services on your infrastructure. Each software is a concrete instance of a catalog item, deployed to specific servers with configured variables and secrets.
+
+## What is a Software?
+
+A software is an active deployment:
+
+- **Linked to a catalog** – Uses a specific catalog item as its blueprint
+- **Assigned to infrastructure** – Runs on specific servers from your infrastructure
+- **Configured** – Variables, secrets, ports, and exposure rules are set per-deployment
+- **Operable** – Can be started, stopped, updated, backed up, etc.
+
+## Creating a Software (Deployment)
+
+### Step 1: Choose Catalog Item
+
+- Select from your catalogs (e.g., "postgres", "nginx", your-app)
+- Review deployment requirements and documentation
+
+### Step 2: Select Infrastructure & Target
+
+- Choose which infrastructure this deploys to
+- Select specific servers or server groups
+- Example: Deploy nginx to all "app" servers, postgres to "db" servers
+
+### Step 3: Configure Variables
+
+Fill in required variables from the catalog:
+
+Each SaaS role exposes a set of variables you can override from your Ansible inventory (via the UI):
+
+<DocsRolesVariables scope="saas" />
+
+### Step 4: Configure Secrets
+
+Provide sensitive configuration:
+
+```yaml
+Database Password: [encrypted]
+API Token: [encrypted]
+TLS Certificate: [encrypted]
+Private Key: [encrypted]
+```
+
+Secrets are stored encrypted and never shown in logs.
+
+### Step 5: Configure Exposure
+
+Define how the service is accessed:
+
+- **Internal only** – Accessible only within your infrastructure
+- **External** – Accessible from the internet via load balancer
+- **Custom domain** – e.g., `api.myapp.com`
+- **Port mapping** – e.g., 8080:80 (external:internal)
+
+### Step 6: Deploy
+
+Click "Deploy" to:
+1. Pull Docker image
+2. Set up storage volumes
+3. Configure networking and firewall rules
+4. Start the container
+5. Health check and monitor
+6. Update observability dashboards
+
+## Understanding Software Relationships
+
+```
+Catalog (Template)
+  ↓
+  └─→ Software A (prod, 3 instances)
+  └─→ Software B (staging, 1 instance)
+  └─→ Software C (dev, 1 instance)
+```
+
+One catalog can power multiple independent deployments.
+
+## Operations
+
+### View Status
+- Click software → see running containers, resource usage, logs
+- Check health metrics in observability dashboard
+- Review recent deployment history
+
+### Update Configuration
+- Change environment variables
+- Rotate secrets
+- Adjust replica count
+- Modify resource limits
+- Click "Redeploy" to apply changes
+
+### Manage Data
+- **Backup** – Create snapshots of volumes
+- **Restore** – Recover from backup
+- **Export data** – For migration or analysis
+
+### Troubleshoot
+- View application logs
+- Check infrastructure metrics (CPU, memory, disk)
+- Review recent events and changes
+- Access container shell (if needed)
+
+### Lifecycle
+- **Stop** – Pause without deleting
+- **Restart** – Reboot container
+- **Update** – Pull new image version
+- **Destroy** – Remove instance (preserved in history)
+
+## Example: Deploying PostgreSQL
+
+1. Choose catalog: "postgres"
+2. Infrastructure: "production-aws"
+3. Target: "db-prod-1" server
+4. Variables:
+   - POSTGRES_DB: "myapp"
+   - POSTGRES_PASSWORD: "[secret]"
+5. Exposure: Internal only (no external access)
+6. Deploy
+
+**Result:** PostgreSQL running on your db-prod-1 server, accessible to other services on the same infrastructure, monitored via Grafana.
+
+## Example: Deploying a Web Application
+
+1. Choose catalog: "my-app-latest"
+2. Infrastructure: "production-aws"
+3. Target: "app-prod-[1,2,3]" (3 instances for HA)
+4. Variables:
+   - APP_ENVIRONMENT: "production"
+   - DATABASE_HOST: "postgres-prod.internal"
+5. Secrets:
+   - API_KEY: "[encrypted]"
+6. Exposure: External via load balancer
+7. Custom domain: "api.mycompany.com"
+8. Deploy
+
+**Result:** 3 instances of your application running, load-balanced, externally accessible, with full observability.
+
+## Next Steps
+
+- [Monitor with Observability](/docs/infrastructure#observability) – See your deployments in Grafana
+- [Events](/docs/events) – Track all operational changes

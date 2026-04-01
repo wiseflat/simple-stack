@@ -1,0 +1,31 @@
+import DocsRolesVariables from "@/components/marketing/docs-roles-variables";
+
+**Infrastructures** are the foundation of your platform. They represent your cloud resources, on-premise servers, or hybrid combinations — all managed through Terraform states stored in Simple Stack.
+
+## What is an Infrastructure?
+
+An infrastructure is a collection of cloud resources (compute, networking, storage) provisioned through Terraform. In Simple Stack, you:
+
+- **Import existing states** – Upload your current `.tfstate` files to bring existing infrastructure under management
+- **Create from templates** – Use provider-specific templates (AWS, OVHcloud, Scaleway, etc.) to provision new infrastructure
+- **Version and track changes** – All state changes are auditable and reproducible
+
+## Supported Providers
+
+Simple Stack supports **any type of provider** – cloud (AWS, Azure, Google Cloud, OVHcloud, Scaleway, etc.), on-premise infrastructure, or hybrid combinations. Your infrastructure can be provisioned through any deployment tool or method:
+
+- **Infrastructure as Code tools** – Terraform, Pulumi, CloudFormation, Ansible, etc.
+- **Manually provisioned** – Existing infrastructure managed directly without IaC tools
+- **Hybrid setups** – Mix of different providers and deployment methods
+
+## Services & variables
+
+Each PaaS role exposes a set of variables you can override from your Ansible inventory (via the UI):
+
+<DocsRolesVariables />
+
+
+
+## Next Steps
+
+- **[Custom Applications](/docs/catalogs)** – Build and deploy your own services

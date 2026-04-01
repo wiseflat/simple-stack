@@ -1,0 +1,54 @@
+{
+  "auth": {
+    "email": "Email",
+    "invalidCredentials": "Invalid email or password.",
+    "loggingIn": "Signing in...",
+    "loginTitle": "Sign in",
+    "password": "Password",
+    "signIn": "Sign in",
+    "subtitle": "Simple Stack UI"
+  },
+  "common": {
+    "appName": "Wiseflat concept",
+    "brand": "Simple Stack"
+  },
+  "dashboard": {
+    "description": "Next.js/Fumadocs foundation is ready. 3D visualization and data integration will be connected in phase 2/3.",
+    "title": "Dashboard"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Espanol",
+    "fr": "Francais",
+    "sk": "Slovencina"
+  },
+  "layout": {
+    "subtitle": "Migration from TotalJS to Next.js + Fumadocs"
+  },
+  "menu": {
+    "catalogs": "Catalogs",
+    "dashboard": "Dashboard",
+    "documentation": "Documentation",
+    "events": "Events",
+    "infrastructures": "Infrastructures",
+    "internalApi": "Internal API",
+    "landing": "Landing page",
+    "language": "Language",
+    "logout": "Sign out",
+    "password": "Password",
+    "profile": "Profile",
+    "settings": "Settings",
+    "softwares": "Softwares",
+    "users": "Users",
+    "variables": "Variables"
+  },
+  "theme": {
+    "toDark": "Dark theme",
+    "toLight": "Light theme",
+    "toggleAria": "Toggle theme"
+  },
+  "user": {
+    "fallbackEmail": "admin@example.local",
+    "fallbackName": "Demo Admin"
+  }
+}
