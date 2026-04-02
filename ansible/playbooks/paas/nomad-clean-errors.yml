@@ -3,13 +3,19 @@
   hosts: "{{ hosts_limit | default('infrastructure') }}"
   become: true
   gather_facts: false
+  vars:
+    nomad_tls_skip_verify: true
   tasks:
     - name: Nomad system reconcile summaries
-      ansible.builtin.shell: nomad system reconcile summaries -address=https://127.0.0.1:4646 -tls-skip-verify
+      ansible.builtin.command: >
+        nomad system reconcile summaries -address=https://127.0.0.1:4646
+        {% if nomad_tls_skip_verify | bool %}-tls-skip-verify{% endif %}
       environment:
         NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
 
     - name: Nomad system gc
-      ansible.builtin.shell: nomad system gc -address=https://127.0.0.1:4646 -tls-skip-verify
+      ansible.builtin.command: >
+        nomad system gc -address=https://127.0.0.1:4646
+        {% if nomad_tls_skip_verify | bool %}-tls-skip-verify{% endif %}
       environment:
         NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
