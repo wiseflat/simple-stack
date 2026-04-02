@@ -20,6 +20,4 @@
     # NOMAD_CACERT: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }}"
   register: nomad_job_start
   failed_when: nomad_job_start.rc >= 2
-  changed_when:
-    - '"error" in nomad_job_start.stdout'
-    - nomad_job_start.rc >= 2
+  changed_when: nomad_job_start.rc == 0 and 'No changes to job' not in nomad_job_start.stdout

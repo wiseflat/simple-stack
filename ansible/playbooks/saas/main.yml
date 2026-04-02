@@ -33,10 +33,6 @@
       ansible.builtin.debug:
         msg: "{{ software }}"
 
-    - name: Debug softwares
-      ansible.builtin.debug:
-        msg: "{{ softwares }}"
-
   tasks:
     - name: Deploy service
       ansible.builtin.include_role:
