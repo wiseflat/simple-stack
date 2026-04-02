@@ -1,5 +1,6 @@
 ansible
 ansible-rulebook
+ansible-lint
 jmespath
 passlib
 bcrypt
