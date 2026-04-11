@@ -50,7 +50,7 @@
     exposedByDefault = false
   [providers.nomad.endpoint]
     address = "https://{{ hostvars[nomad_primary_master_node | default(software.instance)]['ansible_ens3']['ipv4']['address'] | default('127.0.0.1') }}:4646"
-    token = "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
+    token = "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_traefik_token', missing='error') }}"
   [providers.nomad.endpoint.tls]
     ca = "/etc/ssl/simplestack/simplestack-ca.pem"
     cert = "/etc/ssl/simplestack/{{ software.instance }}-dc1-client-nomad.pem"

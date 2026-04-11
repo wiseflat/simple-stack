@@ -11,11 +11,11 @@
         nomad system reconcile summaries -address=https://127.0.0.1:4646
         {% if nomad_tls_skip_verify | bool %}-tls-skip-verify{% endif %}
       environment:
-        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
 
     - name: Nomad system gc
       ansible.builtin.command: >
         nomad system gc -address=https://127.0.0.1:4646
         {% if nomad_tls_skip_verify | bool %}-tls-skip-verify{% endif %}
       environment:
-        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+        NOMAD_TOKEN: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"

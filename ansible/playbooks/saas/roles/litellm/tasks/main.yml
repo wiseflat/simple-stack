@@ -6,8 +6,8 @@
 
 - name: Create postgresql database
   community.postgresql.postgresql_db:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
-    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='service_name', missing='error') }}"
     login_user: postgres
     name: "{{ service_name }}"
     encoding: UTF8
@@ -15,8 +15,8 @@
 
 - name: Create postgresql user
   community.postgresql.postgresql_user:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
-    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='service_name', missing='error') }}"
     login_user: postgres
     login_db: "{{ service_name }}"
     name: "{{ service_name }}"
@@ -25,8 +25,8 @@
 
 - name: Create postgresql privileges
   community.postgresql.postgresql_privs:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='passwd', missing='error') }}"
-    login_host: "{{ lookup('simple-stack-ui', type='secret', key=software.litellm_dbhost, subkey='service_name', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='passwd', missing='error') }}"
+    login_host: "{{ lookup('simple-stack-ui', type='secret', key2=software.litellm_dbhost, subkey='service_name', missing='error') }}"
     login_user: postgres
     db: "{{ service_name }}"
     roles: "{{ service_name }}"

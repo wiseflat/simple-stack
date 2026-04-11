@@ -10,7 +10,7 @@
         client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
         method: GET
         headers:
-          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
         status_code:
           - 200
           - 404
@@ -29,7 +29,7 @@
         client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
         method: POST
         headers:
-          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
         body: |
           {
             "Name": "autoeligibility",
@@ -56,7 +56,7 @@
         client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
         method: GET
         headers:
-          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+          X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
         status_code:
           - 200
           - 404
@@ -76,7 +76,7 @@
       block:
         - name: "Nomad Install | Read Nomad nomad autoeligibility token"
           ansible.builtin.set_fact:
-            nomad_autoeligibility_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_autoeligibility_token', missing='error') }}"
+            nomad_autoeligibility_token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_autoeligibility_token', missing='error') }}"
 
       rescue:
         - name: "Nomad Token | Create token for Nomad access autoeligibility"
@@ -87,7 +87,7 @@
             client_key: "{{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_privatekey_server }}"
             method: PUT
             headers:
-              X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
+              X-Nomad-Token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_management_token', missing='error') }}"
             body: |
               {
                 "Name": "autoeligibility",
@@ -102,4 +102,4 @@
 
         - name: "Nomad Install | Save Nomad Autoeligibility token"
           ansible.builtin.set_fact:
-            nomad_autoeligibility_token: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_autoeligibility_token', missing='create', userpass=nomad_new_token_name.json.SecretID) }}"
+            nomad_autoeligibility_token: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_autoeligibility_token', missing='create', userpass=nomad_new_token_name.json.SecretID) }}"
