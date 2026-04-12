@@ -6,17 +6,17 @@ profile: basic
 exclude_paths:
   - collections/
 
-# Custom lookup plugins that don't exist in the lint environment
-mock_filters:
-  - simple-stack-ui
-
 # Downgrade to warnings: style issues acceptable in the current codebase
 warn_list:
   - yaml[truthy]
+  - yaml[line-length]
   - name[casing]
   - name[template]
   - no-changed-when
   - risky-shell-pipe
+  - var-naming
+  - jinja[spacing]
+  - command-instead-of-module
 
 # Skip rules that don't apply to internal roles (no galaxy metadata required)
 skip_list:

@@ -55,6 +55,9 @@ jobs:
     defaults:
       run:
         working-directory: ansible
+    env:
+      ANSIBLE_INVENTORY: localhost,
+      ANSIBLE_COLLECTIONS_PATH: ./collections
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -63,21 +66,15 @@ jobs:
           cache: pip
           cache-dependency-path: ansible/requirements.txt
       - name: Install Ansible and lint tools
-        run: pip install ansible ansible-lint
+        run: pip install -r requirements.txt
       - name: Install Ansible collections
-        run: ansible-galaxy collection install -r requirements.yml -p ./collections
+        run: ansible-galaxy collection install -r requirements.yml -p ./collections --force
       - name: Ansible lint – PaaS
-        run: ansible-lint playbooks/paas/main.yml
-        env:
-          ANSIBLE_INVENTORY: localhost,
+        run: ansible-lint --offline playbooks/paas/main.yml
       - name: Ansible lint – SaaS deploy
-        run: ansible-lint playbooks/saas/main.yml playbooks/saas/operate.yml
-        env:
-          ANSIBLE_INVENTORY: localhost,
+        run: ansible-lint --offline playbooks/saas/main.yml playbooks/saas/operate.yml
       - name: Ansible lint – SaaS image build
-        run: ansible-lint playbooks/saas/image-forkable.yml
-        env:
-          ANSIBLE_INVENTORY: localhost,
+        run: ansible-lint --offline playbooks/saas/image-forkable.yml
 
   build-ui:
     needs: [setup, quality]
