@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileCode2,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Network,
@@ -89,6 +90,7 @@ export default function SideMenu({ collapsed, onToggle }: SideMenuProps) {
     { href: "/infrastructures", label: "infrastructures", icon: Network, badge: "Ops" },
     { href: "/catalogs", label: "catalogs", icon: BookCopy, badge: "Model" },
     { href: "/softwares", label: "softwares", icon: Boxes, badge: "Deploy" },
+    { href: "/variables", label: "variables", icon: KeyRound, badge: "Vars" },
   ];
 
   const platformItems: MenuSection["items"] = [

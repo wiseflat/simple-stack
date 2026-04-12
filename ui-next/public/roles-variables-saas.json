@@ -9,6 +9,7 @@
     "sudo_password": "changeme",
     "timezone": "Europe/Paris"
   },
+  "common": null,
   "dolibarr": {},
   "forgejo": {},
   "freqtrade": {},

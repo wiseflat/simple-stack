@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { infrastructures, variables } from "@/lib/db/schema";
+import { infrastructures } from "@/lib/db/schema";
 import { jsonError, requireApiUser } from "@/lib/api-utils";
+import { cleanupInfrastructureVariables } from "@/lib/infrastructure-cleanup";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -25,15 +26,13 @@ export async function POST(request: Request, { params }: Params) {
     return jsonError("Invalid action for remove endpoint", 400);
   }
 
-  // Delete the infrastructure
+  // Delete linked variables/secrets if they exist.
+  await cleanupInfrastructureVariables(user!.id, id);
+
+  // Delete the infrastructure.
   await db
     .delete(infrastructures)
     .where(and(eq(infrastructures.id, id), eq(infrastructures.uid, user!.id)));
-
-  // Delete associated variables
-  await db
-    .delete(variables)
-    .where(and(eq(variables.uid, user!.id), eq(variables.key, id)));
 
   return NextResponse.json({
     ok: true,

@@ -5,6 +5,7 @@ import { infrastructures, variables } from "@/lib/db/schema";
 import { normalizeInfrastructureIcon } from "@/lib/infrastructure-icons";
 import { InfrastructureUpdateSchema } from "@/lib/validations/infrastructure";
 import { jsonError, requireApiUser } from "@/lib/api-utils";
+import { cleanupInfrastructureVariables } from "@/lib/infrastructure-cleanup";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -68,6 +69,9 @@ export async function DELETE(request: Request, { params }: Params) {
   if (response) return response;
 
   const { id } = await params;
+
+  await cleanupInfrastructureVariables(user!.id, id);
+
   await db
     .delete(infrastructures)
     .where(and(eq(infrastructures.id, id), eq(infrastructures.uid, user!.id)));

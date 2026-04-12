@@ -24,6 +24,7 @@ export const VariableReadSchema = z.object({
 export const VariableSecretSchema = z.object({
   type: z.string().min(1),
   key: z.string().min(1),
+  key2: z.string().optional(),
   subkey: z.string().optional(),
   missing: z.enum(["create", "warn", "error"]).optional(),
   nosymbols: z.boolean().optional().default(false),

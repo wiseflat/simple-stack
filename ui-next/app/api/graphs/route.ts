@@ -44,7 +44,7 @@ function buildGraph(dataset: Array<{ index_key?: string; infraId: string; infraN
           collection,
           variableType: collection,
           variableKey: infraId,
-          variableKey2: key,
+          variableKey2: infraName, // project-level key2 = infra name, not FQDN segment
           infrastructureName: infraName,
         });
       }

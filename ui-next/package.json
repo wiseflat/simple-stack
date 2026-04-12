@@ -28,6 +28,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.2",
     "@types/better-sqlite3": "^7.6.13",
@@ -66,7 +67,10 @@
     "lint": "eslint",
     "prebuild": "npm run extract-roles",
     "predev": "npm run extract-roles",
-    "start": "next start"
+    "start": "next start",
+    "test": "playwright test --project api",
+    "test:debug": "playwright test --debug --project api",
+    "test:report": "playwright show-report"
   },
   "version": "0.1.0"
 }
