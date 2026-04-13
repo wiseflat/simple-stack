@@ -39,12 +39,18 @@
         cmd: "gpg --dearmor -o {{ nvidia_keyring_path }} /tmp/nvidia-container-toolkit.gpg"
         creates: "{{ nvidia_keyring_path }}"
 
-    - name: Télécharger le fichier de dépôt NVIDIA et ajouter le signed-by
-      ansible.builtin.shell: |
-        curl -s -L {{ nvidia_repo_list_url }} | \
-        sed 's#deb https://#deb [signed-by={{ nvidia_keyring_path }}] https://#g' > {{ nvidia_list_path }}
-      args:
-        creates: "{{ nvidia_list_path }}"
+    - name: Télécharger le fichier de dépôt NVIDIA
+      ansible.builtin.get_url:
+        url: "{{ nvidia_repo_list_url }}"
+        dest: "{{ nvidia_list_path }}"
+        mode: "0644"
+        force: false
+
+    - name: Ajouter signed-by au dépôt NVIDIA
+      ansible.builtin.replace:
+        path: "{{ nvidia_list_path }}"
+        regexp: '^deb\s+https://'
+        replace: 'deb [signed-by={{ nvidia_keyring_path }}] https://'
 
     - name: Activer la section experimental (décommenter)
       ansible.builtin.replace:
@@ -134,7 +140,9 @@
       ansible.builtin.command: nvidia-ctk runtime configure --runtime=docker
 
     - name: Nomad-nvidia-plugin | Restart docker
-      ansible.builtin.command: systemctl restart docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
 
     # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html
     - name: Nomad-nvidia-plugin | Test nvidia support

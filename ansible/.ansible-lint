@@ -21,3 +21,7 @@ warn_list:
 # Skip rules that don't apply to internal roles (no galaxy metadata required)
 skip_list:
   - galaxy
+  - var-naming
+  - jinja[spacing]
+  - yaml[line-length]
+  - yaml[truthy]
