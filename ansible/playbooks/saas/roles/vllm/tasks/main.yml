@@ -11,7 +11,7 @@
 - name: Run nomad llm job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_start.yml
 
 - name: Copy nomad job to destination
   ansible.builtin.template:
@@ -25,7 +25,7 @@
 - name: Run nomad job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_start.yml
 
 
 - name: Check for endpoint to become available
