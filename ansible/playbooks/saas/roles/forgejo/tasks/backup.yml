@@ -1,7 +1,5 @@
 ---
-- name: Run nomad job
+- name: Backup service
   ansible.builtin.include_role:
-    name: nomad
-    tasks_from: job_periodic_run.yml
-  vars:
-    job_name: "{{ domain }}-periodic"
+    name: common
+    tasks_from: backup_periodic.yml

@@ -14,8 +14,8 @@
     mimir_env:
       MIMIR_TENANT_ID: demo
       MIMIR_ADDRESS: "https://{{ endpoint }}"
-      MIMIR_API_USER: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='login', missing='error') }}"
-      MIMIR_API_KEY: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='passwd', missing='error') }}"
+      MIMIR_API_USER: "{{ lookup('simple-stack-ui', type='secret', key2=endpoint, subkey='login', missing='error') }}"
+      MIMIR_API_KEY: "{{ lookup('simple-stack-ui', type='secret', key2=endpoint, subkey='passwd', missing='error') }}"
   pre_tasks:
     - name: Create temporary directory
       ansible.builtin.file:
@@ -25,7 +25,7 @@
 
     - name: Get alertmanager configuration
       set_fact:
-        alertmanager: "{{ lookup('simple-stack-ui', type='secret', key=endpoint, subkey='alertmanager', missing='warn') | from_json }}"
+        alertmanager: "{{ lookup('simple-stack-ui', type='secret', key2=endpoint, subkey='alertmanager', missing='warn') | from_json }}"
 
   tasks:
     - name: Deploy configuration

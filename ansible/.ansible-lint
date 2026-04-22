@@ -1,0 +1,27 @@
+# ansible-lint configuration
+# https://ansible.readthedocs.io/projects/lint/configuring/
+
+profile: basic
+
+exclude_paths:
+  - collections/
+
+# Downgrade to warnings: style issues acceptable in the current codebase
+warn_list:
+  - yaml[truthy]
+  - yaml[line-length]
+  - name[casing]
+  - name[template]
+  - no-changed-when
+  - risky-shell-pipe
+  - var-naming
+  - jinja[spacing]
+  - command-instead-of-module
+
+# Skip rules that don't apply to internal roles (no galaxy metadata required)
+skip_list:
+  - galaxy
+  - var-naming
+  - jinja[spacing]
+  - yaml[line-length]
+  - yaml[truthy]

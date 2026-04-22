@@ -10,6 +10,22 @@ const path = require("path");
 
 const yaml = require("js-yaml");
 
+function sortObjectDeep(value) {
+  if (Array.isArray(value)) {
+    return value.map(sortObjectDeep);
+  }
+
+  if (value && typeof value === "object") {
+    const sorted = {};
+    for (const key of Object.keys(value).sort((a, b) => a.localeCompare(b))) {
+      sorted[key] = sortObjectDeep(value[key]);
+    }
+    return sorted;
+  }
+
+  return value;
+}
+
 async function main() {
   try {
     const uiNextRoot = path.resolve(__dirname, "..");
@@ -41,7 +57,7 @@ async function main() {
         throw error;
       }
 
-      for (const roleName of roleNames) {
+      for (const roleName of roleNames.sort((a, b) => a.localeCompare(b))) {
         const defaultsPath = path.join(rolesDir, roleName, "defaults", "main.yml");
 
         try {
@@ -49,7 +65,7 @@ async function main() {
           const parsed = yaml.load(content);
 
           if (parsed && typeof parsed === "object") {
-            rolesData[roleName] = parsed;
+            rolesData[roleName] = sortObjectDeep(parsed);
             console.log(`  ✓ ${roleName} (${Object.keys(parsed).length} variables)`);
           } else {
             rolesData[roleName] = {};
@@ -61,7 +77,7 @@ async function main() {
         }
       }
 
-      await fs.writeFile(outputFile, JSON.stringify(rolesData, null, 2), "utf-8");
+      await fs.writeFile(outputFile, JSON.stringify(sortObjectDeep(rolesData), null, 2), "utf-8");
       console.log(`✅ Generated: ${outputFile}`);
       console.log(`📊 ${scope.toUpperCase()} total roles: ${Object.keys(rolesData).length}`);
     }

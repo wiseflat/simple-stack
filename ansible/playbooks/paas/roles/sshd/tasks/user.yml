@@ -1,8 +1,0 @@
----
-- name: Set up multiple authorized keys
-  ansible.posix.authorized_key:
-    user: "{{ ssh_user }}"
-    state: present
-    key: "{{ ssh_custom_users }}"
-    exclusive: true
-  when: ssh_custom_users is defined

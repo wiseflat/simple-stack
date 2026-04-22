@@ -381,11 +381,11 @@ export default function ForceGraph3DPanel() {
   }
 
   function getSecretTarget(type: string, key: string, key2: string) {
-    const secretKey = type === "software" ? key2 || key : key2 || key;
+    void type;
     return {
       type: "secret",
-      key: secretKey,
-      key2: secretKey,
+      key,
+      key2: key2 || key,
     };
   }
 

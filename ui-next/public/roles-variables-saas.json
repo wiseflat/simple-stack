@@ -5,28 +5,41 @@
     "caddy_config": "{{ software.caddy_config | default(caddy_config_default) }}"
   },
   "code_server": {
-    "timezone": "Europe/Paris",
     "password": "changeme",
-    "sudo_password": "changeme"
+    "sudo_password": "changeme",
+    "timezone": "Europe/Paris"
   },
+  "common": null,
   "dolibarr": {},
   "forgejo": {},
   "freqtrade": {},
   "freshrss": {},
   "grafana": {},
   "homeassistant": {
+    "homeassistant_configuration": "{{ software.homeassistant_configuration | default(homeassistant_configuration_default) }}",
     "homeassistant_configuration_default": {
       "http": {
-        "use_x_forwarded_for": true,
         "trusted_proxies": [
           "172.17.0.0/24"
-        ]
+        ],
+        "use_x_forwarded_for": true
       }
-    },
-    "homeassistant_configuration": "{{ software.homeassistant_configuration | default(homeassistant_configuration_default) }}"
+    }
   },
   "kresus": {},
   "litellm": {
+    "litellm_config": {
+      "model_list": [
+        {
+          "litellm_params": {
+            "api_key": "os.environ/OVHCLOUD_API_KEY",
+            "model": "ovhcloud/gpt-oss-120b"
+          },
+          "model_name": "ovhcloud/gpt-oss-120b"
+        }
+      ]
+    },
+    "litellm_dbhost": "localhost",
     "litellm_env": [
       {
         "key": "LITELLM_MASTER_KEY",
@@ -48,19 +61,7 @@
         "key": "OVHCLOUD_API_KEY",
         "value": "changeme"
       }
-    ],
-    "litellm_config": {
-      "model_list": [
-        {
-          "model_name": "ovhcloud/gpt-oss-120b",
-          "litellm_params": {
-            "model": "ovhcloud/gpt-oss-120b",
-            "api_key": "os.environ/OVHCLOUD_API_KEY"
-          }
-        }
-      ]
-    },
-    "litellm_dbhost": "localhost"
+    ]
   },
   "loki": {},
   "mariadb": {},
@@ -74,13 +75,13 @@
   "nginx": {},
   "nodejs": {},
   "nomad": {
-    "nomad_job_dir": "/var/tmp",
     "nomad_http_ip": "127.0.0.1",
+    "nomad_job_dir": "/var/tmp",
     "nomad_job_name": "{{ job_name | default(domain) }}",
-    "nomad_tls_host_certificate_dir": "/etc/ssl/simplestack",
+    "nomad_tls_ca_pubkey": "simplestack-ca.pem",
     "nomad_tls_cert_server": "{{ fact_instance.datacenter }}-server-nomad.pem",
-    "nomad_tls_privatekey_server": "{{ fact_instance.datacenter }}-server-nomad.key",
-    "nomad_tls_ca_pubkey": "simplestack-ca.pem"
+    "nomad_tls_host_certificate_dir": "/etc/ssl/simplestack",
+    "nomad_tls_privatekey_server": "{{ fact_instance.datacenter }}-server-nomad.key"
   },
   "open-webui": {
     "valkey_version": "8.0.2"
@@ -92,8 +93,8 @@
   "simplestack_ansible": null,
   "simplestack_ui": null,
   "traefik": {
-    "traefik_email": "{{ software.email | default(traefik_email_default) }}",
-    "nomad_http_ip": "127.0.0.1"
+    "nomad_http_ip": "127.0.0.1",
+    "traefik_email": "{{ software.email | default(traefik_email_default) }}"
   },
   "upstream": {},
   "valkey": {},

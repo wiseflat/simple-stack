@@ -47,7 +47,7 @@ type VariableScope = {
   name: string;
 };
 
-type InfrastructureVariableType = "project" | "tfstate" | "settings";
+type InfrastructureVariableType = "project" | "secret" | "tfstate" | "settings";
 
 type EditorMode = "json" | "yaml";
 type PageSizeMode = "auto" | "10" | "20" | "50";
@@ -894,6 +894,15 @@ export default function InfrastructuresPage() {
                           }}
                         >
                           Variables
+                        </button>
+                        <button
+                          type="button"
+                          className="flex w-full rounded-md px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                          onClick={() => {
+                            void openVariableDialog(item, "secret");
+                          }}
+                        >
+                          Secrets
                         </button>
                         <button
                           type="button"

@@ -50,7 +50,7 @@ class LookupModule(LookupBase):
         display.vvvv(f"mylookup2: Authorization headers {headers}")
 
         custom_keys = [
-            "type", "key", "subkey", "delete",
+            "type", "key", "key2", "subkey", "delete",
             "missing", "nosymbols", "overwrite", "userpass", "length"
         ]
 

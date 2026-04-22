@@ -13,7 +13,7 @@
 
 - name: Create postgresql database
   community.postgresql.postgresql_db:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
     login_unix_socket: "/data/{{ software.dbhost }}/tmp"
     login_user: postgres
     name: "{{ service_name }}"
@@ -22,7 +22,7 @@
 
 - name: Create postgresql user
   community.postgresql.postgresql_user:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
     login_unix_socket: "/data/{{ software.dbhost }}/tmp"
     login_user: postgres
     login_db: "{{ service_name }}"
@@ -32,7 +32,7 @@
 
 - name: Create postgresql priviledges
   community.postgresql.postgresql_privs:
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
     login_unix_socket: "/data/{{ software.dbhost }}/tmp"
     login_user: postgres
     db: "{{ service_name }}"

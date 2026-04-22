@@ -1,0 +1,29 @@
+---
+- name: Stop nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_stop.yml
+
+- name: Mysql delete database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
+    name: "{{ service_name[:32] }}"
+    state: absent
+
+- name: Mysql delete user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
+    login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
+    name: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_user', missing='error') }}"
+    host: '%'
+    priv: "{{ service_name[:32] }}.*:ALL"
+    state: absent
+    column_case_sensitive: false
+
+- name: Remove software directory
+  ansible.builtin.file:
+    path: "{{ software_path }}"
+    state: absent

@@ -107,11 +107,3 @@
               catalog: "{{ event.payload.catalog }}"
               domain: "{{ event.payload.domain }}"
               task: "{{ event.payload.task }}"
-
-    - name: saas-nomad-clean
-      condition: event.payload.type == "saas/nomad/clean"
-      actions:
-        - run_playbook:
-            name: playbooks/saas/nomad-clean-errors.yml
-            extra_vars:
-              hosts_limit: "{{ event.payload.meta.hosts }}"

@@ -44,7 +44,8 @@ function buildGraph(dataset: Array<{ index_key?: string; infraId: string; infraN
           collection,
           variableType: collection,
           variableKey: infraId,
-          variableKey2: key,
+          // instance nodes: key2 = FQDN of the instance, all other levels: key2 = infra name
+          variableKey2: collection === "instance" ? key : infraName,
           infrastructureName: infraName,
         });
       }

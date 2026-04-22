@@ -28,7 +28,7 @@
 - name: Create mysql database
   community.mysql.mysql_db:
     login_user: root
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
     login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
     name: "{{ software.dbname | default(service_name[:32]) }}"
     encoding: utf8
@@ -38,7 +38,7 @@
 - name: Create mysql user
   community.mysql.mysql_user:
     login_user: root
-    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.dbhost, subkey='passwd', missing='error') }}"
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key2=software.dbhost, subkey='passwd', missing='error') }}"
     login_unix_socket: "/data/{{ software.dbhost }}/run/mysqld/mysqld.sock"
     name: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='mysql_user', missing='create', nosymbols=true, length=8) }}"
     host: '%'

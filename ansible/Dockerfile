@@ -1,6 +1,8 @@
 FROM ubuntu:25.04
 
 ARG JAVA_VERSION=21
+ARG TERRAFORM_VERSION=1.12.1
+ARG TARGETARCH
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     bash \
@@ -16,9 +18,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /tmp/terraform /root/.ssh && \
+        case "${TARGETARCH}" in \
+            amd64|arm64) TF_ARCH="${TARGETARCH}" ;; \
+            *) echo "Unsupported TARGETARCH: ${TARGETARCH}" && exit 1 ;; \
+        esac && \
     cd /tmp/terraform && \
-    wget https://releases.hashicorp.com/terraform/1.12.1/terraform_1.12.1_linux_arm64.zip && \
-    unzip terraform_1.12.1_linux_arm64.zip && \
+        wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TF_ARCH}.zip" && \
+        unzip "terraform_${TERRAFORM_VERSION}_linux_${TF_ARCH}.zip" && \
     mv terraform /usr/local/bin/
 
 COPY . /ansible

@@ -58,8 +58,6 @@
     - unattended-upgrades
     - ansible-ufw
 
-- name: Configure sshd
-  ansible.builtin.import_playbook: sshd.yml
 - name: Configure timesyncd
   ansible.builtin.import_playbook: timesyncd.yml
 - name: Configure systemd resolved

@@ -2,13 +2,41 @@ import { randomBytes, randomUUID } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
-import { softwares, variables } from "@/lib/db/schema";
+import { infrastructures, softwares, variables } from "@/lib/db/schema";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { VariableSecretSchema } from "@/lib/validations/variable";
 import { jsonError, requireApiUser } from "@/lib/api-utils";
 
 const MIN_PASSWORD_LENGTH = 1;
 const MAX_PASSWORD_LENGTH = 4096;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isUUID(val: string) { return UUID_RE.test(val); }
+
+/**
+ * Given an instance FQDN (e.g. "instance001.frontends.region.provider.test"), walk
+ * all tfstate variables owned by this user and return the infraId whose Ansible
+ * inventory contains that instance, or null if not found.
+ */
+async function resolveInfraIdFromFQDN(uid: string, fqdn: string, authSecret: string): Promise<string | null> {
+  const tfstateRows = await db.query.variables.findMany({
+    where: and(eq(variables.uid, uid), eq(variables.type, "tfstate")),
+    columns: { key: true, value: true },
+  });
+  for (const row of tfstateRows) {
+    const raw = decrypt(row.value, authSecret);
+    if (!raw) continue;
+    let tfstate: { resources?: Array<{ type?: string; instances?: Array<{ attributes?: { name?: string } }> }> };
+    try { tfstate = JSON.parse(raw) as typeof tfstate; } catch { continue; }
+    const hosts = (tfstate.resources ?? [])
+      .filter((r) => r.type === "ansible_host")
+      .flatMap((r) => r.instances ?? [])
+      .map((i) => i.attributes?.name)
+      .filter((n): n is string => !!n);
+    if (hosts.includes(fqdn)) return row.key; // row.key = infraId
+  }
+  return null;
+}
 
 function generatePassword(userpass?: string, nosymbols?: boolean, length = 100) {
   if (userpass) return userpass;
@@ -36,44 +64,39 @@ export async function POST(request: Request) {
   const secret = process.env.AUTH_SECRET ?? "";
   if (!secret) return jsonError("AUTH_SECRET is missing", 500);
 
-  let resolvedKey = model.key;
+  // lookupKey2: the human-readable identifier used to look up the variable row (by key2 column).
+  // Callers targeting infrastructure instances now send key2=<FQDN>; older callers send key=<FQDN>.
+  const lookupKey2 = model.key2 ?? model.key ?? "";
+  if (!lookupKey2) return jsonError("key or key2 is required", 400);
+
+  // storageKey: what we store in the key column (should be a UUID that references the parent entity).
+  // We start with either the explicit key (if it's a UUID) or the lookupKey2; resolution below may
+  // upgrade it to the proper infrastructure UUID.
+  let storageKey = (model.key && isUUID(model.key)) ? model.key : lookupKey2;
+
   let softwareRecord: typeof softwares.$inferSelect | undefined;
   if (model.type === "software") {
     softwareRecord = await db.query.softwares.findFirst({
-      where: and(eq(softwares.uid, user!.id), eq(softwares.id, model.key)),
+      where: and(eq(softwares.uid, user!.id), eq(softwares.id, lookupKey2)),
     });
-
     if (!softwareRecord) {
       softwareRecord = await db.query.softwares.findFirst({
-        where: and(eq(softwares.uid, user!.id), eq(softwares.domain, model.key)),
+        where: and(eq(softwares.uid, user!.id), eq(softwares.domain, lookupKey2)),
       });
     }
-
-    if (softwareRecord?.id) {
-      resolvedKey = softwareRecord.id;
-    }
+    if (softwareRecord?.id) storageKey = softwareRecord.id;
   }
 
   let stored: Record<string, unknown> = {};
 
-  let record = await db.query.variables.findFirst({
+  // Look up existing variable row by (type, key2)
+  const record = await db.query.variables.findFirst({
     where: and(
       eq(variables.uid, user!.id),
       eq(variables.type, model.type),
-      eq(variables.key2, resolvedKey),
+      eq(variables.key2, lookupKey2),
     ),
   });
-
-  if (!record && model.type === "software") {
-    // Fallback: some rows may still be keyed with the original input key.
-    record = await db.query.variables.findFirst({
-      where: and(
-        eq(variables.uid, user!.id),
-        eq(variables.type, model.type),
-        eq(variables.key2, model.key),
-      ),
-    });
-  }
 
   if (!record) {
     if (model.missing === "create") {
@@ -81,13 +104,20 @@ export async function POST(request: Request) {
         return jsonError("subkey is required when missing=create", 400);
       }
 
+      // For non-software secrets whose key is not yet a UUID, try to resolve the
+      // infrastructure UUID from the FQDN via tfstate data.
+      if (model.type !== "software" && !isUUID(storageKey)) {
+        const infraId = await resolveInfraIdFromFQDN(user!.id, lookupKey2, secret);
+        if (infraId) storageKey = infraId;
+      }
+
       const generated = generatePassword(model.userpass, model.nosymbols, model.length);
       const obj = { [model.subkey]: generated };
       await db.insert(variables).values({
         id: randomUUID(),
         uid: user!.id,
-        key: resolvedKey,
-        key2: resolvedKey,
+        key: storageKey,
+        key2: lookupKey2,
         type: model.type,
         value: encrypt(JSON.stringify(obj), secret),
         createdAt: new Date(),
@@ -100,7 +130,7 @@ export async function POST(request: Request) {
       const software =
         softwareRecord ??
         (await db.query.softwares.findFirst({
-          where: and(eq(softwares.uid, user!.id), eq(softwares.id, resolvedKey)),
+          where: and(eq(softwares.uid, user!.id), eq(softwares.id, storageKey)),
         }));
       return NextResponse.json(software ?? {});
     }
@@ -164,7 +194,7 @@ export async function POST(request: Request) {
     const software =
       softwareRecord ??
       (await db.query.softwares.findFirst({
-        where: and(eq(softwares.uid, user!.id), eq(softwares.id, resolvedKey)),
+        where: and(eq(softwares.uid, user!.id), eq(softwares.id, storageKey)),
       }));
     return NextResponse.json({ ...stored, ...software });
   }

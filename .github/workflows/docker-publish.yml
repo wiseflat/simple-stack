@@ -50,6 +50,32 @@ jobs:
           AUTH_SECRET: ci-placeholder
           DATABASE_URL: ":memory:"
 
+  ansible-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible
+    env:
+      ANSIBLE_INVENTORY: localhost,
+      ANSIBLE_COLLECTIONS_PATH: ./collections
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: ansible/requirements.txt
+      - name: Install Ansible and lint tools
+        run: pip install -r requirements.txt
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml -p ./collections --force
+      - name: Ansible lint – PaaS
+        run: ansible-lint --offline playbooks/paas/main.yml
+      - name: Ansible lint – SaaS deploy
+        run: ansible-lint --offline playbooks/saas/main.yml playbooks/saas/operate.yml
+      - name: Ansible lint – SaaS image build
+        run: ansible-lint --offline playbooks/saas/image-forkable.yml
+
   build-ui:
     needs: [setup, quality]
     uses: ./.github/workflows/docker-build.yml
@@ -75,7 +101,7 @@ jobs:
       registry_token: ${{ secrets.GITHUB_TOKEN }}
 
   build-ansible:
-    needs: [setup, quality]
+    needs: [setup, quality, ansible-quality]
     uses: ./.github/workflows/docker-build.yml
     with:
       image_name: ${{ github.repository }}-ansible

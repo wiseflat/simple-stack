@@ -23,7 +23,10 @@ export const VariableReadSchema = z.object({
 
 export const VariableSecretSchema = z.object({
   type: z.string().min(1),
-  key: z.string().min(1),
+  // key2 is the human-readable identifier (FQDN, domain name, etc.)
+  // key is the UUID (resolved server-side); callers may omit it and supply key2 only
+  key: z.string().optional(),
+  key2: z.string().optional(),
   subkey: z.string().optional(),
   missing: z.enum(["create", "warn", "error"]).optional(),
   nosymbols: z.boolean().optional().default(false),

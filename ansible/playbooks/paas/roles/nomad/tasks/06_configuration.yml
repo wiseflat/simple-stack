@@ -3,7 +3,7 @@
   block:
     - name: "Nomad Install | Read Gossip Encryption Key"
       ansible.builtin.set_fact:
-        nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_encrypt_key', missing='error') }}"
+        nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_encrypt_key', missing='error') }}"
   rescue:
     - name: "Nomad Install | Generate Gossip Encryption Key"
       ansible.builtin.command: "openssl rand -base64 32"
@@ -13,7 +13,7 @@
 
     - name: "Nomad Install | Save Gossip Encryption Key"
       ansible.builtin.set_fact:
-        nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key=inventory_hostname, subkey='nomad_encrypt_key', missing='create', userpass=nomad_encrypt_key_out.stdout) }}"
+        nomad_encrypt_key: "{{ lookup('simple-stack-ui', type='secret', key2=inventory_hostname, subkey='nomad_encrypt_key', missing='create', userpass=nomad_encrypt_key_out.stdout) }}"
 
 - name: "Nomad Configuration | Add user nomad to docker group"
   ansible.builtin.user:

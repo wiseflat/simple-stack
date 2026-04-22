@@ -267,8 +267,40 @@ export async function DELETE(request: Request, { params }: Params) {
   if (response) return response;
 
   const { id } = await params;
-  await db
-    .delete(softwares)
-    .where(and(eq(softwares.uid, user!.id), eq(softwares.id, id)));
+
+  const existing = await db.query.softwares.findFirst({
+    where: and(eq(softwares.uid, user!.id), eq(softwares.id, id)),
+  });
+  if (!existing) return jsonError("Not found", 404);
+
+  try {
+    await db
+      .delete(variables)
+      .where(
+        and(
+          eq(variables.uid, user!.id),
+          eq(variables.key, id),
+          eq(variables.type, "software"),
+        ),
+      );
+
+    await db
+      .delete(variables)
+      .where(
+        and(
+          eq(variables.uid, user!.id),
+          eq(variables.key, id),
+          eq(variables.type, "secret"),
+        ),
+      );
+
+    await db
+      .delete(softwares)
+      .where(and(eq(softwares.uid, user!.id), eq(softwares.id, id)));
+  } catch (err) {
+    console.error("[DELETE /api/softwares/[id]] cascade delete error:", err);
+    return jsonError("Internal error during delete", 500);
+  }
+
   return NextResponse.json({ ok: true });
 }
