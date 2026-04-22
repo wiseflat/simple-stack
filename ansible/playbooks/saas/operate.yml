@@ -32,6 +32,13 @@
       ansible.builtin.include_role:
         name: "{{ catalog }}"
         tasks_from: "{{ task }}"
+      when: task in ["main", "backup", "restore", "destroy"]
+
+    - name: Execute operation
+      ansible.builtin.include_role:
+        name: nomad
+        tasks_from: "job_{{ task }}"
+      when: task in ["start", "stop", "restart"]
 
   post_tasks:
     - name: Update software version
