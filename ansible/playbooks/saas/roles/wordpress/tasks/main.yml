@@ -47,6 +47,15 @@
     dest: "{{ software_path }}/etc/php-fpm.d/www.conf"
     mode: '0644'
 
+- name: Remove default files
+  ansible.builtin.file:
+    path: "{{ software_path }}/var/www/html/{{ item }}"
+    state: absent
+  loop:
+    - readme.html
+    - license.txt
+    - wp-config-sample.php
+
 - name: Recursively change ownership of a directory
   ansible.builtin.file:
     path: "{{ software_path }}/var/www/html"
