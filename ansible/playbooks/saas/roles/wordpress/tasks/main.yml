@@ -40,12 +40,14 @@
     src: nginx.conf
     dest: "{{ software_path }}/etc/nginx/sites-enabled/default.conf"
     mode: '0644'
+  register: nginx_config
 
 - name: Copy phpfpm config file
   ansible.builtin.template:
     src: phpfpm.conf
     dest: "{{ software_path }}/etc/php-fpm.d/www.conf"
     mode: '0644'
+  register: phpfpm_config
 
 - name: Remove default files
   ansible.builtin.file:
@@ -76,6 +78,15 @@
   ansible.builtin.include_role:
     name: nomad
     tasks_from: job_start.yml
+  when: not stat_result.stat.exists
+
+- name: Restart nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_restart.yml
+  when:
+    - stat_result.stat.exists
+    - nginx_config.changed or phpfpm_config.changed
 
 - name: Include actions variables
   ansible.builtin.include_vars: actions.yml
