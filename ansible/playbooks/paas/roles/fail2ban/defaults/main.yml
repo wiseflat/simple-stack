@@ -1,0 +1,43 @@
+---
+fail2ban_packages:
+  - fail2ban
+  - conntrack
+
+# IPs to whitelist (never ban)
+fail2ban_ignoreip:
+  - 127.0.0.1/8
+  - 172.17.0.0/16
+  - ::1
+
+# Logging
+fail2ban_loglevel: INFO
+fail2ban_logtarget: /var/log/fail2ban.log
+fail2ban_dbpurgeage: 30d
+
+# Traefik access log path
+fail2ban_traefik_access_log: /var/log/traefik/traefik-access.log
+
+# Exponential bantime (fail2ban >= 0.11)
+# Each recidive multiplies the base bantime: 10m, 50m, 5h, 10h, 2d, 10d
+fail2ban_bantime_increment: true
+fail2ban_bantime_multipliers: "1 5 30 60 288 1440"
+fail2ban_bantime_maxtime: 4w
+fail2ban_bantime_overalljails: true
+
+# WP Login brute force
+fail2ban_wp_login_enabled: true
+fail2ban_wp_login_maxretry: 5
+fail2ban_wp_login_findtime: 3600
+fail2ban_wp_login_bantime: 600
+
+# 404 flood
+fail2ban_404_enabled: true
+fail2ban_404_maxretry: 5
+fail2ban_404_findtime: 600
+fail2ban_404_bantime: 600
+
+# Rate limit
+fail2ban_ratelimit_enabled: true
+fail2ban_ratelimit_maxretry: 50
+fail2ban_ratelimit_findtime: 30
+fail2ban_ratelimit_bantime: 600

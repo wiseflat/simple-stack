@@ -1,0 +1,7 @@
+[Definition]
+loglevel  = {{ fail2ban_loglevel }}
+logtarget = {{ fail2ban_logtarget }}
+
+# Use SQLite database to track bans across restarts (required for bantime.increment)
+dbfile    = /var/lib/fail2ban/fail2ban.sqlite3
+dbpurgeage = {{ fail2ban_dbpurgeage }}
