@@ -19,6 +19,22 @@
     - backup
     - restore
 
+- name: Create mu-plugins directory
+  ansible.builtin.file:
+    path: "{{ software_path }}/var/www/html/wp-content/mu-plugins"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy mu-plugins
+  ansible.builtin.copy:
+    src: force-404-status.php
+    dest: "{{ software_path }}/var/www/html/wp-content/mu-plugins/force-404-status.php"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
 - name: Copy nginx config file
   ansible.builtin.template:
     src: nginx.conf
