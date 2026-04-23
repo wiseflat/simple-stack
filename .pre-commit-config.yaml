@@ -16,6 +16,19 @@ repos:
       - id: pretty-format-json
         args:
           - --autofix
+  - repo: local
+    hooks:
+      - id: ansible-lint
+        name: Ansible lint
+        language: system
+        entry: >-
+          bash -c 'cd ansible && ansible-lint --offline
+          playbooks/paas/main.yml
+          playbooks/saas/main.yml
+          playbooks/saas/operate.yml
+          playbooks/saas/image-forkable.yml'
+        files: ^ansible/
+        pass_filenames: false
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.96.1
     hooks:

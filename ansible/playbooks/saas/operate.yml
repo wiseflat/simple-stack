@@ -24,7 +24,8 @@
       ansible.builtin.set_fact:
         software: "{{ lookup('simple-stack-ui', type='software', key=domain, subkey='', missing='warn') | from_json }}"
 
-    - debug:
+    - name: Show software variables
+      ansible.builtin.debug:
         msg: "{{ software }}"
 
   tasks:
@@ -52,7 +53,7 @@
           version: "{{ catalogs[catalog].version }}"
         force_basic_auth: true
         status_code: 200
-      ignore_errors: true
+      failed_when: false
       delegate_to: localhost
       become: false
       when: task == "main"
@@ -68,7 +69,7 @@
           schema: softwares_remove/{{ software.id }}
         force_basic_auth: true
         status_code: 200
-      ignore_errors: true
+      failed_when: false
       delegate_to: localhost
       become: false
       when: task == "destroy"

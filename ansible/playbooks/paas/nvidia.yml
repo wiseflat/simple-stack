@@ -138,6 +138,7 @@
     # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
     - name: Nomad-nvidia-plugin | Test nvidia support
       ansible.builtin.command: nvidia-ctk runtime configure --runtime=docker
+      changed_when: false
 
     - name: Nomad-nvidia-plugin | Restart docker
       ansible.builtin.systemd:
@@ -148,6 +149,7 @@
     - name: Nomad-nvidia-plugin | Test nvidia support
       ansible.builtin.command: docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi
       register: docker_run
+      changed_when: false
 
     - name: Nomad-nvidia-plugin | Debug
       ansible.builtin.debug:
