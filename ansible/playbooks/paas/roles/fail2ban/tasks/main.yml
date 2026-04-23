@@ -1,0 +1,58 @@
+---
+- name: Install fail2ban
+  ansible.builtin.apt:
+    pkg: "{{ fail2ban_packages }}"
+    state: present
+    install_recommends: false
+    update_cache: true
+    cache_valid_time: 86400
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+
+- name: Deploy fail2ban.local
+  ansible.builtin.template:
+    src: fail2ban.local
+    dest: /etc/fail2ban/fail2ban.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload fail2ban
+
+- name: Deploy custom actions
+  ansible.builtin.template:
+    src: action.d/ufw-conntrack.conf
+    dest: /etc/fail2ban/action.d/ufw-conntrack.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload fail2ban
+
+- name: Deploy traefik filters
+  ansible.builtin.template:
+    src: "filter.d/{{ item }}"
+    dest: "/etc/fail2ban/filter.d/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - traefik-wp-login.conf
+    - traefik-404.conf
+    - traefik-ratelimit.conf
+  notify: Reload fail2ban
+
+- name: Deploy traefik jail
+  ansible.builtin.template:
+    src: jail.d/traefik.conf
+    dest: /etc/fail2ban/jail.d/traefik.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload fail2ban
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: started
+    enabled: true

@@ -45,6 +45,7 @@ export const SoftwareExecuteSchema = z.object({
   action: z.enum([
     "start",
     "stop",
+    "restart",
     "main",
     "backup",
     "restore",

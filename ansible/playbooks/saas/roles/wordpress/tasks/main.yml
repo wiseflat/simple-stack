@@ -19,17 +19,44 @@
     - backup
     - restore
 
+- name: Create mu-plugins directory
+  ansible.builtin.file:
+    path: "{{ software_path }}/var/www/html/wp-content/mu-plugins"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy mu-plugins
+  ansible.builtin.copy:
+    src: force-404-status.php
+    dest: "{{ software_path }}/var/www/html/wp-content/mu-plugins/force-404-status.php"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
 - name: Copy nginx config file
   ansible.builtin.template:
     src: nginx.conf
     dest: "{{ software_path }}/etc/nginx/sites-enabled/default.conf"
     mode: '0644'
+  register: nginx_config
 
 - name: Copy phpfpm config file
   ansible.builtin.template:
     src: phpfpm.conf
     dest: "{{ software_path }}/etc/php-fpm.d/www.conf"
     mode: '0644'
+  register: phpfpm_config
+
+- name: Remove default files
+  ansible.builtin.file:
+    path: "{{ software_path }}/var/www/html/{{ item }}"
+    state: absent
+  loop:
+    - readme.html
+    - license.txt
+    - wp-config-sample.php
 
 - name: Recursively change ownership of a directory
   ansible.builtin.file:
@@ -50,7 +77,16 @@
 - name: Run nomad job
   ansible.builtin.include_role:
     name: nomad
-    tasks_from: job_run.yml
+    tasks_from: job_start.yml
+  when: not stat_result.stat.exists
+
+- name: Restart nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_restart.yml
+  when:
+    - stat_result.stat.exists
+    - nginx_config.changed or phpfpm_config.changed
 
 - name: Include actions variables
   ansible.builtin.include_vars: actions.yml

@@ -42,7 +42,7 @@ type Variable = {
 };
 
 type Operation = {
-  action: "start" | "stop" | "main" | "backup" | "restore" | "destroy" | "destroy_force";
+  action: "start" | "stop" | "restart" | "main" | "backup" | "restore" | "destroy" | "destroy_force";
   name: string;
   comment: string;
 };
@@ -56,6 +56,7 @@ function OperationIcon({ action }: { action: Operation["action"] }) {
 
   if (action === "start") return <Play className={className} />;
   if (action === "stop") return <Square className={className} />;
+  if (action === "restart") return <RefreshCw className={className} />;
   if (action === "main") return <RefreshCw className={className} />;
   if (action === "backup") return <Download className={className} />;
   if (action === "restore") return <Upload className={className} />;
@@ -468,6 +469,7 @@ export default function SoftwaresPage() {
   const operations: Operation[] = [
     { action: "start", name: "Start", comment: "Do you want to start selected items ?" },
     { action: "stop", name: "Stop", comment: "Do you want to stop selected items ?" },
+    { action: "restart", name: "Restart", comment: "Do you want to restart selected items ?" },
     { action: "main", name: "(Re) deploy", comment: "Do you want to upgrade selected items ?" },
     { action: "backup", name: "Backup", comment: "Do you want to backup selected items ?" },
     { action: "restore", name: "Restore", comment: "Do you want to restore selected items ?" },

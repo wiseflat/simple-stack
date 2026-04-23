@@ -12,7 +12,7 @@
   retries: 10
 
 - name: Reset firewall
-  ufw:
+  community.general.ufw:
     state: reset
   when: ufw_reset
 

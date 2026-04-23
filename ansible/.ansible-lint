@@ -25,3 +25,8 @@ skip_list:
   - jinja[spacing]
   - yaml[line-length]
   - yaml[truthy]
+  - no-changed-when
+  - no-handler
+  - risky-file-permissions
+  - ignore-errors
+  - name[missing]

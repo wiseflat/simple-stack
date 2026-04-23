@@ -3,7 +3,7 @@
   ansible.builtin.include_vars: upstream.yml
 
 - name: Prometheus | Get binary
-  include_tasks: build.yml
+  ansible.builtin.include_tasks: build.yml
   when: ansible_local[image.name] is not defined or ansible_local[image.name] != latest_version
 
 - name: Prometheus | Create prometheus group
@@ -23,6 +23,7 @@
     state: directory
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
+    mode: '0755'
   loop:
     - dest: /etc/prometheus
     - dest: /var/lib/prometheus
