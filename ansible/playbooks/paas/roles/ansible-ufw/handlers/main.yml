@@ -2,3 +2,7 @@
 - name: Reload ufw
   community.general.ufw:
     state: reloaded
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true

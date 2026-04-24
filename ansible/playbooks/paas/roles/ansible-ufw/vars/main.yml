@@ -1,0 +1,25 @@
+---
+ufw_packages:
+  - ufw
+  - ipset
+
+ufw_blocklist_ipset_name: ufw-blocklist-user
+
+ufw_blocklist_script_path: /usr/local/sbin/ufw-blocklist-update.sh
+
+ufw_blocklist_tmp_dir: /var/lib/ufw-blocklist
+
+ufw_blocklist_ipset_save_file: /var/lib/ufw-blocklist/ipset.save
+
+ufw_blocklist_download_timeout: 60
+
+# Minimum ratio (%) of new list size vs current list to accept the update
+# Protects against corrupted/empty downloads replacing a valid blocklist
+ufw_blocklist_min_ratio: 50
+
+# Cron schedule - default every 6 hours matching upstream refresh rate
+ufw_blocklist_cron_minute: "15"
+ufw_blocklist_cron_hour: "*/6"
+ufw_blocklist_cron_day: "*"
+ufw_blocklist_cron_month: "*"
+ufw_blocklist_cron_weekday: "*"

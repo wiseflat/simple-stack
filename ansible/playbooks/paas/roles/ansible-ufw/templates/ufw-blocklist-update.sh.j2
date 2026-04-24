@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# Managed by Ansible - Do not edit manually
+# Updates the {{ ufw_blocklist_ipset_name }} ipset from a remote IPv4 blocklist
+set -euo pipefail
+
+IPSET_NAME="{{ ufw_blocklist_ipset_name }}"
+IPSET_TMP="${IPSET_NAME}-tmp"
+BLOCKLIST_URL="{{ ufw_blocklist_url }}"
+TMP_DIR="{{ ufw_blocklist_tmp_dir }}"
+TMP_FILE="${TMP_DIR}/blocklist_new.txt"
+CURRENT_FILE="${TMP_DIR}/blocklist_current.txt"
+IPSET_SAVE_FILE="{{ ufw_blocklist_ipset_save_file }}"
+LOG_TAG="ufw-blocklist"
+LOCK_FILE="/var/run/ufw-blocklist-update.lock"
+DRY_RUN=false
+VERBOSE=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run|-n) DRY_RUN=true ;;
+        -v|--verbose) VERBOSE=true ;;
+    esac
+done
+
+log() {
+    if $DRY_RUN; then
+        echo "[DRY-RUN] $1"
+    elif $VERBOSE; then
+        echo "$1"
+    fi
+    logger -t "$LOG_TAG" "$1"
+}
+
+cleanup() {
+    rm -f "$LOCK_FILE" "$TMP_FILE" "${TMP_FILE}.clean"
+    # Destroy tmp set if it exists
+    ipset destroy "$IPSET_TMP" 2>/dev/null || true
+}
+
+trap cleanup EXIT
+
+# Prevent concurrent runs
+if [ -f "$LOCK_FILE" ]; then
+    LOCK_PID=$(cat "$LOCK_FILE" 2>/dev/null || true)
+    if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+        log "Another instance is already running (PID $LOCK_PID). Exiting."
+        exit 0
+    fi
+    log "Stale lock file found. Removing."
+    rm -f "$LOCK_FILE"
+fi
+echo $$ > "$LOCK_FILE"
+
+# Ensure temp directory exists
+mkdir -p "$TMP_DIR"
+
+# Ensure the main ipset exists
+if ! ipset list "$IPSET_NAME" >/dev/null 2>&1; then
+    if $DRY_RUN; then
+        log "Would create ipset: ipset create $IPSET_NAME hash:ip maxelem 200000"
+    else
+        log "ipset $IPSET_NAME does not exist. Creating."
+        ipset create "$IPSET_NAME" hash:ip maxelem 200000
+    fi
+fi
+
+# Download the blocklist
+log "Downloading blocklist from $BLOCKLIST_URL"
+if ! curl -fsSL --retry 3 --retry-delay 10 --max-time {{ ufw_blocklist_download_timeout }} \
+    -o "$TMP_FILE" "$BLOCKLIST_URL"; then
+    log "ERROR: Failed to download blocklist. Aborting update."
+    exit 1
+fi
+
+# Validate and clean the downloaded file: keep only valid IPv4 addresses
+grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/[0-9]+)?$' "$TMP_FILE" | sort -u > "${TMP_FILE}.clean"
+mv "${TMP_FILE}.clean" "$TMP_FILE"
+
+NEW_COUNT=$(wc -l < "$TMP_FILE")
+if [ "$NEW_COUNT" -eq 0 ]; then
+    log "ERROR: Downloaded blocklist is empty. Aborting update."
+    exit 1
+fi
+
+# Sanity check: reject suspiciously small lists (possible corruption)
+if [ -f "$CURRENT_FILE" ]; then
+    CURRENT_COUNT=$(wc -l < "$CURRENT_FILE")
+    if [ "$CURRENT_COUNT" -gt 0 ]; then
+        MIN_EXPECTED=$(( CURRENT_COUNT * {{ ufw_blocklist_min_ratio }} / 100 ))
+        if [ "$NEW_COUNT" -lt "$MIN_EXPECTED" ]; then
+            log "WARNING: New list ($NEW_COUNT IPs) is less than {{ ufw_blocklist_min_ratio }}% of current ($CURRENT_COUNT IPs). Aborting."
+            exit 1
+        fi
+    fi
+fi
+
+log "Downloaded $NEW_COUNT IPs."
+
+if $DRY_RUN; then
+    # In dry-run, show what would change
+    if [ -f "$CURRENT_FILE" ]; then
+        ADD_COUNT=$(comm -23 "$TMP_FILE" "$CURRENT_FILE" | wc -l)
+        REMOVE_COUNT=$(comm -13 "$TMP_FILE" "$CURRENT_FILE" | wc -l)
+    else
+        ADD_COUNT="$NEW_COUNT"
+        REMOVE_COUNT=0
+    fi
+    log "Would add: $ADD_COUNT IPs, Would remove: $REMOVE_COUNT IPs, Total: $NEW_COUNT IPs"
+    log "Would swap ipset $IPSET_TMP -> $IPSET_NAME"
+    log "Would save ipset to $IPSET_SAVE_FILE"
+    exit 0
+fi
+
+# Create temporary ipset and populate it
+ipset create "$IPSET_TMP" hash:ip maxelem 200000
+
+log "Populating temporary ipset $IPSET_TMP with $NEW_COUNT IPs..."
+while IFS= read -r ip; do
+    [ -z "$ip" ] && continue
+    ipset add "$IPSET_TMP" "$ip" 2>/dev/null || true
+done < "$TMP_FILE"
+
+# Atomic swap
+ipset swap "$IPSET_TMP" "$IPSET_NAME"
+log "Swapped $IPSET_TMP -> $IPSET_NAME"
+
+# Destroy the old set (now under the tmp name)
+ipset destroy "$IPSET_TMP" 2>/dev/null || true
+
+# Save for persistence across reboots
+ipset save "$IPSET_NAME" > "$IPSET_SAVE_FILE"
+log "Saved ipset to $IPSET_SAVE_FILE"
+
+# Save the current list for next run's sanity check
+cp "$TMP_FILE" "$CURRENT_FILE"
+
+TOTAL=$(ipset list "$IPSET_NAME" 2>/dev/null | grep -c "^[0-9]" || true)
+log "Update complete. Total blocked: $TOTAL IPs"

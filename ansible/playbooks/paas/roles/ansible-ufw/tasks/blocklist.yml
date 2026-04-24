@@ -1,0 +1,71 @@
+---
+- name: Create blocklist working directory
+  ansible.builtin.file:
+    path: "{{ ufw_blocklist_tmp_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Deploy blocklist update script
+  ansible.builtin.template:
+    src: ufw-blocklist-update.sh.j2
+    dest: "{{ ufw_blocklist_script_path }}"
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Create ipset for blocklist
+  ansible.builtin.shell: |
+    if ! ipset list {{ ufw_blocklist_ipset_name }} >/dev/null 2>&1; then
+      ipset create {{ ufw_blocklist_ipset_name }} hash:ip maxelem 200000
+      echo "CHANGED"
+    else
+      echo "OK"
+    fi
+  register: ipset_create
+  changed_when: "'CHANGED' in ipset_create.stdout"
+
+- name: Ensure ipset match rule is in before.rules
+  ansible.builtin.lineinfile:
+    path: /etc/ufw/before.rules
+    insertafter: "^-A ufw-before-input -i lo -j ACCEPT"
+    line: "-A ufw-before-input -m set --match-set {{ ufw_blocklist_ipset_name }} src -j DROP"
+    state: present
+  notify: Reload ufw
+
+- name: Deploy ipset restore systemd service
+  ansible.builtin.template:
+    src: ufw-blocklist-restore.service.j2
+    dest: /etc/systemd/system/ufw-blocklist-restore.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable ipset restore service
+  ansible.builtin.systemd:
+    name: ufw-blocklist-restore.service
+    enabled: true
+    daemon_reload: true
+
+- name: Reload ufw now if ipset rule was just added
+  ansible.builtin.meta: flush_handlers
+
+- name: Run initial blocklist update
+  ansible.builtin.command: "{{ ufw_blocklist_script_path }}"
+  register: initial_update
+  changed_when: true
+  when: ipset_create is changed
+
+- name: Configure cron job for blocklist updates
+  ansible.builtin.cron:
+    name: "{{ ufw_blocklist_ipset_name }}-update"
+    minute: "{{ ufw_blocklist_cron_minute }}"
+    hour: "{{ ufw_blocklist_cron_hour }}"
+    day: "{{ ufw_blocklist_cron_day }}"
+    month: "{{ ufw_blocklist_cron_month }}"
+    weekday: "{{ ufw_blocklist_cron_weekday }}"
+    job: "{{ ufw_blocklist_script_path }} 2>&1 | logger -t ufw-blocklist-cron"
+    user: root
+    state: present
