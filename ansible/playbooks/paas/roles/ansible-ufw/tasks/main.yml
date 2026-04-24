@@ -23,3 +23,7 @@
   community.general.ufw:
     state: "{{ ufw_state }}"
     logging: "{{ ufw_logging }}"
+
+- name: Configure blocklist
+  ansible.builtin.include_tasks: blocklist.yml
+  when: ufw_blocklist_enabled

@@ -1,7 +1,4 @@
 ---
-ufw_packages:
-  - ufw
-
 ufw_ipv6: "yes"
 ufw_default_input_policy: DROP
 ufw_default_output_policy: ACCEPT
@@ -39,3 +36,7 @@ ufw_rules:
 ufw_custom_rules: []
 
 ufw_applications: []
+
+# Blocklist configuration
+ufw_blocklist_enabled: true
+ufw_blocklist_url: "https://cdn.jsdelivr.net/gh/duggytuxy/Data-Shield_IPv4_Blocklist@refs/heads/main/prod_data-shield_ipv4_blocklist.txt"

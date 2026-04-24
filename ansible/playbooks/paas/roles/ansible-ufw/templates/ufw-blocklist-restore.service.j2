@@ -1,0 +1,12 @@
+[Unit]
+Description=Restore UFW blocklist ipset before UFW starts
+Before=ufw.service
+After=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'if [ -f {{ ufw_blocklist_ipset_save_file }} ]; then ipset restore < {{ ufw_blocklist_ipset_save_file }}; fi'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
