@@ -10,6 +10,13 @@
     - path: "{{ software_path }}/var/lib/postgresql"
       owner: root
       group: root
+    - path: "{{ software_path }}/var/run/postgresql"
+      owner: 999
+      group: 999
+      mode: '3775'
+    - path: "{{ software_path }}/var/backup"
+      owner: 999
+      group: 999
   delegate_to: "{{ software.instance }}"
 
 - name: Copy script to operate software
