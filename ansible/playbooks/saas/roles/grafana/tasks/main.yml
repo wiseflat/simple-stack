@@ -32,8 +32,8 @@
   loop:
     - path: datasources
       file: prometheus.yaml
-    - path: plugins
-      file: llm.yaml
+    # - path: plugins
+    #   file: llm.yaml
   delegate_to: "{{ software.instance }}"
 
 - name: Copy nomad job
