@@ -7,6 +7,8 @@ disable_update_check = {{ nomad_disable_update_check | lower }}
 
 data_dir = "{{ nomad_data_dir }}"
 
+plugin_dir = "{{ nomad_data_dir }}/data/plugins"
+
 bind_addr = "{{ nomad_bind_address }}"
 
 advertise {

@@ -5,5 +5,7 @@ After=docker.service
 ExecReload=/bin/kill --signal HUP $MAINPID
 {% if nomad_node_role in ['both', 'client'] %}
 ExecStartPost=/usr/bin/nomad node eligibility -enable -address={{ nomad_http_scheme }}://{{ hostvars[nomad_primary_master_node | default(inventory_hostname)]['ansible_' + nomad_iface].ipv4.address | default('127.0.0.1') }}:{{ nomad_http_port }} -ca-cert={{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }} -client-cert={{ nomad_tls_host_certificate_dir }}/{{ inventory_hostname }}-dc1-client-nomad.pem -client-key={{ nomad_tls_host_certificate_dir }}/{{ inventory_hostname }}-dc1-client-nomad.key -token={{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }} {{ node_id }}
+{% if nomad_client_drain_on_shutdown_force %}
 ExecStop=/usr/bin/nomad node drain -enable -address={{ nomad_http_scheme }}://{{ hostvars[nomad_primary_master_node | default(inventory_hostname)]['ansible_' + nomad_iface].ipv4.address | default('127.0.0.1') }}:{{ nomad_http_port }} -ca-cert={{ nomad_tls_host_certificate_dir }}/{{ nomad_tls_ca_pubkey }} -client-cert={{ nomad_tls_host_certificate_dir }}/{{ inventory_hostname }}-dc1-client-nomad.pem -client-key={{ nomad_tls_host_certificate_dir }}/{{ inventory_hostname }}-dc1-client-nomad.key -token={{ lookup('simple-stack-ui', type='secret', key=nomad_primary_master_node | default(inventory_hostname), subkey='nomad_management_token', missing='error') }} {{ node_id }}
+{% endif %}
 {% endif %}

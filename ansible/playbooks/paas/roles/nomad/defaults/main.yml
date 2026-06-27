@@ -38,8 +38,8 @@ nomad_job_files_dir: "/var/tmp"
 nomad_disable_anonymous_signature: false
 nomad_disable_update_check: false
 
-nomad_leave_on_terminate: true
-nomad_leave_on_interrupt: true
+nomad_leave_on_terminate: false
+nomad_leave_on_interrupt: false
 
 nomad_client_auto_join: true
 nomad_server_auto_join: true
@@ -170,8 +170,8 @@ nomad_client_server_join_retry_max: 3
 nomad_client_server_join_retry_interval: 15s
 
 nomad_client_drain_on_shutdown_deadline: 1m
-nomad_client_drain_on_shutdown_force: true
-nomad_client_drain_on_shutdown_ignore_system_jobs: true
+nomad_client_drain_on_shutdown_force: false
+nomad_client_drain_on_shutdown_ignore_system_jobs: false
 
 nomad_client_cpu_total_compute: 0
 nomad_client_memory_total_mb: 0
