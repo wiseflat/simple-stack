@@ -4,6 +4,8 @@ FROM {{ image.origin }}
 
 ARG TARGETARCH
 
+RUN apk add --no-cache minio-client
+
 COPY ./${TARGETARCH}/minio /usr/local/bin/minio
 
 CMD ["/usr/local/bin/minio", "server", "/data", "--console-address", ":9001"]
