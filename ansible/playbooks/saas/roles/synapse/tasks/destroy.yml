@@ -1,0 +1,5 @@
+---
+- name: Destroy service
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: destroy.yml

@@ -1,0 +1,3 @@
+SYNAPSE_URL=https://{{ software.matrix_domain }}
+ADMIN_USERNAME={{ software.matrix_admin_user | default('admin') }}
+ADMIN_PASSWORD={{ lookup('simple-stack-ui', type='secret', key=domain, subkey='matrix_admin_password', missing='error') }}

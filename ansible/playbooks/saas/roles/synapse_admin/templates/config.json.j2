@@ -1,0 +1,23 @@
+{
+  "restrictBaseUrl": [
+{% for url in (software.restrict_base_url | default([software.synapse_domain | default('https://' + software.domain)])) %}
+    "{{ url }}"{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% if software.as_managed_users is defined %}
+  "asManagedUsers": [
+{% for pattern in software.as_managed_users %}
+    "{{ pattern }}"{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+  "menu": [
+    {
+      "label": "Contact support",
+      "icon": "SupportAgent",
+      "url": "{{ software.support_url | default('https://github.com/etkecc/synapse-admin/issues') }}"
+    }
+  ]
+}

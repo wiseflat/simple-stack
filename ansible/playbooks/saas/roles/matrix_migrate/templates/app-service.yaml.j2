@@ -1,0 +1,14 @@
+id: rc2matrix
+hs_token: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='matrix_app_token', missing='create', length=64) }}"
+as_token: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='matrix_app_token', missing='create', length=64) }}"
+url: null
+sender_localpart: rc2matrix
+namespaces:
+  users:
+    - exclusive: false
+      regex: "@.*:{{ software.matrix_server_name }}"
+  rooms: []
+  aliases:
+    - exclusive: false
+      regex: "#.*:{{ software.matrix_server_name }}"
+rate_limited: false

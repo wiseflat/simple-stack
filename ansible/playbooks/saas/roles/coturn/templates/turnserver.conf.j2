@@ -1,0 +1,15 @@
+listening-port=3478
+fingerprint
+lt-cred-mech
+use-auth-secret
+static-auth-secret={{ lookup('simple-stack-ui', type='secret', key=domain, subkey='turn_shared_secret', missing='create', length=32) }}
+realm={{ software.realm | default(domain) }}
+total-quota=100
+bps-capacity=0
+stale-nonce
+no-multicast-peers
+min-port={{ software.min_relay_port | default(49152) }}
+max-port={{ software.max_relay_port | default(49252) }}
+{% if software.external_ip is defined %}
+external-ip={{ software.external_ip }}
+{% endif %}

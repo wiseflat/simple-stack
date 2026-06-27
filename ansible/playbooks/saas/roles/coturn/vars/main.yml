@@ -1,0 +1,11 @@
+---
+image:
+  build: false
+  forkable: false
+  upstream:
+    source: github
+    user: coturn
+    repo: coturn
+    type: release
+  labels: {}
+  name: coturn
