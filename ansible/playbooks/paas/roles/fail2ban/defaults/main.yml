@@ -37,7 +37,7 @@ fail2ban_404_findtime: 600
 fail2ban_404_bantime: 600
 
 # Rate limit
-fail2ban_ratelimit_enabled: true
+fail2ban_ratelimit_enabled: false
 fail2ban_ratelimit_maxretry: 50
 fail2ban_ratelimit_findtime: 30
 fail2ban_ratelimit_bantime: 600
