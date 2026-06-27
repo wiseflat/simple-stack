@@ -1,0 +1,2 @@
+---
+latest_version: "{{ (lookup('url', 'https://api.github.com/repos/' + image.upstream.user + '/' + image.upstream.repo + '/releases/latest', headers={'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + lookup('ansible.builtin.env', 'GITHUB_API_TOKEN') }) | from_json).get('tag_name') | replace('v', '') }}"

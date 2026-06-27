@@ -1,0 +1,59 @@
+---
+- name: Install mandatories packages
+  ansible.builtin.apt:
+    pkg:
+      - python3-psycopg2
+
+- name: Create default directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: '0755'
+  loop:
+    - path: "{{ software_path }}/data"
+      owner: 991
+      group: 991
+    - path: "{{ software_path }}/data/media_store"
+      owner: 991
+      group: 991
+  delegate_to: "{{ software.instance }}"
+
+- name: Create postgresql user
+  community.postgresql.postgresql_user:
+    login_user: postgres
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.db_host, subkey='passwd', missing='error') }}"
+    login_host: "{{ software.db_host | replace('-', '') | replace('.', '') }}.default.service.nomad"
+    login_port: "{{ software.db_port | default(5432) }}"
+    name: "{{ software.db_user | default('synapse') }}"
+    password: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='db_password', missing='create', length=16) }}"
+    state: present
+
+- name: Create postgresql database
+  community.postgresql.postgresql_db:
+    login_user: postgres
+    login_password: "{{ lookup('simple-stack-ui', type='secret', key=software.db_host, subkey='passwd', missing='error') }}"
+    login_host: "{{ software.db_host | replace('-', '') | replace('.', '') }}.default.service.nomad"
+    login_port: "{{ software.db_port | default(5432) }}"
+    name: "{{ software.db_name | default('synapse') }}"
+    encoding: UTF8
+    lc_collate: C
+    lc_ctype: C
+    template: template0
+    owner: "{{ software.db_user | default('synapse') }}"
+    state: present
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  delegate_to: "{{ software.instance }}"
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_start.yml

@@ -1,0 +1,103 @@
+server_name: "{{ software.domain }}"
+pid_file: /data/homeserver.pid
+public_baseurl: "https://{{ software.domain }}"
+web_client_location: "https://{{ software.domain }}"
+
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    resources:
+      - names: [client, federation]
+        compress: false
+
+database:
+  name: psycopg2
+  txn_limit: 10000
+  args:
+    host: "{{ software.db_host | replace('-', '') | replace('.', '') }}.default.service.nomad"
+    port: {{ software.db_port | default(5432) }}
+    user: "{{ software.db_user | default('synapse') }}"
+    password: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='db_password', missing='create', length=16) }}"
+    database: "{{ software.db_name | default('synapse') }}"
+    cp_min: 5
+    cp_max: 10
+
+log_config: "/local/log.config"
+media_store_path: /data/media_store
+max_upload_size: 50M
+
+registration_shared_secret: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='registration_shared_secret', missing='create', length=32) }}"
+enable_registration: {{ software.enable_registration | default(false) | lower }}
+
+report_stats: false
+
+macaroon_secret_key: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='macaroon_secret_key', missing='create', length=32) }}"
+form_secret: "{{ lookup('simple-stack-ui', type='secret', key=domain, subkey='form_secret', missing='create', length=32) }}"
+
+signing_key_path: "/data/signing.key"
+
+trusted_key_servers:
+  - server_name: "matrix.org"
+
+{% if software.cache_host is defined %}
+redis:
+  enabled: true
+  host: "{{ software.cache_host }}"
+  port: {{ software.cache_port | default(6379) }}
+{% endif %}
+
+{% if software.turn_domain is defined %}
+turn_uris:
+  - "turn:{{ software.turn_domain }}:3478?transport=udp"
+  - "turn:{{ software.turn_domain }}:3478?transport=tcp"
+turn_shared_secret: "{{ lookup('simple-stack-ui', type='secret', key=software.turn_domain, subkey='turn_shared_secret', missing='error') }}"
+turn_user_lifetime: 86400000
+turn_allow_guests: true
+{% endif %}
+
+suppress_key_server_warning: true
+
+{% if software.disable_ratelimiting | default(false) %}
+rc_message:
+  per_second: 1000
+  burst_count: 2000
+rc_joins:
+  local:
+    per_second: 1000
+    burst_count: 2000
+rc_joins_per_room:
+  per_second: 1000
+  burst_count: 2000
+rc_invites:
+  per_room:
+    per_second: 1000
+    burst_count: 2000
+  per_user:
+    per_second: 1000
+    burst_count: 2000
+  per_issuer:
+    per_second: 1000
+    burst_count: 2000
+rc_login:
+  address:
+    per_second: 1000
+    burst_count: 2000
+  account:
+    per_second: 1000
+    burst_count: 2000
+  failed_attempts:
+    per_second: 1000
+    burst_count: 2000
+rc_admin_redaction:
+  per_second: 1000
+  burst_count: 2000
+{% endif %}
+
+{% if software.app_service_config_files is defined %}
+app_service_config_files:
+{% for asfile in software.app_service_config_files %}
+  - "{{ asfile }}"
+{% endfor %}
+{% endif %}

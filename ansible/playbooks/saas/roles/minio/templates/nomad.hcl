@@ -24,6 +24,7 @@ job "{{ domain }}" {
 {% if software.static_port is defined %}
         static = {{ software.static_port }}
 {% endif %}
+        host_network = "public"
       }
     }
 
@@ -41,7 +42,7 @@ job "{{ domain }}" {
       port = "minio"
       provider = "nomad"
       tags = [
-        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') | indent(8) }}
+        {{ lookup('template', '../../traefik/templates/traefik_tag.j2') }}
       ]
     }
 

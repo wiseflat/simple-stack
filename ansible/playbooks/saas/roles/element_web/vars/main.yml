@@ -1,0 +1,11 @@
+---
+image:
+  build: false
+  forkable: false
+  upstream:
+    source: github
+    user: element-hq
+    repo: element-web
+    type: release
+  labels: {}
+  name: element_web

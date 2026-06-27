@@ -1,0 +1,4 @@
+requests
+markdown
+python-magic
+emoji

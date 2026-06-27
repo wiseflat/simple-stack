@@ -14,17 +14,10 @@
 - name: Download latest release
   ansible.builtin.get_url:
     url: "{{ upstream_file_url }}"
-    dest: "{{ build_work_dir }}/download/"
-    mode: '0644'
+    dest: "{{ build_work_dir }}/{{ upstream_default_arch }}/minio"
+    mode: '0755'
     force: no
   register: download_result
-
-- name: Find binary
-  ansible.builtin.include_role:
-    name: upstream
-    tasks_from: find-binary
-  loop:
-    - "{{ image.upstream.binary }}"
 
 - name: Copy dockerfile
   ansible.builtin.template:

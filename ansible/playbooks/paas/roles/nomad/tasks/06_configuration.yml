@@ -31,6 +31,15 @@
     mode: '0644'
   when: nomad_node_role == 'client' or nomad_node_role == 'both'
 
+- name: "Nomad Configuration | Insert Nomad exec2 configuration"
+  ansible.builtin.template:
+    src: exec2.hcl.j2
+    dest: "{{ nomad_config_dir }}/exec2.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0644'
+  when: nomad_node_role == 'client' or nomad_node_role == 'both'
+
 - name: "Nomad Install | Copy configurations files"
   ansible.builtin.template:
     src: nomad.hcl.j2

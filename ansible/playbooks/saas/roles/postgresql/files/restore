@@ -2,4 +2,4 @@
 set +eu
 
 echo "Import database..."
-PGPASSWORD="${POSTGRESQL_PASSWORD}" /opt/bitnami/postgresql/bin/psql -U postgres -f /var/backup/dump.sql
+PGPASSWORD="${POSTGRESQL_PASSWORD}" bin/psql -U postgres -f /var/backup/dump.sql

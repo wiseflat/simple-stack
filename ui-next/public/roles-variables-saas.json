@@ -10,7 +10,9 @@
     "timezone": "Europe/Paris"
   },
   "common": null,
+  "coturn": {},
   "dolibarr": {},
+  "element_web": {},
   "forgejo": {},
   "freqtrade": {},
   "freshrss": {},
@@ -65,6 +67,7 @@
   },
   "loki": {},
   "mariadb": {},
+  "matrix_migrate": {},
   "milvus": {},
   "mimir": {
     "mimir_install_node": "{{ software.install_node |default('singlenode') }}"
@@ -92,6 +95,8 @@
   "rocketchat": {},
   "simplestack_ansible": null,
   "simplestack_ui": null,
+  "synapse": {},
+  "synapse_admin": {},
   "traefik": {
     "nomad_http_ip": "127.0.0.1",
     "traefik_email": "{{ software.email | default(traefik_email_default) }}"

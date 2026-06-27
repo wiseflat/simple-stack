@@ -1,0 +1,32 @@
+---
+- name: Create migration directory
+  ansible.builtin.file:
+    path: "{{ software_path }}/tmp/migration"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  delegate_to: "{{ software.instance }}"
+
+- name: Deploy Application Service config for migration
+  ansible.builtin.template:
+    src: app-service.yaml.j2
+    dest: "/data/{{ software.synapse_domain }}/data/app-service.yaml"
+    owner: 991
+    group: 991
+    mode: '0600'
+  delegate_to: "{{ software.instance }}"
+
+- name: Copy nomad job to destination
+  ansible.builtin.template:
+    src: nomad.hcl
+    dest: "/var/tmp/{{ domain }}.nomad"
+    owner: root
+    group: root
+    mode: '0600'
+  delegate_to: "{{ software.instance }}"
+
+- name: Run nomad job
+  ansible.builtin.include_role:
+    name: nomad
+    tasks_from: job_start.yml

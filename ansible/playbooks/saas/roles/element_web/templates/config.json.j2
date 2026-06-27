@@ -1,0 +1,21 @@
+{
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://{{ software.matrix_domain }}",
+      "server_name": "{{ software.matrix_domain }}"
+    }
+  },
+  "brand": "Element",
+  "disable_custom_urls": false,
+  "disable_guests": true,
+  "disable_login_language_selector": false,
+  "disable_3pid_login": false,
+  "default_country_code": "{{ software.default_country_code | default('FR') }}",
+  "show_labs_settings": false,
+  "default_theme": "{{ software.theme | default('light') }}",
+  "room_directory": {
+    "servers": [
+      "{{ software.matrix_domain }}"
+    ]
+  }
+}

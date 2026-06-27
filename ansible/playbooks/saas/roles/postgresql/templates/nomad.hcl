@@ -24,6 +24,7 @@ job "{{ domain }}" {
 {% if software.static_port is defined %}
         static = {{ software.static_port }}
 {% endif %}
+        host_network = "public"
       }
     }
 
@@ -48,6 +49,7 @@ job "{{ domain }}" {
         ports = ["postgresql"]
         volumes = [
           "{{ software_path }}/var/lib/postgresql:/var/lib/postgresql:rw",
+          "{{ software_path }}/var/run/postgresql:/var/run/postgresql:rw",
           "{{ software_path }}/tmp:/tmp:rw"
         ]
       }

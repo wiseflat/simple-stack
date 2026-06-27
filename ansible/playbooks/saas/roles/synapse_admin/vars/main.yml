@@ -1,0 +1,11 @@
+---
+image:
+  build: false
+  forkable: false
+  upstream:
+    source: github
+    user: etkecc
+    repo: synapse-admin
+    type: release
+  labels: {}
+  name: synapse_admin
